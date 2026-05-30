@@ -10,25 +10,27 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 const SECRET_KEY = process.env.JWT_SECRET || 'moreva_super_secret_key_2026_enterprise';
 
-// ==================== CORS CONFIGURATION FOR PRODUCTION ====================
-// Allow all origins in production, or specify your Render URL
-const allowedOrigins = [
-    'http://localhost:5000',
-    'http://127.0.0.1:5000',
-    'http://localhost:5500',
-    'http://127.0.0.1:5500',
-    process.env.RENDER_URL || 'https://moreva-energy.onrender.com'
-].filter(Boolean);
-
+// ==================== CORS CONFIGURATION ====================
+// Allow your Render URL and local development
 app.use(cors({
     origin: function(origin, callback) {
         // Allow requests with no origin (like mobile apps or curl)
         if (!origin) return callback(null, true);
-        if (allowedOrigins.indexOf(origin) === -1 && process.env.NODE_ENV === 'production') {
-            console.warn(`Origin ${origin} not allowed by CORS`);
-            // In production, still allow but log warning
+        
+        // List of allowed origins
+        const allowedOrigins = [
+            'http://localhost:5000',
+            'http://localhost:5500',
+            'https://moreva.onrender.com',
+            'https://moreva-energy.onrender.com'
+        ];
+        
+        if (allowedOrigins.includes(origin) || process.env.NODE_ENV !== 'production') {
             return callback(null, true);
         }
+        
+        console.warn(`⚠️ CORS blocked origin: ${origin}`);
+        // Still allow but log warning - for production, you may want to block
         return callback(null, true);
     },
     credentials: true,
@@ -38,8 +40,9 @@ app.use(cors({
 
 app.use(express.json());
 
-// Serve static files from the 'public' directory
-const publicPath = path.join(__dirname, '../public');
+// ==================== STATIC FILES - FIXED PATH ====================
+// FIXED: Removed '..' since public folder is at the same level as src
+const publicPath = path.join(__dirname, 'public');
 console.log(`📁 Serving static files from: ${publicPath}`);
 app.use(express.static(publicPath));
 
