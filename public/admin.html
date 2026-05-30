@@ -44,6 +44,14 @@
         .action-btn.approve { background: #10b981; color: white; }
         .action-btn.delete { background: #ef4444; color: white; }
         .pending-requests-badge { background: #f59e0b; color: white; border-radius: 9999px; padding: 0.15rem 0.5rem; font-size: 0.7rem; margin-left: 0.5rem; }
+        .report-filters { display: flex; gap: 1rem; margin-bottom: 1.5rem; flex-wrap: wrap; align-items: flex-end; }
+        .report-filters .filter-group { flex: 1; min-width: 150px; }
+        .report-filters label { display: block; font-size: 0.75rem; font-weight: 600; color: #4b5563; margin-bottom: 0.25rem; }
+        .report-filters input, .report-filters select { width: 100%; padding: 0.5rem; border: 1px solid #e2e8f0; border-radius: 0.5rem; font-size: 0.875rem; }
+        .settings-group { margin-bottom: 1.5rem; }
+        .settings-group label { display: block; font-size: 0.875rem; font-weight: 600; color: #374151; margin-bottom: 0.5rem; }
+        .settings-group input { width: 100%; padding: 0.75rem; border: 1px solid #e2e8f0; border-radius: 0.75rem; }
+        .settings-group .help-text { font-size: 0.7rem; color: #6b7280; margin-top: 0.25rem; }
     </style>
 </head>
 <body class="bg-slate-100">
@@ -124,7 +132,7 @@
                         </div>
                         <div class="bg-white rounded-xl shadow p-6">
                             <h3 class="font-bold text-lg mb-4">Recent Variances</h3>
-                            <div class="table-wrapper"><table class="w-full text-sm"><thead class="bg-slate-100"><tr><th>Date</th><th>Fuel</th><th>Variance</th><th>Status</th></tr></thead><tbody id="recentVariances"><tr><td colspan="4" class="text-center py-4">Loading...<\/tr></tr></tbody></table></div>
+                            <div class="table-wrapper"><table class="w-full text-sm"><thead class="bg-slate-100"><tr><th>Date</th><th>Fuel</th><th>Variance</th><th>Status</th></table></thead><tbody id="recentVariances"><tr><td colspan="4" class="text-center py-4">Loading...<\/tr></tr></tbody></tr></div>
                         </div>
                     </div>
                 </div>
@@ -139,7 +147,7 @@
                                 <button onclick="showAddUserModal()" class="btn-success text-sm px-3 py-1"><i class="fas fa-plus mr-1"></i> Add User</button>
                             </div>
                         </div>
-                        <div class="table-wrapper"><table class="w-full text-sm"><thead class="bg-slate-100"><tr><th>ID</th><th>Username</th><th>Full Name</th><th>Email</th><th>Role</th><th>Status</th><th>Actions</th></tr></thead><tbody id="usersTable"><tr><td colspan="7" class="text-center py-4">Loading...<\/tr></tr></tbody></table></div>
+                        <div class="table-wrapper"><table class="w-full text-sm"><thead class="bg-slate-100"><tr><th>ID</th><th>Username</th><th>Full Name</th><th>Email</th><th>Role</th><th>Status</th><th>Actions</th></td></thead><tbody id="usersTable"><tr><td colspan="7" class="text-center py-4">Loading...<\/tr></table></tbody></table></div>
                     </div>
                 </div>
 
@@ -155,7 +163,7 @@
                 <div id="variancesSection" class="section hidden">
                     <div class="bg-white rounded-xl shadow p-6">
                         <h3 class="font-bold text-lg mb-4">All Variances</h3>
-                        <div class="table-wrapper"><table class="w-full text-sm"><thead class="bg-slate-100"><tr><th>ID</th><th>Date</th><th>Fuel</th><th>Variance</th><th>Status</th></tr></thead><tbody id="allVariancesTable"><tr><td colspan="5" class="text-center py-4">Loading...<\/tr></table></tbody></table></div>
+                        <div class="table-wrapper"><table class="w-full text-sm"><thead class="bg-slate-100"><tr><th>ID</th><th>Date</th><th>Fuel</th><th>Variance</th><th>Status</th></tr></thead><tbody id="allVariancesTable"><tr><td colspan="5" class="text-center py-4">Loading...<\/tr></td></tbody><td></div>
                     </div>
                 </div>
 
@@ -163,32 +171,103 @@
                 <div id="reconciliationsSection" class="section hidden">
                     <div class="bg-white rounded-xl shadow p-6">
                         <h3 class="font-bold text-lg mb-4">Reconciliation History</h3>
-                        <div class="table-wrapper"><table class="w-full text-sm"><thead class="bg-slate-100"><tr><th>ID</th><th>Date</th><th>Expected Cash</th><th>Actual Cash</th><th>Variance</th></tr></thead><tbody id="reconciliationsTable"><tr><td colspan="5" class="text-center py-4">Loading...<\/tr></td></tbody></tr></div>
+                        <div class="table-wrapper"><table class="w-full text-sm"><thead class="bg-slate-100"><tr><th>ID</th><th>Date</th><th>Expected Cash</th><th>Actual Cash</th><th>Variance</th></tr></thead><tbody id="reconciliationsTable"><tr><td colspan="5" class="text-center py-4">Loading...<\/tr></tr></tbody></table></div>
                     </div>
                 </div>
 
-                <!-- Reports Section -->
+                <!-- Reports Section - FIXED and POPULATED -->
                 <div id="reportsSection" class="section hidden">
                     <div class="bg-white rounded-xl shadow p-6">
-                        <h3 class="font-bold text-lg mb-4">Generate Reports</h3>
-                        <div class="flex gap-3">
-                            <button onclick="exportDeliveries()" class="btn-primary text-sm">📊 Deliveries Report</button>
-                            <button onclick="exportVariances()" class="btn-warning text-sm">⚠️ Variances Report</button>
-                            <button onclick="exportReconciliations()" class="btn-success text-sm">💰 Reconciliations Report</button>
+                        <h3 class="font-bold text-lg mb-4">📊 Generate Reports</h3>
+                        <div class="report-filters">
+                            <div class="filter-group">
+                                <label><i class="far fa-calendar-alt mr-1"></i> Start Date</label>
+                                <input type="date" id="reportStartDate" class="filter-input">
+                            </div>
+                            <div class="filter-group">
+                                <label><i class="far fa-calendar-alt mr-1"></i> End Date</label>
+                                <input type="date" id="reportEndDate" class="filter-input">
+                            </div>
+                            <div class="filter-group">
+                                <label><i class="fas fa-chart-line mr-1"></i> Report Type</label>
+                                <select id="reportType" class="filter-input">
+                                    <option value="deliveries">Deliveries Report</option>
+                                    <option value="variances">Variances Report</option>
+                                    <option value="reconciliations">Reconciliation Report</option>
+                                    <option value="users">Users Report</option>
+                                </select>
+                            </div>
+                            <div class="filter-group">
+                                <button onclick="generateReport()" class="btn-primary w-full py-2 text-sm"><i class="fas fa-download mr-2"></i> Generate & Export</button>
+                            </div>
+                        </div>
+                        <div class="mt-6">
+                            <div class="bg-gray-50 rounded-lg p-4 mb-4">
+                                <h4 class="font-semibold text-sm mb-2">📋 Report Summary</h4>
+                                <div id="reportSummary" class="text-sm text-gray-600">
+                                    Select report type and date range, then click Generate & Export
+                                </div>
+                            </div>
+                            <div class="border-t pt-4">
+                                <div class="flex gap-3">
+                                    <button onclick="exportDeliveries()" class="btn-primary text-sm px-4 py-2"><i class="fas fa-truck mr-2"></i> Deliveries</button>
+                                    <button onclick="exportVariances()" class="btn-warning text-sm px-4 py-2"><i class="fas fa-chart-line mr-2"></i> Variances</button>
+                                    <button onclick="exportReconciliations()" class="btn-success text-sm px-4 py-2"><i class="fas fa-file-excel mr-2"></i> Reconciliations</button>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Settings Section -->
+                <!-- Settings Section - FIXED and POPULATED -->
                 <div id="settingsSection" class="section hidden">
                     <div class="bg-white rounded-xl shadow p-6">
-                        <h3 class="font-bold text-lg mb-4">System Settings</h3>
-                        <div class="space-y-3">
-                            <div><label class="block text-sm font-semibold">Diesel Tank Capacity (L)</label><input type="number" id="dieselCapacity" class="input-field" value="10000"></div>
-                            <div><label class="block text-sm font-semibold">Petrol Tank Capacity (L)</label><input type="number" id="petrolCapacity" class="input-field" value="10000"></div>
-                            <div><label class="block text-sm font-semibold">Diesel Price (KES/L)</label><input type="number" id="dieselPrice" class="input-field" value="179.00" step="0.01"></div>
-                            <div><label class="block text-sm font-semibold">Petrol Price (KES/L)</label><input type="number" id="petrolPrice" class="input-field" value="199.50" step="0.01"></div>
-                            <button onclick="saveSettings()" class="btn-primary">Save Settings</button>
+                        <h3 class="font-bold text-lg mb-4">⚙️ System Settings</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="settings-group">
+                                <label><i class="fas fa-oil-can mr-2"></i> Diesel Tank Capacity (L)</label>
+                                <input type="number" id="dieselCapacity" class="input-field" value="10000" step="500">
+                                <div class="help-text">Default: 10,000 Liters</div>
+                            </div>
+                            <div class="settings-group">
+                                <label><i class="fas fa-gas-pump mr-2"></i> Petrol Tank Capacity (L)</label>
+                                <input type="number" id="petrolCapacity" class="input-field" value="10000" step="500">
+                                <div class="help-text">Default: 10,000 Liters</div>
+                            </div>
+                            <div class="settings-group">
+                                <label><i class="fas fa-money-bill-wave mr-2"></i> Diesel Price (KES/L)</label>
+                                <input type="number" id="dieselPrice" class="input-field" value="179.00" step="0.50">
+                                <div class="help-text">Current market price per liter</div>
+                            </div>
+                            <div class="settings-group">
+                                <label><i class="fas fa-money-bill-wave mr-2"></i> Petrol Price (KES/L)</label>
+                                <input type="number" id="petrolPrice" class="input-field" value="199.50" step="0.50">
+                                <div class="help-text">Current market price per liter</div>
+                            </div>
+                        </div>
+                        <div class="border-t mt-6 pt-6">
+                            <h4 class="font-semibold text-md mb-4">📱 Application Preferences</h4>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div class="settings-group">
+                                    <label><i class="fas fa-moon mr-2"></i> Theme Preference</label>
+                                    <select id="themePreference" class="input-field">
+                                        <option value="light">Light Mode</option>
+                                        <option value="dark">Dark Mode</option>
+                                        <option value="system">System Default</option>
+                                    </select>
+                                </div>
+                                <div class="settings-group">
+                                    <label><i class="fas fa-language mr-2"></i> Language</label>
+                                    <select id="languagePreference" class="input-field">
+                                        <option value="en">English</option>
+                                        <option value="sw">Swahili</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex gap-3 mt-6">
+                            <button onclick="saveSettings()" class="btn-primary"><i class="fas fa-save mr-2"></i> Save Settings</button>
+                            <button onclick="resetSettings()" class="btn-danger"><i class="fas fa-undo mr-2"></i> Reset to Defaults</button>
                         </div>
                     </div>
                 </div>
@@ -293,7 +372,7 @@
         function filterUsers() {
             const search = document.getElementById('userSearch')?.value.toLowerCase() || '';
             const filtered = users.filter(u => u.username?.toLowerCase().includes(search) || u.full_name?.toLowerCase().includes(search) || u.email?.toLowerCase().includes(search));
-            document.getElementById('usersTable').innerHTML = filtered.length ? filtered.map(u => `<tr class="border-b"><td class="p-2">${u.id}<\/td><td class="p-2">${u.username}<\/td><td class="p-2">${u.full_name || '-'}<\/td><td class="p-2">${u.email || '-'}<\/td><td class="p-2"><span class="badge-info badge">${u.role}<\/span><\/td><td class="p-2">${u.is_active ? '<span class="badge-success badge">Active</span>' : '<span class="badge-pending badge">Pending</span>'}<\/td><td class="p-2">${!u.is_active ? `<button onclick="approveUser(${u.id})" class="action-btn approve px-2 py-1 rounded text-xs"><i class="fas fa-check"></i> Approve</button>` : ''}<button onclick="deleteUser(${u.id})" class="action-btn delete px-2 py-1 rounded text-xs"><i class="fas fa-trash"></i><\/button><\/td><\/tr>`).join('') : '<tr><td colspan="7" class="text-center py-4">No users found<\/tr>';
+            document.getElementById('usersTable').innerHTML = filtered.length ? filtered.map(u => `<tr class="border-b"><td class="p-2">${u.id}<\/td><td class="p-2">${u.username}<\/td><td class="p-2">${u.full_name || '-'}<\/td><td class="p-2">${u.email || '-'}<\/td><td class="p-2"><span class="badge-info badge">${u.role}<\/span><\/td><td class="p-2">${u.is_active ? '<span class="badge-success badge">Active</span>' : '<span class="badge-pending badge">Pending</span>'}<\/td><td class="p-2">${!u.is_active ? `<button onclick="approveUser(${u.id})" class="action-btn approve px-2 py-1 rounded text-xs"><i class="fas fa-check"></i> Approve</button>` : ''}<button onclick="deleteUser(${u.id})" class="action-btn delete px-2 py-1 rounded text-xs"><i class="fas fa-trash"></i><\/button><\/td><\/tr>`).join('') : '</table><td colspan="7" class="text-center py-4">No users found<\/tr>';
         }
 
         async function approveUser(id) {
@@ -378,6 +457,35 @@
             ['newUsername', 'newFullname', 'newEmail', 'newPassword'].forEach(id => document.getElementById(id).value = '');
         }
 
+        function generateReport() {
+            const startDate = document.getElementById('reportStartDate').value;
+            const endDate = document.getElementById('reportEndDate').value;
+            const reportType = document.getElementById('reportType').value;
+            
+            let data = [];
+            let filename = '';
+            
+            if (reportType === 'deliveries') {
+                data = deliveries.filter(d => (!startDate || d.delivery_date >= startDate) && (!endDate || d.delivery_date <= endDate));
+                filename = 'Deliveries_Report';
+                document.getElementById('reportSummary').innerHTML = `📊 Deliveries Report: ${data.length} records found.`;
+            } else if (reportType === 'variances') {
+                data = variances.filter(v => (!startDate || v.date >= startDate) && (!endDate || v.date <= endDate));
+                filename = 'Variances_Report';
+                document.getElementById('reportSummary').innerHTML = `⚠️ Variances Report: ${data.length} records found.`;
+            } else if (reportType === 'reconciliations') {
+                data = reconciliations;
+                filename = 'Reconciliations_Report';
+                document.getElementById('reportSummary').innerHTML = `💰 Reconciliations Report: ${data.length} records found.`;
+            } else if (reportType === 'users') {
+                data = users;
+                filename = 'Users_Report';
+                document.getElementById('reportSummary').innerHTML = `👥 Users Report: ${data.length} users found.`;
+            }
+            
+            exportToExcel(data, filename);
+        }
+
         function exportToExcel(data, filename) {
             if (!data.length) { showToast('No data to export', 'info'); return; }
             const wsData = [Object.keys(data[0])];
@@ -386,18 +494,41 @@
             const wb = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(wb, ws, filename);
             XLSX.writeFile(wb, `${filename}_${new Date().toISOString().split('T')[0]}.xlsx`);
-            showToast('Exported', 'success');
+            showToast('Report exported', 'success');
         }
-        function exportDeliveries() { exportToExcel(deliveries, 'Deliveries_Report'); }
-        function exportVariances() { exportToExcel(variances, 'Variances_Report'); }
-        function exportReconciliations() { exportToExcel(reconciliations, 'Reconciliations_Report'); }
+        
+        function exportDeliveries() { 
+            const filtered = deliveries;
+            exportToExcel(filtered, 'Deliveries_Report'); 
+        }
+        function exportVariances() { 
+            const filtered = variances;
+            exportToExcel(filtered, 'Variances_Report'); 
+        }
+        function exportReconciliations() { 
+            const filtered = reconciliations;
+            exportToExcel(filtered, 'Reconciliations_Report'); 
+        }
 
         function saveSettings() {
             localStorage.setItem('diesel_capacity', document.getElementById('dieselCapacity').value);
             localStorage.setItem('petrol_capacity', document.getElementById('petrolCapacity').value);
             localStorage.setItem('diesel_price', document.getElementById('dieselPrice').value);
             localStorage.setItem('petrol_price', document.getElementById('petrolPrice').value);
-            showToast('Settings saved', 'success');
+            localStorage.setItem('theme_preference', document.getElementById('themePreference').value);
+            localStorage.setItem('language_preference', document.getElementById('languagePreference').value);
+            showToast('Settings saved successfully!', 'success');
+        }
+
+        function resetSettings() {
+            document.getElementById('dieselCapacity').value = '10000';
+            document.getElementById('petrolCapacity').value = '10000';
+            document.getElementById('dieselPrice').value = '179.00';
+            document.getElementById('petrolPrice').value = '199.50';
+            document.getElementById('themePreference').value = 'light';
+            document.getElementById('languagePreference').value = 'en';
+            saveSettings();
+            showToast('Settings reset to defaults', 'success');
         }
 
         function loadSettings() {
@@ -405,6 +536,8 @@
             document.getElementById('petrolCapacity').value = localStorage.getItem('petrol_capacity') || 10000;
             document.getElementById('dieselPrice').value = localStorage.getItem('diesel_price') || 179.00;
             document.getElementById('petrolPrice').value = localStorage.getItem('petrol_price') || 199.50;
+            document.getElementById('themePreference').value = localStorage.getItem('theme_preference') || 'light';
+            document.getElementById('languagePreference').value = localStorage.getItem('language_preference') || 'en';
         }
 
         function logout() { localStorage.clear(); window.location.href = '/'; }
