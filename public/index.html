@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>MOREVA ENERGY · Access Portal</title>
+  <script src="https://cdn.tailwindcss.com/3.4.1"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+  <style>
+    * { font-family: 'Inter', sans-serif; }
+    body {
+      background: linear-gradient(135deg, #0a0f1c 0%, #0f172a 50%, #1e1b2e 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+    }
+    .glass-card {
+      backdrop-filter: blur(14px);
+      background: rgba(255, 255, 255, 0.97);
+      border-radius: 2rem;
+      box-shadow: 0 25px 45px -12px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255,255,255,0.2);
+    }
+    .brand-icon {
+      background: linear-gradient(135deg, #1e3a8a, #b91c1c);
+      width: 68px;
+      height: 68px;
+      border-radius: 1.8rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 2rem;
+      color: white;
+      margin: 0 auto;
+      box-shadow: 0 10px 20px -5px rgba(0,0,0,0.3);
+    }
+    .toast-notif {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      z-index: 9999;
+      background: #1e293b;
+      color: white;
+      padding: 12px 22px;
+      border-radius: 40px;
+      font-size: 0.85rem;
+      font-weight: 500;
+      box-shadow: 0 10px 25px -5px rgba(0,0,0,0.2);
+      animation: slideUp 0.2s ease;
+    }
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .input-field {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 1rem;
+      transition: all 0.2s;
+      font-size: 0.95rem;
+      background: #fff;
+    }
+    .input-field:focus {
+      outline: none;
+      border-color: #1e3a8a;
+      box-shadow: 0 0 0 3px rgba(30,58,138,0.15);
+    }
+    .btn-primary {
+      background: linear-gradient(105deg, #1e3a8a, #b91c1c);
+      color: white;
+      font-weight: 700;
+      padding: 0.8rem;
+      border-radius: 1rem;
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s;
+      width: 100%;
+      font-size: 1rem;
+    }
+    .btn-primary:hover { transform: scale(1.01); opacity: 0.96; box-shadow: 0 8px 20px -6px rgba(185,28,28,0.4); }
+    .btn-secondary {
+      background: #334155;
+      color: white;
+      font-weight: 600;
+      padding: 0.7rem;
+      border-radius: 1rem;
+      border: none;
+      cursor: pointer;
+      transition: 0.2s;
+      width: 100%;
+    }
+    .btn-secondary:hover { background: #1e293b; }
+    .tab-active {
+      background: #1e3a8a;
+      color: white;
+      border-bottom: 3px solid #b91c1c;
+    }
+    .tab-inactive {
+      background: transparent;
+      color: #475569;
+      border-bottom: 2px solid #e2e8f0;
+    }
+    .status-badge {
+      display: inline-block;
+      font-size: 0.7rem;
+      font-weight: 600;
+      padding: 0.2rem 0.7rem;
+      border-radius: 30px;
+    }
+    .loading-spinner {
+      display: inline-block;
+      width: 18px;
+      height: 18px;
+      border: 2px solid #fff;
+      border-radius: 50%;
+      border-top-color: transparent;
+      animation: spin 0.6s linear infinite;
+      margin-left: 8px;
+      vertical-align: middle;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    button:disabled { opacity: 0.65; cursor: not-allowed; }
+  </style>
+</head>
+<body>
+<div class="w-full max-w-md">
+  <div class="glass-card p-6 md:p-8">
+    <div class="flex justify-center mb-3">
+      <div class="brand-icon"><i class="fa-solid fa-bolt"></i></div>
+    </div>
+    <h2 class="text-2xl font-extrabold text-center text-slate-800 tracking-tight">MOREVA ENERGY</h2>
+    <p class="text-center text-slate-500 text-xs mt-0 mb-5">Enterprise Fuel Management · Secure Access</p>
+
+    <!-- Tabs -->
+    <div class="flex gap-2 mb-6 bg-slate-100 p-1 rounded-xl">
+      <button id="tabLoginBtn" class="flex-1 py-2.5 rounded-lg font-semibold transition-all tab-active text-sm" onclick="switchTab('login')">🔐 LOGIN</button>
+      <button id="tabSignupBtn" class="flex-1 py-2.5 rounded-lg font-semibold transition-all tab-inactive text-sm" onclick="switchTab('signup')">📝 SIGN UP</button>
+    </div>
+
+    <!-- LOGIN PANEL -->
+    <div id="loginPanel">
+      <div class="space-y-4">
+        <div>
+          <label class="block text-sm font-semibold text-slate-700 mb-1"><i class="fa-regular fa-user mr-1"></i> Username / Email</label>
+          <input type="text" id="loginUsername" class="input-field" placeholder="e.g., superadmin, manager, or email" autocomplete="off" value="superadmin" />
+        </div>
+        <div>
+          <label class="block text-sm font-semibold text-slate-700 mb-1"><i class="fa-regular fa-lock mr-1"></i> Password</label>
+          <input type="password" id="loginPassword" class="input-field" placeholder="••••••••" />
+        </div>
+        <button id="loginBtnAction" onclick="performLogin()" class="btn-primary"><i class="fa-regular fa-arrow-right-to-bracket mr-1"></i> Login →</button>
+        <div id="loginErrorMsg" class="text-red-600 text-sm text-center mt-2 min-h-[2rem]"></div>
+        <div class="text-center">
+          <button onclick="showDemoHint()" class="text-xs text-blue-700 hover:underline bg-slate-100 px-3 py-1 rounded-full">🔍 Demo credentials info</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- SIGNUP PANEL (hidden by default) -->
+    <div id="signupPanel" class="hidden">
+      <div class="space-y-3">
+        <div>
+          <label class="block text-sm font-semibold text-slate-700">Full name *</label>
+          <input type="text" id="signupFullname" class="input-field" placeholder="John M. Kariuki" />
+        </div>
+        <div>
+          <label class="block text-sm font-semibold text-slate-700">Username *</label>
+          <input type="text" id="signupUsername" class="input-field" placeholder="unique_username" autocomplete="off" />
+        </div>
+        <div>
+          <label class="block text-sm font-semibold text-slate-700">Email *</label>
+          <input type="email" id="signupEmail" class="input-field" placeholder="john@moreva.com" />
+        </div>
+        <div>
+          <label class="block text-sm font-semibold text-slate-700">Password *</label>
+          <input type="password" id="signupPassword" class="input-field" placeholder="min. 6 characters" />
+        </div>
+        <div>
+          <label class="block text-sm font-semibold text-slate-700">Phone (optional)</label>
+          <input type="text" id="signupPhone" class="input-field" placeholder="+254 7XX XXX XXX" />
+        </div>
+        <div>
+          <label class="block text-sm font-semibold text-slate-700">Address (optional)</label>
+          <input type="text" id="signupAddress" class="input-field" placeholder="Nairobi, Kenya" />
+        </div>
+        <div class="bg-amber-50 border border-amber-200 rounded-xl p-3 text-xs text-amber-800">
+          <i class="fa-regular fa-clock mr-1"></i> ⚠️ After signup, your account stays <strong class="font-bold">PENDING</strong> until Super Admin approves. You'll receive access via email update.
+        </div>
+        <button id="signupBtnAction" onclick="performSignup()" class="btn-primary"><i class="fa-regular fa-pen-to-square mr-1"></i> Register & request access</button>
+        <div id="signupErrorMsg" class="text-red-600 text-sm text-center mt-1"></div>
+      </div>
+    </div>
+
+    <div class="mt-6 text-center text-xs text-slate-400 border-t pt-4">
+      <i class="fa-solid fa-shield-haltered"></i> Role-based · Admin approval workflow
+    </div>
+  </div>
+</div>
+
+<script>
+  // ======================= CONFIGURATION =======================
+  // FIXED: Using correct API endpoint for your backend
+  const API_URL = 'http://localhost:5000/api';
+  let isLoggingIn = false;
+  let isSigningUp = false;
+
+  // Helper: toast messages
+  function showToast(msg, type = "success") {
+    const toast = document.createElement("div");
+    toast.className = "toast-notif";
+    toast.style.background = type === "error" ? "#b91c1c" : type === "warning" ? "#d97706" : "#0f3b3f";
+    toast.innerHTML = `<i class="fa-solid ${type === "error" ? "fa-circle-exclamation" : type === "warning" ? "fa-triangle-exclamation" : "fa-circle-check"} mr-2"></i> ${msg}`;
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 4000);
+  }
+
+  function setLoginLoading(loading) {
+    const btn = document.getElementById("loginBtnAction");
+    if (loading) {
+      btn.disabled = true;
+      btn.innerHTML = 'Authenticating <span class="loading-spinner"></span>';
+    } else {
+      btn.disabled = false;
+      btn.innerHTML = '<i class="fa-regular fa-arrow-right-to-bracket mr-1"></i> Login →';
+    }
+  }
+
+  function setSignupLoading(loading) {
+    const btn = document.getElementById("signupBtnAction");
+    if (loading) {
+      btn.disabled = true;
+      btn.innerHTML = 'Submitting request <span class="loading-spinner"></span>';
+    } else {
+      btn.disabled = false;
+      btn.innerHTML = '<i class="fa-regular fa-pen-to-square mr-1"></i> Register & request access';
+    }
+  }
+
+  // Tab switching
+  window.switchTab = function(tab) {
+    const loginPanel = document.getElementById("loginPanel");
+    const signupPanel = document.getElementById("signupPanel");
+    const tabLogin = document.getElementById("tabLoginBtn");
+    const tabSignup = document.getElementById("tabSignupBtn");
+    
+    if (tab === "login") {
+      loginPanel.classList.remove("hidden");
+      signupPanel.classList.add("hidden");
+      tabLogin.classList.remove("tab-inactive");
+      tabLogin.classList.add("tab-active");
+      tabSignup.classList.remove("tab-active");
+      tabSignup.classList.add("tab-inactive");
+      document.getElementById("loginErrorMsg").innerHTML = "";
+    } else {
+      loginPanel.classList.add("hidden");
+      signupPanel.classList.remove("hidden");
+      tabSignup.classList.remove("tab-inactive");
+      tabSignup.classList.add("tab-active");
+      tabLogin.classList.remove("tab-active");
+      tabLogin.classList.add("tab-inactive");
+      document.getElementById("signupErrorMsg").innerHTML = "";
+    }
+  }
+
+  // demo hint
+  window.showDemoHint = function() {
+    showToast("Demo: superadmin / admin123 ; manager / staff accounts require admin approval", "info");
+  }
+
+  // ---------- LOGIN FUNCTION (with is_active & approval check) ----------
+  async function performLogin() {
+    if (isLoggingIn) return;
+    const username = document.getElementById("loginUsername").value.trim();
+    const password = document.getElementById("loginPassword").value;
+    if (!username || !password) {
+      document.getElementById("loginErrorMsg").innerHTML = "❌ Enter username and password";
+      return;
+    }
+    isLoggingIn = true;
+    setLoginLoading(true);
+    document.getElementById("loginErrorMsg").innerHTML = "";
+
+    try {
+      const response = await fetch(`${API_URL}/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, password }),
+      });
+      const data = await response.json();
+      if (response.ok && data.token) {
+        const user = data.user;
+        // Check if account is active (approved)
+        if (!user.is_active && user.role !== "super_admin") {
+          document.getElementById("loginErrorMsg").innerHTML = "⏳ Your account is pending admin approval. You'll be notified once active.";
+          showToast("Account pending approval. Contact super admin.", "warning");
+          setLoginLoading(false);
+          isLoggingIn = false;
+          return;
+        }
+        // store session
+        localStorage.setItem("moreva_token", data.token);
+        localStorage.setItem("moreva_user", JSON.stringify(user));
+        showToast(`Welcome ${user.full_name || user.username}! Redirecting...`, "success");
+        // role-based navigation
+        setTimeout(() => {
+          const role = user.role;
+          if (role === "super_admin" || role === "admin" || role === "Super Administrator") {
+            window.location.href = "/admin.html";
+          } else {
+            window.location.href = "/dashboard.html";
+          }
+        }, 1000);
+      } else {
+        let errorMsg = data.error || "Login failed. Invalid credentials or pending approval.";
+        if (errorMsg.toLowerCase().includes("pending") || errorMsg.toLowerCase().includes("approval")) {
+          document.getElementById("loginErrorMsg").innerHTML = "⏳ Access pending: your account hasn't been approved by Super Admin yet.";
+          showToast("Account pending approval", "warning");
+        } else {
+          document.getElementById("loginErrorMsg").innerHTML = errorMsg;
+        }
+      }
+    } catch (err) {
+      console.error(err);
+      document.getElementById("loginErrorMsg").innerHTML = "⚠️ Cannot connect to server. Make sure backend runs on port 5000.";
+      showToast("Backend connection failed", "error");
+    } finally {
+      isLoggingIn = false;
+      setLoginLoading(false);
+    }
+  }
+
+  // ---------- SIGNUP with PENDING state (is_active = false by default) ----------
+  // FIXED: Using correct endpoint /api/auth/signup (matches your backend)
+  async function performSignup() {
+    if (isSigningUp) return;
+    const fullName = document.getElementById("signupFullname").value.trim();
+    const username = document.getElementById("signupUsername").value.trim();
+    const email = document.getElementById("signupEmail").value.trim();
+    const password = document.getElementById("signupPassword").value;
+    const phone = document.getElementById("signupPhone").value.trim();
+    const address = document.getElementById("signupAddress").value.trim();
+
+    if (!fullName || !username || !email || !password) {
+      document.getElementById("signupErrorMsg").innerHTML = "❌ All fields except phone/address are required.";
+      return;
+    }
+    if (password.length < 6) {
+      document.getElementById("signupErrorMsg").innerHTML = "❌ Password must be at least 6 characters.";
+      return;
+    }
+    if (!email.includes("@")) {
+      document.getElementById("signupErrorMsg").innerHTML = "❌ Valid email required.";
+      return;
+    }
+
+    isSigningUp = true;
+    setSignupLoading(true);
+    document.getElementById("signupErrorMsg").innerHTML = "";
+
+    try {
+      // FIXED: Using /api/auth/signup instead of /api/register
+      const response = await fetch(`${API_URL}/auth/signup`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          full_name: fullName,
+          username: username,
+          email: email,
+          password: password,
+          phone: phone || null,
+          address: address || null,
+          role: "staff",
+        }),
+      });
+      const data = await response.json();
+      if (response.status === 201 || response.ok) {
+        showToast("✅ Registration submitted! Awaiting Super Admin approval. You'll be notified once active.", "success");
+        document.getElementById("signupErrorMsg").innerHTML = "🎉 Account pending approval. Please check email later or contact admin.";
+        // clear signup form
+        document.getElementById("signupFullname").value = "";
+        document.getElementById("signupUsername").value = "";
+        document.getElementById("signupEmail").value = "";
+        document.getElementById("signupPassword").value = "";
+        document.getElementById("signupPhone").value = "";
+        document.getElementById("signupAddress").value = "";
+        // after 2 sec switch to login tab
+        setTimeout(() => {
+          switchTab("login");
+          showToast("Now you can log in once admin approves your account", "info");
+        }, 2000);
+      } else {
+        let errMsg = data.error || "Registration failed. Username/email may exist.";
+        document.getElementById("signupErrorMsg").innerHTML = errMsg;
+        showToast(errMsg, "error");
+      }
+    } catch (err) {
+      console.error("Signup error:", err);
+      document.getElementById("signupErrorMsg").innerHTML = "Server error. Is backend running on port 5000?";
+      showToast("Cannot reach server", "error");
+    } finally {
+      isSigningUp = false;
+      setSignupLoading(false);
+    }
+  }
+
+  // ------------------ AUTO LOGIN CHECK & TOKEN VERIFY ------------------
+  const storedToken = localStorage.getItem("moreva_token");
+  const storedUserRaw = localStorage.getItem("moreva_user");
+  let storedUser = null;
+  try { if (storedUserRaw) storedUser = JSON.parse(storedUserRaw); } catch(e) {}
+
+  if (storedToken && storedUser) {
+    fetch(`${API_URL}/verify`, {
+      headers: { Authorization: `Bearer ${storedToken}` },
+    })
+      .then(res => {
+        if (res.ok) return res.json();
+        else throw new Error("invalid token");
+      })
+      .then(data => {
+        if (data.user && data.user.is_active === false && data.user.role !== "super_admin") {
+          localStorage.removeItem("moreva_token");
+          localStorage.removeItem("moreva_user");
+          showToast("Account deactivated or pending approval, please contact admin", "warning");
+          return;
+        }
+        const role = storedUser.role;
+        if (role === "super_admin" || role === "admin") {
+          window.location.href = "/admin.html";
+        } else {
+          window.location.href = "/dashboard.html";
+        }
+      })
+      .catch(err => {
+        console.warn("Auto-verify failed, clearing session", err);
+        localStorage.removeItem("moreva_token");
+        localStorage.removeItem("moreva_user");
+      });
+  }
+
+  // Enter key support
+  const loginPw = document.getElementById("loginPassword");
+  if (loginPw) loginPw.addEventListener("keypress", (e) => { if (e.key === "Enter") performLogin(); });
+  const signupPw = document.getElementById("signupPassword");
+  if (signupPw) signupPw.addEventListener("keypress", (e) => { if (e.key === "Enter") performSignup(); });
+
+  // initial tab check
+  switchTab('login');
+</script>
+
+</body>
+</html>

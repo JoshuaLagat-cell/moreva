@@ -1,0 +1,1040 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+    <title>MOREVA ENERGY · Dashboard</title>
+    <script src="https://cdn.tailwindcss.com/3.4.1"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+    <style>
+        * { font-family: 'Inter', sans-serif; }
+        .toast-notif {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            z-index: 9999;
+            background: #1e293b;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 40px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            animation: slideUp 0.2s ease;
+            z-index: 10000;
+        }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .badge { background: #e0f2e9; color: #0b5e42; padding: 0.2rem 0.6rem; border-radius: 2rem; font-size: 0.7rem; font-weight: 700; display: inline-block; }
+        .badge-warning { background: #fef3c7; color: #b45309; }
+        .badge-danger { background: #fee2e2; color: #b91c1c; }
+        .badge-info { background: #dbeafe; color: #1e40af; }
+        .badge-success { background: #d1fae5; color: #065f46; }
+        .badge-locked { background: #dc2626; color: white; }
+        .info-box { background: #eff6ff; padding: 1rem; border-radius: 1rem; margin-bottom: 1rem; font-size: 0.85rem; color: #1e40af; }
+        .success-box { background: #d1fae5; padding: 1rem; border-radius: 1rem; margin-bottom: 1rem; font-size: 0.85rem; color: #065f46; }
+        .error-box { background: #fee2e2; padding: 1rem; border-radius: 1rem; margin-bottom: 1rem; font-size: 0.85rem; color: #b91c1c; }
+        .warning-box { background: #fef3c7; padding: 1rem; border-radius: 1rem; margin-bottom: 1rem; font-size: 0.85rem; color: #b45309; }
+        .card { background: white; border-radius: 1.5rem; padding: 1.5rem; box-shadow: 0 10px 25px -5px rgb(0 0 0 / 0.08); }
+        .btn-outline { background: transparent; border: 1.5px solid #1e3a8a; color: #1e3a8a; padding: 0.5rem 1rem; border-radius: 2rem; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+        .btn-outline:hover { background: #1e3a8a; color: white; }
+        .dynamic-row { display: flex; gap: 12px; margin-bottom: 12px; align-items: center; background: #f9fbfd; padding: 6px 8px; border-radius: 16px; flex-wrap: wrap; }
+        .dynamic-row input { flex: 1; margin: 0; min-width: 120px; }
+        .small-btn { background: #e2e8f0; color: #1e293b; padding: 6px 12px; font-size: 0.7rem; border-radius: 2rem; border: none; cursor: pointer; }
+        .recon-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(460px, 1fr)); gap: 24px; margin-bottom: 32px; }
+        .pump-section { background: #f9fbfe; padding: 1rem; border-radius: 1rem; margin-bottom: 1.2rem; border: 1px solid #e2edf7; }
+        .pump-title { font-weight: 700; color: #0f4c5f; margin-bottom: 12px; font-size: 0.85rem; background: #e6f0f5; display: inline-block; padding: 4px 12px; border-radius: 20px; }
+        .expected-cash-card { background: linear-gradient(135deg, #1e3a8a, #1e40af); color: white; border-radius: 1rem; padding: 1.5rem; text-align: center; margin-bottom: 1.5rem; }
+        .expected-cash-card .amount { font-size: 2.5rem; font-weight: 800; }
+        .actual-cash-input { background: #f1f5f9; border-radius: 1rem; padding: 1rem; margin-top: 1rem; }
+        .dashboard-charts { display: grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); gap: 1.8rem; margin-top: 1rem; }
+        .chart-card { background: white; border-radius: 1.5rem; padding: 1.2rem; box-shadow: 0 10px 25px -5px rgb(0 0 0 / 0.08); }
+        .chart-card h3 { margin-bottom: 1rem; font-size: 1rem; display: flex; align-items: center; gap: 0.5rem; color: #1e293b; }
+        canvas { max-height: 260px; width: 100%; }
+        .kpi-box { background: linear-gradient(135deg, #f8fafc, #f1f5f9); border-radius: 1rem; padding: 0.8rem 1.2rem; flex: 1; min-width: 150px; text-align: center; }
+        .table-wrapper { overflow-x: auto; border-radius: 1rem; max-height: 500px; overflow-y: auto; }
+        table { width: 100%; border-collapse: collapse; }
+        th { background: #f8fafc; padding: 0.8rem; text-align: left; font-weight: 600; font-size: 0.85rem; position: sticky; top: 0; z-index: 10; }
+        td { padding: 0.8rem; border-bottom: 1px solid #eef2f6; font-size: 0.85rem; }
+        .input-field { width: 100%; padding: 0.8rem 1rem; border-radius: 1rem; border: 1.5px solid #e2e8f0; font-size: 0.95rem; transition: all 0.2s; }
+        .input-field:focus { outline: none; border-color: #1e3a8a; box-shadow: 0 0 0 3px rgba(30, 58, 138, 0.1); }
+        .btn-primary { background: linear-gradient(95deg, #1e3a8a, #dc2626); color: white; font-weight: 700; padding: 0.8rem; border-radius: 2rem; border: none; cursor: pointer; transition: transform 0.1s; }
+        .btn-primary:hover { transform: scale(1.01); }
+        .btn-success { background: #10b981; color: white; font-weight: 700; padding: 0.5rem 1rem; border-radius: 2rem; border: none; cursor: pointer; }
+        .btn-warning { background: #f59e0b; color: white; border: none; padding: 0.5rem 1rem; border-radius: 2rem; font-weight: 600; cursor: pointer; }
+        .delete-icon { color: #dc2626; cursor: pointer; margin: 0 5px; font-size: 0.9rem; }
+        .section { display: none; }
+        .section.active { display: block; animation: fade 0.2s ease; }
+        @keyframes fade { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+        .tab-btn { cursor: pointer; transition: all 0.2s; }
+        .tab-btn.active { background: linear-gradient(110deg, #1e3a8a, #dc2626); color: white; }
+        .progress-bar { background: #e5e7eb; border-radius: 1rem; overflow: hidden; margin-top: 0.5rem; }
+        .progress-fill { background: linear-gradient(90deg, #1e3a8a, #dc2626); height: 8px; border-radius: 1rem; transition: width 0.3s ease; }
+        .modal { transition: all 0.3s ease; }
+        .filter-select, .filter-input { transition: all 0.2s; }
+        .filter-select:focus, .filter-input:focus { border-color: #1e3a8a; box-shadow: 0 0 0 3px rgba(30, 58, 138, 0.1); }
+        .records-table th { position: sticky; top: 0; background: #f8fafc; z-index: 10; }
+        .pagination-btn { transition: all 0.2s; }
+        .pagination-btn:hover:not(:disabled) { background: #1e3a8a; color: white; }
+        .stat-card { transition: all 0.3s ease; cursor: pointer; }
+        .stat-card:hover { transform: translateY(-2px); box-shadow: 0 20px 25px -12px rgba(0, 0, 0, 0.15); }
+        .empty-state { text-align: center; padding: 3rem; color: #6b7280; }
+        .empty-state i { font-size: 3rem; margin-bottom: 1rem; color: #9ca3af; }
+    </style>
+</head>
+<body class="bg-slate-100">
+    <div id="mainApp">
+        <!-- Navbar -->
+        <nav class="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b shadow-sm">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex flex-wrap items-center justify-between gap-3">
+                <div class="flex items-center gap-3">
+                    <div class="bg-gradient-to-r from-blue-900 to-red-600 w-10 h-10 rounded-xl flex items-center justify-center text-white font-bold text-xl">M</div>
+                    <div><span class="font-extrabold text-slate-800">MOREVA ENERGY LTD</span><span class="text-xs text-slate-400 block">Enterprise Fuel Mgmt</span></div>
+                </div>
+                <div class="flex items-center gap-2 bg-slate-100 px-4 py-2 rounded-full">
+                    <i class="fa-solid fa-user-circle text-slate-600"></i>
+                    <span id="activeUserName" class="text-sm font-semibold">Loading...</span>
+                    <button onclick="refreshAllData()" class="ml-2 bg-blue-600 text-white px-3 py-1 rounded-full text-xs font-semibold hover:bg-blue-700"><i class="fa-solid fa-refresh"></i> Refresh</button>
+                    <button onclick="logout()" class="ml-1 bg-red-600 text-white px-3 py-1 rounded-full text-xs font-semibold hover:bg-red-700"><i class="fa-solid fa-sign-out-alt"></i> Exit</button>
+                </div>
+            </div>
+        </nav>
+
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 py-6">
+            <!-- Hero -->
+            <div class="bg-gradient-to-r from-slate-800 to-slate-900 rounded-2xl p-5 text-white mb-6">
+                <h2 class="text-2xl font-bold">Fuel Station Management System</h2>
+                <p class="text-slate-300 text-sm">Tank Capacity: Diesel 10,000L | Petrol 10,000L</p>
+            </div>
+
+            <!-- Tabs -->
+            <div class="flex flex-wrap gap-2 mb-6 border-b pb-2">
+                <button onclick="showSection('dashboard')" class="tab-btn px-5 py-2 rounded-full font-semibold transition bg-blue-900 text-white">📊 Dashboard</button>
+                <button onclick="showSection('receiving')" class="tab-btn px-5 py-2 rounded-full font-semibold transition bg-white text-slate-700 hover:bg-slate-200">⛽ Receiving</button>
+                <button onclick="showSection('sales')" class="tab-btn px-5 py-2 rounded-full font-semibold transition bg-white text-slate-700 hover:bg-slate-200">📅 Daily Dips & Sales</button>
+                <button onclick="showSection('reconciliation')" class="tab-btn px-5 py-2 rounded-full font-semibold transition bg-white text-slate-700 hover:bg-slate-200">💰 Reconciliation</button>
+                <button onclick="showSection('variance')" class="tab-btn px-5 py-2 rounded-full font-semibold transition bg-white text-slate-700 hover:bg-slate-200">⚠️ Variance Log</button>
+                <button onclick="showSection('records')" class="tab-btn px-5 py-2 rounded-full font-semibold transition bg-white text-slate-700 hover:bg-slate-200">📂 Records & Reports</button>
+            </div>
+
+            <!-- DASHBOARD SECTION -->
+            <div id="dashboard" class="section active">
+                <div class="stats">
+                    <div class="bg-white p-5 rounded-2xl shadow"><div class="flex justify-between items-center"><h4 class="text-slate-500 text-sm">⛽ DIESEL TANK</h4><span class="badge-info badge">Capacity: 10,000 L</span></div><h2 id="dieselStock" class="text-3xl font-bold mt-2">-- L</h2><div class="progress-bar mt-2"><div id="dieselProgress" class="progress-fill" style="width: 0%"></div></div><div class="flex justify-between text-xs text-gray-500 mt-1"><span>0 L</span><span>5,000 L</span><span>10,000 L</span></div><div class="mt-2 text-sm"><span class="badge-info">Morning Dip: <span id="lastMorningDiesel">--</span> L</span><span class="badge-danger ml-2">Sales: <span id="todayDieselSales">--</span> L</span></div></div>
+                    <div class="bg-white p-5 rounded-2xl shadow"><div class="flex justify-between items-center"><h4 class="text-slate-500 text-sm">⛽ PETROL TANK</h4><span class="badge-info badge">Capacity: 10,000 L</span></div><h2 id="petrolStock" class="text-3xl font-bold mt-2">-- L</h2><div class="progress-bar mt-2"><div id="petrolProgress" class="progress-fill" style="width: 0%"></div></div><div class="flex justify-between text-xs text-gray-500 mt-1"><span>0 L</span><span>5,000 L</span><span>10,000 L</span></div><div class="mt-2 text-sm"><span class="badge-info">Morning Dip: <span id="lastMorningPetrol">--</span> L</span><span class="badge-danger ml-2">Sales: <span id="todayPetrolSales">--</span> L</span></div></div>
+                    <div class="bg-white p-5 rounded-2xl shadow"><h4 class="text-slate-500 text-sm">Today's Total Sales</h4><h2 id="todaySales" class="text-3xl font-bold">0 L</h2><span class="badge">From Daily Entry</span></div>
+                    <div class="bg-white p-5 rounded-2xl shadow"><h4 class="text-slate-500 text-sm">Pending Variances</h4><h2 id="pendingCount" class="text-3xl font-bold text-amber-600">0</h2><span class="badge-warning badge">Alert</span></div>
+                </div>
+                <div class="dashboard-charts">
+                    <div class="chart-card"><h3><i class="fa-solid fa-chart-line"></i> Stock Trend</h3><canvas id="stockChart" width="400" height="200"></canvas></div>
+                    <div class="chart-card"><h3><i class="fa-solid fa-chart-simple"></i> Daily Sales Volume</h3><canvas id="salesChart" width="400" height="200"></canvas></div>
+                    <div class="chart-card"><h3><i class="fa-solid fa-chart-pie"></i> Sales Distribution</h3><canvas id="pieChart" width="400" height="200"></canvas></div>
+                    <div class="chart-card"><h3><i class="fa-solid fa-chart-column"></i> Diesel vs Petrol</h3><canvas id="comparisonChart" width="400" height="200"></canvas></div>
+                </div>
+                <div class="bg-white rounded-2xl p-5 shadow mt-6"><h3 class="font-bold">Key Performance Indicators</h3><div id="performanceSummary" class="flex flex-wrap gap-4 mt-4"></div></div>
+            </div>
+
+            <!-- RECEIVING SECTION -->
+            <div id="receiving" class="section hidden">
+                <div class="bg-white rounded-2xl p-5 shadow mb-5"><h3 class="font-bold text-lg">📥 Step 1: Pre-Delivery Dip</h3><div class="grid grid-cols-2 gap-3 mt-3"><select id="preFuel" class="border p-2 rounded-xl"><option>Diesel</option><option>Petrol</option></select><input type="number" id="preLitres" placeholder="Current Stock (L)" class="border p-2 rounded-xl" /></div><button onclick="savePreDip()" class="mt-3 bg-blue-800 text-white px-5 py-2 rounded-xl">Save Pre-Dip</button><div id="preStatus" class="mt-2"></div></div>
+                <div class="bg-white rounded-2xl p-5 shadow mb-5"><h3 class="font-bold text-lg">🚛 Step 2: Register Delivery</h3><div class="grid grid-cols-3 gap-3 mt-3"><select id="delFuel" class="border p-2 rounded-xl"><option>Diesel</option><option>Petrol</option></select><input type="text" id="driverName" placeholder="Driver" class="border p-2 rounded-xl" /><input type="number" id="declared" placeholder="Declared Litres" class="border p-2 rounded-xl" /></div><button onclick="registerDelivery()" class="mt-3 bg-green-700 text-white px-5 py-2 rounded-xl">Register Delivery</button><div id="deliveryStatus" class="mt-2"></div></div>
+                <div class="bg-white rounded-2xl p-5 shadow mb-5"><h3 class="font-bold text-lg">📏 Step 3: Post-Delivery Dip</h3><div class="grid grid-cols-2 gap-3 mt-3"><select id="postFuel" class="border p-2 rounded-xl"><option>Diesel</option><option>Petrol</option></select><input type="number" id="postLitres" placeholder="After Delivery Stock" class="border p-2 rounded-xl" /></div><div id="deliveryPreview" class="mt-3 p-3 bg-blue-50 rounded-lg hidden"><p class="text-sm font-semibold">Delivery Summary:</p><p id="previewText" class="text-sm"></p></div><button onclick="verifyPostDip()" class="mt-3 bg-amber-600 text-white px-5 py-2 rounded-xl">Verify & Complete</button><div id="postStatus" class="mt-2"></div></div>
+                <div class="bg-white rounded-2xl p-5 shadow overflow-x-auto"><h3 class="font-bold">Delivery History</h3><table class="min-w-full text-sm"><thead class="bg-slate-100"><tr><th class="p-2">Date</th><th>Fuel</th><th>Driver</th><th>Pre-Dip</th><th>Declared</th><th>Post-Dip</th><th>Actual</th><th>Variance</th><th></th></tr></thead><tbody id="deliveryTableBody"></tbody></table></div>
+            </div>
+
+            <!-- DAILY DIPS & SALES SECTION -->
+            <div id="sales" class="section hidden">
+                <div class="bg-white rounded-2xl p-5 shadow mb-5"><h3 class="font-bold text-lg">🌅 Morning Dip Reading</h3><div class="grid grid-cols-2 gap-3 mt-2"><input type="number" id="morningDiesel" placeholder="Diesel (L)" class="border p-2 rounded-xl" /><input type="number" id="morningPetrol" placeholder="Petrol (L)" class="border p-2 rounded-xl" /></div><button onclick="saveMorningDip()" class="mt-3 bg-blue-800 text-white px-5 py-2 rounded-xl">Save Morning Dip</button><div id="morningStatus" class="mt-2"></div></div>
+                <div class="bg-white rounded-2xl p-5 shadow mb-5"><h3 class="font-bold text-lg">💰 Daily Sales Entry</h3><div class="grid grid-cols-2 gap-3"><input type="number" id="dieselSold" placeholder="Diesel Sold (L)" class="border p-2 rounded-xl" /><input type="number" id="petrolSold" placeholder="Petrol Sold (L)" class="border p-2 rounded-xl" /></div><div class="mt-3 p-3 bg-yellow-50 rounded-lg"><p class="text-sm text-yellow-800"><i class="fa-solid fa-info-circle"></i> Current Stock: Diesel: <span id="currentDieselStock">--</span> L | Petrol: <span id="currentPetrolStock">--</span> L</p></div><button onclick="saveDailySales()" class="mt-3 bg-green-700 text-white px-5 py-2 rounded-xl">Record Sales</button><div id="salesStatus" class="mt-2"></div></div>
+                <div class="bg-white rounded-2xl p-5 shadow overflow-x-auto mt-5"><h3 class="font-bold">Daily Records History</h3><table class="min-w-full text-sm"><thead class="bg-slate-100"><tr><th>Date</th><th>Morning D</th><th>Morning P</th><th>Diesel Sold</th><th>Petrol Sold</th><th>Stock After</th><th>Status</th><th></th></tr></thead><tbody id="dailyTableBody"></tbody></table></div>
+            </div>
+
+            <!-- RECONCILIATION SECTION - FIXED -->
+            <div id="reconciliation" class="section hidden">
+                <div class="bg-white rounded-2xl p-6 shadow">
+                    <h2 class="font-bold text-xl"><i class="fa-solid fa-scale-balanced"></i> FUEL STATION RECONCILIATION</h2>
+                    <div class="info-box mt-2"><i class="fa-solid fa-lightbulb"></i> <strong>How to use:</strong> Enter the previous and current meter readings for each pump, then click "Calculate Expected Cash" to see the expected cash amount. Then enter the actual cash counted and click "Submit & Lock Record".</div>
+                    
+                    <div class="recon-grid mt-4">
+                        <!-- PETROL SECTION -->
+                        <div>
+                            <h3 class="font-bold text-lg mb-3">⛽ PETROL · 3 READINGS</h3>
+                            <div class="pump-section">
+                                <div class="pump-title">🔴 PETROL SINGLE PUMP</div>
+                                <div class="grid grid-cols-2 gap-3">
+                                    <div><label class="block text-xs font-semibold mb-1">Prev Sales (KES)</label><input id="petrolSingleSalesPrev" class="input-field" type="number" placeholder="0" value="0"></div>
+                                    <div><label class="block text-xs font-semibold mb-1">Curr Sales (KES)</label><input id="petrolSingleSalesCurr" class="input-field" type="number" placeholder="0" value="0"></div>
+                                    <div><label class="block text-xs font-semibold mb-1">Prev Litres</label><input id="petrolSingleLitresPrev" class="input-field" step="0.01" type="number" placeholder="0" value="0"></div>
+                                    <div><label class="block text-xs font-semibold mb-1">Curr Litres</label><input id="petrolSingleLitresCurr" class="input-field" step="0.01" type="number" placeholder="0" value="0"></div>
+                                </div>
+                            </div>
+                            <div class="pump-section">
+                                <div class="pump-title">🟠 DUAL NOZZLE A</div>
+                                <div class="grid grid-cols-2 gap-3">
+                                    <div><label class="block text-xs font-semibold mb-1">Prev Sales (KES)</label><input id="petrolDualASalesPrev" class="input-field" type="number" placeholder="0" value="0"></div>
+                                    <div><label class="block text-xs font-semibold mb-1">Curr Sales (KES)</label><input id="petrolDualASalesCurr" class="input-field" type="number" placeholder="0" value="0"></div>
+                                    <div><label class="block text-xs font-semibold mb-1">Prev Litres</label><input id="petrolDualALitresPrev" class="input-field" step="0.01" type="number" placeholder="0" value="0"></div>
+                                    <div><label class="block text-xs font-semibold mb-1">Curr Litres</label><input id="petrolDualALitresCurr" class="input-field" step="0.01" type="number" placeholder="0" value="0"></div>
+                                </div>
+                            </div>
+                            <div class="pump-section">
+                                <div class="pump-title">🟡 DUAL NOZZLE B</div>
+                                <div class="grid grid-cols-2 gap-3">
+                                    <div><label class="block text-xs font-semibold mb-1">Prev Sales (KES)</label><input id="petrolDualBSalesPrev" class="input-field" type="number" placeholder="0" value="0"></div>
+                                    <div><label class="block text-xs font-semibold mb-1">Curr Sales (KES)</label><input id="petrolDualBSalesCurr" class="input-field" type="number" placeholder="0" value="0"></div>
+                                    <div><label class="block text-xs font-semibold mb-1">Prev Litres</label><input id="petrolDualBLitresPrev" class="input-field" step="0.01" type="number" placeholder="0" value="0"></div>
+                                    <div><label class="block text-xs font-semibold mb-1">Curr Litres</label><input id="petrolDualBLitresCurr" class="input-field" step="0.01" type="number" placeholder="0" value="0"></div>
+                                </div>
+                            </div>
+                            <div><label class="block text-sm font-semibold mb-1">Petrol Price (KES/L)</label><input id="petrolPrice" class="input-field" value="199.50" step="0.01" type="number"></div>
+                        </div>
+                        
+                        <!-- DIESEL SECTION -->
+                        <div>
+                            <h3 class="font-bold text-lg mb-3">🛢️ DIESEL · 1 PUMP</h3>
+                            <div class="pump-section">
+                                <div class="pump-title">🔵 DIESEL PUMP</div>
+                                <div class="grid grid-cols-2 gap-3">
+                                    <div><label class="block text-xs font-semibold mb-1">Prev Sales (KES)</label><input id="dieselSalesPrev" class="input-field" type="number" placeholder="0" value="0"></div>
+                                    <div><label class="block text-xs font-semibold mb-1">Curr Sales (KES)</label><input id="dieselSalesCurr" class="input-field" type="number" placeholder="0" value="0"></div>
+                                    <div><label class="block text-xs font-semibold mb-1">Prev Litres</label><input id="dieselLitresPrev" class="input-field" step="0.01" type="number" placeholder="0" value="0"></div>
+                                    <div><label class="block text-xs font-semibold mb-1">Curr Litres</label><input id="dieselLitresCurr" class="input-field" step="0.01" type="number" placeholder="0" value="0"></div>
+                                </div>
+                            </div>
+                            <div><label class="block text-sm font-semibold mb-1">Diesel Price (KES/L)</label><input id="dieselPrice" class="input-field" value="179.00" step="0.01" type="number"></div>
+                            
+                            <h3 class="font-bold text-lg mt-6 mb-3">💰 CASH RECONCILIATION</h3>
+                            <div class="form-group mb-3"><label class="block text-sm font-semibold mb-1">📱 MPESA</label><input id="mpesa" class="input-field" type="number" placeholder="0" value="0"></div>
+                            <div id="creditContainer"></div>
+                            <button type="button" class="small-btn mb-2" onclick="addCreditRow()">+ Add Credit</button>
+                            <div id="expenseContainer"></div>
+                            <button type="button" class="small-btn mb-2" onclick="addExpenseRow()">+ Add Expense</button>
+                            <div id="advanceContainer"></div>
+                            <button type="button" class="small-btn mb-2" onclick="addAdvanceRow()">+ Add Advance Payment</button>
+                            <div id="returnsContainer"></div>
+                            <button type="button" class="small-btn mb-2" onclick="addReturnRow()">+ Add Return</button>
+                            <div id="lubricantContainer"></div>
+                            <button type="button" class="small-btn mb-2" onclick="addLubricantRow()">+ Add Lubricant Sale</button>
+                        </div>
+                    </div>
+                    
+                    <button onclick="calculateExpectedCash()" class="btn-primary w-full mt-4"><i class="fa-solid fa-calculator"></i> Calculate Expected Cash</button>
+                    
+                    <div id="expectedCashDisplay" style="display: none">
+                        <div class="expected-cash-card mt-4">
+                            <h3><i class="fa-solid fa-coins"></i> EXPECTED CASH</h3>
+                            <div class="amount" id="expectedCashAmount">KES 0.00</div>
+                        </div>
+                    </div>
+                    
+                    <div id="actualCashSection" style="display: none">
+                        <div class="actual-cash-input mt-4">
+                            <label class="block text-sm font-semibold mb-1">Enter ACTUAL Cash Counted (KES)</label>
+                            <input id="actualCashInput" class="input-field" type="number" placeholder="Enter amount in KES">
+                            <button onclick="submitReconciliation()" class="btn-success w-full mt-3"><i class="fa-solid fa-lock"></i> Submit & Lock Record</button>
+                        </div>
+                    </div>
+                    
+                    <div id="varianceResult" style="display: none; margin-top: 1rem"></div>
+                    
+                    <div class="mt-6">
+                        <h3 class="font-bold text-lg">📋 SHIFT REPORT</h3>
+                        <div class="table-wrapper mt-2">
+                            <table class="min-w-full text-sm">
+                                <thead class="bg-slate-100">
+                                    <tr><th class="p-2">ITEM</th><th class="p-2">VALUE (KES)</th></tr>
+                                </thead>
+                                <tbody id="reportBody">
+                                    <tr><td colspan="2" class="text-center py-4">Click "Calculate Expected Cash" to generate report</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- VARIANCE LOG SECTION -->
+            <div id="variance" class="section hidden">
+                <div class="bg-white rounded-2xl p-5 shadow">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="font-bold text-lg"><i class="fa-solid fa-chart-line"></i> Variance Log</h3>
+                        <button onclick="showAddVarianceModal()" class="btn-warning text-sm px-3 py-1 rounded"><i class="fa-solid fa-plus"></i> Add Variance</button>
+                    </div>
+                    <div class="table-wrapper">
+                        <table class="min-w-full text-sm">
+                            <thead class="bg-slate-100"><tr><th class="p-2">Date</th><th class="p-2">Fuel Type</th><th class="p-2">Expected Stock (L)</th><th class="p-2">Actual Stock (L)</th><th class="p-2">Variance (L)</th><th class="p-2">Cause / Description</th><th class="p-2">Status</th><th class="p-2">Action</th></tr></thead>
+                            <tbody id="varianceTableBody">
+                                <tr><td colspan="8" class="text-center py-4">Loading variances...<\/tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Add Stock Variance Modal -->
+            <div id="varianceModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 modal">
+                <div class="bg-white rounded-2xl p-6 max-w-md w-full mx-4">
+                    <h3 class="font-bold text-xl mb-4">Record Stock Variance</h3>
+                    <div class="space-y-3">
+                        <div><label class="block text-sm font-semibold mb-1">Fuel Type</label><select id="varianceFuelType" class="input-field w-full"><option value="Diesel">Diesel</option><option value="Petrol">Petrol</option></select></div>
+                        <div><label class="block text-sm font-semibold mb-1">Expected Stock (Morning Dip + Received)</label><input type="number" id="varianceExpected" class="input-field w-full" placeholder="Expected Stock (L)" /></div>
+                        <div><label class="block text-sm font-semibold mb-1">Actual Stock (Post-Dip Reading)</label><input type="number" id="varianceActual" class="input-field w-full" placeholder="Actual Stock (L)" /></div>
+                        <div><label class="block text-sm font-semibold mb-1">Cause / Description</label><textarea id="varianceCause" rows="3" class="input-field w-full" placeholder="Describe the reason for this variance..."></textarea></div>
+                    </div>
+                    <div class="flex gap-3 mt-6"><button onclick="saveStockVariance()" class="btn-primary flex-1">Save Variance</button><button onclick="closeVarianceModal()" class="btn-outline flex-1">Cancel</button></div>
+                </div>
+            </div>
+
+            <!-- RECORDS & REPORTS SECTION -->
+            <div id="records" class="section hidden">
+                <div class="space-y-6">
+                    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+                        <div class="bg-white rounded-2xl p-4 shadow stat-card" onclick="filterByRecordType('dip')">
+                            <div class="flex items-center justify-between"><div><i class="fa-solid fa-calendar-day text-2xl text-blue-600"></i></div><span class="text-2xl font-bold" id="totalDips">0</span></div>
+                            <p class="text-xs text-gray-500 mt-1">Total Dip Records <span class="text-blue-600">(click)</span></p>
+                        </div>
+                        <div class="bg-white rounded-2xl p-4 shadow stat-card" onclick="filterByRecordType('sale')">
+                            <div class="flex items-center justify-between"><div><i class="fa-solid fa-chart-line text-2xl text-green-600"></i></div><span class="text-2xl font-bold" id="totalSalesRecords">0</span></div>
+                            <p class="text-xs text-gray-500 mt-1">Total Sales Records <span class="text-green-600">(click)</span></p>
+                        </div>
+                        <div class="bg-white rounded-2xl p-4 shadow stat-card" onclick="filterByRecordType('reconciliation')">
+                            <div class="flex items-center justify-between"><div><i class="fa-solid fa-scale-balanced text-2xl text-purple-600"></i></div><span class="text-2xl font-bold" id="totalReconciliations">0</span></div>
+                            <p class="text-xs text-gray-500 mt-1">Reconciliations <span class="text-purple-600">(click)</span></p>
+                        </div>
+                        <div class="bg-white rounded-2xl p-4 shadow stat-card" onclick="filterByRecordType('delivery')">
+                            <div class="flex items-center justify-between"><div><i class="fa-solid fa-truck text-2xl text-orange-600"></i></div><span class="text-2xl font-bold" id="totalDeliveries">0</span></div>
+                            <p class="text-xs text-gray-500 mt-1">Deliveries <span class="text-orange-600">(click)</span></p>
+                        </div>
+                        <div class="bg-white rounded-2xl p-4 shadow stat-card" onclick="filterByTodayEntries()">
+                            <div class="flex items-center justify-between"><div><i class="fa-solid fa-today text-2xl text-teal-600"></i></div><span class="text-2xl font-bold" id="todayEntries">0</span></div>
+                            <p class="text-xs text-gray-500 mt-1">Today's Entries <span class="text-teal-600">(click)</span></p>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-2xl p-5 shadow">
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                            <div><label class="block text-xs font-semibold text-gray-600 mb-1">Search</label><input type="text" id="searchInput" placeholder="Search by ID, driver, user..." class="filter-input w-full px-3 py-2 border rounded-xl text-sm"></div>
+                            <div><label class="block text-xs font-semibold text-gray-600 mb-1">Date Range</label><div class="flex gap-2"><input type="date" id="startDate" class="filter-input w-full px-3 py-2 border rounded-xl text-sm"><input type="date" id="endDate" class="filter-input w-full px-3 py-2 border rounded-xl text-sm"></div></div>
+                            <div><label class="block text-xs font-semibold text-gray-600 mb-1">Record Type</label><select id="recordTypeFilter" class="filter-select w-full px-3 py-2 border rounded-xl text-sm" onchange="applyFilters()"><option value="">All</option><option value="dip">Morning Dip</option><option value="sale">Daily Sale</option><option value="delivery">Delivery</option><option value="reconciliation">Reconciliation</option><option value="variance">Variance</option></select></div>
+                            <div><label class="block text-xs font-semibold text-gray-600 mb-1">Sort By</label><select id="sortBy" class="filter-select w-full px-3 py-2 border rounded-xl text-sm" onchange="applyFilters()"><option value="latest">Latest First</option><option value="oldest">Oldest First</option></select></div>
+                        </div>
+                        <div class="flex flex-wrap justify-between items-center mt-4 gap-3"><div class="flex gap-2"><button onclick="applyFilters()" class="btn-primary px-4 py-2 text-sm">Apply Filters</button><button onclick="resetFilters()" class="btn-outline px-4 py-2 text-sm">Reset</button></div><div class="flex gap-2"><button onclick="exportToExcel()" class="bg-green-600 text-white px-4 py-2 rounded-xl text-sm hover:bg-green-700"><i class="fa-solid fa-file-excel"></i> Excel</button><button onclick="exportToCSV()" class="bg-blue-600 text-white px-4 py-2 rounded-xl text-sm hover:bg-blue-700"><i class="fa-solid fa-file-csv"></i> CSV</button></div></div>
+                    </div>
+
+                    <div class="bg-white rounded-2xl shadow overflow-hidden">
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-sm records-table">
+                                <thead class="bg-slate-100"><tr><th class="p-3">ID</th><th class="p-3">Date</th><th class="p-3">Type</th><th class="p-3">Details</th><th class="p-3">User</th><th class="p-3">Status</th><th class="p-3">Actions</th></tr></thead>
+                                <tbody id="recordsTableBody"><tr><td colspan="7" class="text-center py-8 text-gray-500">Loading records...<\/tr></tbody>
+                            </table>
+                        </div>
+                        <div class="flex justify-between items-center p-4 border-t"><div class="text-sm text-gray-500">Showing <span id="showingStart">0</span> to <span id="showingEnd">0</span> of <span id="totalRecords">0</span> records</div><div class="flex gap-2" id="paginationControls"></div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <footer class="text-center py-6 text-slate-500 text-xs">© 2026 MOREVA ENERGY LTD — Tank Capacity: Diesel 10,000L | Petrol 10,000L</footer>
+    </div>
+
+    <script>
+        const API_URL = window.location.origin + '/api';
+        const TANK_CAPACITY = { diesel: 10000, petrol: 10000 };
+        let deliveries = [], dailyRecords = [], variances = [], reconciliations = [];
+        let pendingDelivery = null;
+        let currentExpectedCash = 0;
+        let currentReconciliationData = null;
+        let stockChart, salesChart, pieChart, comparisonChart;
+        let chartsInitialized = false;
+        
+        let allRecords = [];
+        let filteredRecords = [];
+        let currentPage = 1;
+        let rowsPerPage = 15;
+
+        function getToken() { return localStorage.getItem('moreva_token'); }
+        function getUser() { const u = localStorage.getItem('moreva_user'); return u ? JSON.parse(u) : null; }
+
+        function refreshAllData() { 
+            showToast("Refreshing all data...", "info"); 
+            loadAllData(); 
+            loadVariances(); 
+            loadReconciliations(); 
+            buildAllRecords(); 
+        }
+        
+        function showToast(msg, type = "success") {
+            const toast = document.createElement("div"); toast.className = "toast-notif";
+            toast.style.background = type === "error" ? "#dc2626" : type === "info" ? "#3b82f6" : "#10b981";
+            toast.innerHTML = `<i class="fa-solid ${type === "error" ? "fa-circle-exclamation" : type === "info" ? "fa-info-circle" : "fa-circle-check"} mr-2"></i> ${msg}`;
+            document.body.appendChild(toast); setTimeout(() => toast.remove(), 3000);
+        }
+
+        function showSection(sectionName) {
+            document.querySelectorAll('.section').forEach(s => { s.classList.remove('active'); s.classList.add('hidden'); });
+            document.getElementById(sectionName).classList.remove('hidden');
+            document.getElementById(sectionName).classList.add('active');
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('bg-blue-900', 'text-white');
+                btn.classList.add('bg-white', 'text-slate-700');
+            });
+            const sections = ['dashboard', 'receiving', 'sales', 'reconciliation', 'variance', 'records'];
+            const index = sections.indexOf(sectionName);
+            const btns = document.querySelectorAll('.tab-btn');
+            if (btns[index]) { btns[index].classList.remove('bg-white', 'text-slate-700'); btns[index].classList.add('bg-blue-900', 'text-white'); }
+            if (sectionName === 'dashboard') { setTimeout(() => { updateCharts(); }, 100); }
+            if (sectionName === 'variance') { loadVariances(); }
+            if (sectionName === 'records') { loadRecordsForReports(); }
+        }
+
+        function filterByRecordType(type) {
+            showSection('records');
+            setTimeout(() => {
+                const filterSelect = document.getElementById('recordTypeFilter');
+                if (filterSelect) { filterSelect.value = type; applyFilters(); showToast(`Showing ${type.toUpperCase()} records`, 'info'); }
+            }, 200);
+        }
+        
+        function filterByTodayEntries() {
+            showSection('records');
+            setTimeout(() => {
+                const today = new Date().toISOString().split('T')[0];
+                const startDateInput = document.getElementById('startDate');
+                const endDateInput = document.getElementById('endDate');
+                if (startDateInput && endDateInput) { startDateInput.value = today; endDateInput.value = today; applyFilters(); showToast('Showing today\'s entries', 'info'); }
+            }, 200);
+        }
+
+        function updateDashboard() {
+            if (dailyRecords && dailyRecords.length > 0) {
+                const latest = dailyRecords[0];
+                const morningD = latest.morning_diesel || 0;
+                const morningP = latest.morning_petrol || 0;
+                const soldD = latest.diesel_sold || 0;
+                const soldP = latest.petrol_sold || 0;
+                const currentD = morningD - soldD;
+                const currentP = morningP - soldP;
+                
+                document.getElementById("dieselStock").innerHTML = `${Math.max(0, currentD).toLocaleString()} L`;
+                document.getElementById("dieselProgress").style.width = `${Math.min(100, Math.max(0, (currentD / 10000) * 100))}%`;
+                document.getElementById("lastMorningDiesel").innerHTML = morningD.toLocaleString();
+                document.getElementById("todayDieselSales").innerHTML = soldD.toLocaleString();
+                
+                document.getElementById("petrolStock").innerHTML = `${Math.max(0, currentP).toLocaleString()} L`;
+                document.getElementById("petrolProgress").style.width = `${Math.min(100, Math.max(0, (currentP / 10000) * 100))}%`;
+                document.getElementById("lastMorningPetrol").innerHTML = morningP.toLocaleString();
+                document.getElementById("todayPetrolSales").innerHTML = soldP.toLocaleString();
+                
+                document.getElementById("todaySales").innerHTML = `${(soldD + soldP).toLocaleString()} L`;
+                document.getElementById("currentDieselStock").innerHTML = Math.max(0, currentD).toLocaleString();
+                document.getElementById("currentPetrolStock").innerHTML = Math.max(0, currentP).toLocaleString();
+                
+                updatePerformance();
+                updateCharts();
+            } else {
+                document.getElementById("dieselStock").innerHTML = "-- L";
+                document.getElementById("petrolStock").innerHTML = "-- L";
+                document.getElementById("lastMorningDiesel").innerHTML = "--";
+                document.getElementById("lastMorningPetrol").innerHTML = "--";
+                document.getElementById("todayDieselSales").innerHTML = "--";
+                document.getElementById("todayPetrolSales").innerHTML = "--";
+                document.getElementById("todaySales").innerHTML = "0 L";
+                document.getElementById("currentDieselStock").innerHTML = "--";
+                document.getElementById("currentPetrolStock").innerHTML = "--";
+            }
+            const pendingCount = variances.filter(v => v.status === 'Pending').length;
+            document.getElementById("pendingCount").innerHTML = pendingCount;
+        }
+
+        function initCharts() {
+            const stockCtx = document.getElementById('stockChart')?.getContext('2d');
+            const salesCtx = document.getElementById('salesChart')?.getContext('2d');
+            const pieCtx = document.getElementById('pieChart')?.getContext('2d');
+            const compareCtx = document.getElementById('comparisonChart')?.getContext('2d');
+            
+            if (stockCtx) {
+                stockChart = new Chart(stockCtx, {
+                    type: 'line', data: { labels: [], datasets: [
+                        { label: 'Diesel Stock (L)', data: [], borderColor: '#1e3a8a', backgroundColor: 'rgba(30,58,138,0.1)', tension: 0.4, fill: true },
+                        { label: 'Petrol Stock (L)', data: [], borderColor: '#dc2626', backgroundColor: 'rgba(220,38,38,0.1)', tension: 0.4, fill: true }
+                    ] }, options: { responsive: true, maintainAspectRatio: true }
+                });
+            }
+            if (salesCtx) {
+                salesChart = new Chart(salesCtx, {
+                    type: 'bar', data: { labels: [], datasets: [{ label: 'Sales (L)', data: [], backgroundColor: '#10b981' }] }, options: { responsive: true, maintainAspectRatio: true }
+                });
+            }
+            if (pieCtx) {
+                pieChart = new Chart(pieCtx, {
+                    type: 'pie', data: { labels: ['Diesel', 'Petrol'], datasets: [{ data: [50, 50], backgroundColor: ['#1e3a8a', '#dc2626'] }] }, options: { responsive: true, maintainAspectRatio: true }
+                });
+            }
+            if (compareCtx) {
+                comparisonChart = new Chart(compareCtx, {
+                    type: 'bar', data: { labels: ['Diesel', 'Petrol'], datasets: [{ label: 'Total Sales (L)', data: [0, 0], backgroundColor: ['#1e3a8a', '#dc2626'] }] }, options: { responsive: true, maintainAspectRatio: true }
+                });
+            }
+            chartsInitialized = true;
+            updateCharts();
+        }
+
+        function updateCharts() {
+            if (!chartsInitialized) return;
+            const last7 = [...dailyRecords].slice(0, 7).reverse();
+            if (last7.length > 0) {
+                const labels = last7.map(r => { const d = new Date(r.record_date); return `${d.getMonth()+1}/${d.getDate()}`; });
+                const dieselStock = last7.map(r => Math.max(0, (r.morning_diesel || 0) - (r.diesel_sold || 0)));
+                const petrolStock = last7.map(r => Math.max(0, (r.morning_petrol || 0) - (r.petrol_sold || 0)));
+                const sales = last7.map(r => (r.diesel_sold || 0) + (r.petrol_sold || 0));
+                if (stockChart) { stockChart.data.labels = labels; stockChart.data.datasets[0].data = dieselStock; stockChart.data.datasets[1].data = petrolStock; stockChart.update(); }
+                if (salesChart) { salesChart.data.labels = labels; salesChart.data.datasets[0].data = sales; salesChart.update(); }
+            }
+            const totalD = dailyRecords.reduce((s, r) => s + (r.diesel_sold || 0), 0);
+            const totalP = dailyRecords.reduce((s, r) => s + (r.petrol_sold || 0), 0);
+            if (pieChart) { pieChart.data.datasets[0].data = [totalD || 1, totalP || 1]; pieChart.update(); }
+            if (comparisonChart) { comparisonChart.data.datasets[0].data = [totalD || 0, totalP || 0]; comparisonChart.update(); }
+        }
+
+        function updatePerformance() {
+            const totalSold = dailyRecords.reduce((s, r) => s + (r.diesel_sold || 0) + (r.petrol_sold || 0), 0);
+            const avgDaily = dailyRecords.length ? totalSold / dailyRecords.length : 0;
+            let currentTotal = 0;
+            if (dailyRecords.length > 0) { const l = dailyRecords[0]; currentTotal = Math.max(0, ((l.morning_diesel||0)-(l.diesel_sold||0)) + ((l.morning_petrol||0)-(l.petrol_sold||0))); }
+            document.getElementById("performanceSummary").innerHTML = `
+                <div class="kpi-box"><div class="font-bold text-2xl">${currentTotal.toLocaleString()} L</div><div>Current Stock</div></div>
+                <div class="kpi-box"><div class="font-bold text-2xl">${totalSold.toLocaleString()} L</div><div>Total Sales</div></div>
+                <div class="kpi-box"><div class="font-bold text-2xl">${avgDaily.toFixed(0)} L</div><div>Daily Avg</div></div>
+                <div class="kpi-box"><div class="font-bold text-2xl">${dailyRecords.length}</div><div>Days</div></div>
+                <div class="kpi-box"><div class="font-bold text-2xl">${deliveries.length}</div><div>Deliveries</div></div>
+                <div class="kpi-box"><div class="font-bold text-2xl">${Math.round((currentTotal/20000)*100)}%</div><div>Tank Fill</div></div>
+            `;
+        }
+
+        // ==================== RECONCILIATION FUNCTIONS ====================
+        function getValue(id) { return parseFloat(document.getElementById(id)?.value) || 0; }
+        function calculateTotal(className) { let t = 0; document.querySelectorAll("."+className).forEach(inp => { let v = parseFloat(inp.value); if (!isNaN(v) && v > 0) t += v; }); return t; }
+        
+        function addCreditRow() { let d = document.createElement("div"); d.className = "dynamic-row"; d.innerHTML = `<input placeholder="Customer Name" class="flex-1 border rounded-lg p-2 text-sm"><input class="creditAmount" type="number" placeholder="KES" class="flex-1 border rounded-lg p-2 text-sm"><button class="small-btn" onclick="this.parentElement.remove()">✖</button>`; document.getElementById("creditContainer").appendChild(d); }
+        function addExpenseRow() { let d = document.createElement("div"); d.className = "dynamic-row"; d.innerHTML = `<input placeholder="Expense Name" class="flex-1 border rounded-lg p-2 text-sm"><input class="expenseAmount" type="number" placeholder="KES" class="flex-1 border rounded-lg p-2 text-sm"><button class="small-btn" onclick="this.parentElement.remove()">✖</button>`; document.getElementById("expenseContainer").appendChild(d); }
+        function addAdvanceRow() { let d = document.createElement("div"); d.className = "dynamic-row"; d.innerHTML = `<input placeholder="Customer Name" class="flex-1 border rounded-lg p-2 text-sm"><input class="advanceAmount" type="number" placeholder="KES" class="flex-1 border rounded-lg p-2 text-sm"><button class="small-btn" onclick="this.parentElement.remove()">✖</button>`; document.getElementById("advanceContainer").appendChild(d); }
+        function addReturnRow() { let d = document.createElement("div"); d.className = "dynamic-row"; d.innerHTML = `<input placeholder="Return Reason" class="flex-1 border rounded-lg p-2 text-sm"><input class="returnAmount" type="number" placeholder="KES" class="flex-1 border rounded-lg p-2 text-sm"><button class="small-btn" onclick="this.parentElement.remove()">✖</button>`; document.getElementById("returnsContainer").appendChild(d); }
+        function addLubricantRow() { let d = document.createElement("div"); d.className = "dynamic-row"; d.innerHTML = `<input placeholder="Product Name" class="flex-1 border rounded-lg p-2 text-sm"><input class="lubricantAmount" type="number" placeholder="KES" class="flex-1 border rounded-lg p-2 text-sm"><button class="small-btn" onclick="this.parentElement.remove()">✖</button>`; document.getElementById("lubricantContainer").appendChild(d); }
+
+        function calculateExpectedCash() {
+            // Calculate petrol sales from 3 pumps
+            let petrolSingleSales = getValue("petrolSingleSalesCurr") - getValue("petrolSingleSalesPrev");
+            let petrolDualASales = getValue("petrolDualASalesCurr") - getValue("petrolDualASalesPrev");
+            let petrolDualBSales = getValue("petrolDualBSalesCurr") - getValue("petrolDualBSalesPrev");
+            let totalPetrolSales = petrolSingleSales + petrolDualASales + petrolDualBSales;
+            
+            // Calculate diesel sales
+            let dieselSales = getValue("dieselSalesCurr") - getValue("dieselSalesPrev");
+            
+            // Total sales from pumps
+            let totalSales = totalPetrolSales + dieselSales;
+            
+            // Get cash reconciliation values
+            let mpesa = getValue("mpesa");
+            let credit = calculateTotal("creditAmount");
+            let expenses = calculateTotal("expenseAmount");
+            let advance = calculateTotal("advanceAmount");
+            let returnsVal = calculateTotal("returnAmount");
+            let lubricants = calculateTotal("lubricantAmount");
+            
+            // Calculate expected cash
+            let expectedCash = totalSales - mpesa - credit - expenses - advance + returnsVal + lubricants;
+            
+            currentExpectedCash = expectedCash;
+            currentReconciliationData = { 
+                total_sales: totalSales, 
+                mpesa: mpesa, 
+                credits: credit, 
+                expenses: expenses, 
+                advances: advance, 
+                returns_val: returnsVal, 
+                lubricants: lubricants, 
+                expected_cash: expectedCash 
+            };
+            
+            document.getElementById("expectedCashDisplay").style.display = "block";
+            document.getElementById("expectedCashAmount").innerHTML = `KES ${expectedCash.toLocaleString(undefined, { minimumFractionDigits: 2 })}`;
+            document.getElementById("actualCashSection").style.display = "block";
+            
+            document.getElementById("reportBody").innerHTML = `
+                <tr style="background:#f0f7ff;"><td class="font-semibold">💰 Total Pump Sales</td><td class="font-bold">KES ${totalSales.toLocaleString()}</td></tr>
+                <tr><td class="pl-4 text-sm">⛽ Petrol Sales (3 pumps)</td><td>KES ${totalPetrolSales.toLocaleString()}</td></tr>
+                <tr><td class="pl-4 text-sm">⛽ Diesel Sales (1 pump)</td><td>KES ${dieselSales.toLocaleString()}</td></tr>
+                <tr class="bg-gray-50"><td class="font-semibold">📱 M-Pesa</td><td>KES ${mpesa.toLocaleString()}</td></tr>
+                <tr class="bg-gray-50"><td class="font-semibold">🧾 Credits</td><td>KES ${credit.toLocaleString()}</td></tr>
+                <tr class="bg-gray-50"><td class="font-semibold">💸 Expenses</td><td>KES ${expenses.toLocaleString()}</td></tr>
+                <tr class="bg-gray-50"><td class="font-semibold">💳 Advances</td><td>KES ${advance.toLocaleString()}</td></tr>
+                <tr class="bg-gray-50"><td class="font-semibold">🔄 Returns</td><td class="text-green-600">+ KES ${returnsVal.toLocaleString()}</td></tr>
+                <tr class="bg-gray-50"><td class="font-semibold">🛢️ Lubricants</td><td class="text-green-600">+ KES ${lubricants.toLocaleString()}</td></tr>
+                <tr style="background:#eef6ff;"><td class="font-bold">🎯 EXPECTED CASH</td><td class="font-bold text-blue-700">KES ${expectedCash.toLocaleString()}</td></tr>
+            `;
+            showToast(`Expected Cash: KES ${expectedCash.toLocaleString()}`, "info");
+        }
+
+        async function saveReconciliationToDatabase(reconciliationData) {
+            const token = getToken();
+            if (!token) { showToast("Please login again", "error"); return false; }
+            try {
+                const response = await fetch(`${API_URL}/reconciliation`, {
+                    method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                    body: JSON.stringify(reconciliationData)
+                });
+                if (response.ok) { showToast("Reconciliation saved to database!", "success"); return true; }
+                else { showToast("Error saving reconciliation", "error"); return false; }
+            } catch (error) { showToast("Server error", "error"); return false; }
+        }
+
+        function submitReconciliation() {
+            const actualCash = parseFloat(document.getElementById("actualCashInput").value) || 0;
+            const expectedCash = currentExpectedCash;
+            const diff = actualCash - expectedCash;
+            const status = diff > 0 ? "EXCESS" : diff < 0 ? "SHORTAGE" : "BALANCED";
+            const reconData = currentReconciliationData || {
+                total_sales: 0, mpesa: getValue("mpesa"), credits: calculateTotal("creditAmount"),
+                expenses: calculateTotal("expenseAmount"), advances: calculateTotal("advanceAmount"),
+                returns_val: calculateTotal("returnAmount"), lubricants: calculateTotal("lubricantAmount"), expected_cash: expectedCash
+            };
+            const reconciliationData = {
+                total_sales: reconData.total_sales, mpesa: reconData.mpesa, credits: reconData.credits,
+                expenses: reconData.expenses, advances: reconData.advances, returns_val: reconData.returns_val,
+                lubricants: reconData.lubricants, expected_cash: expectedCash, actual_cash: actualCash, variance: diff, status: status
+            };
+            saveReconciliationToDatabase(reconciliationData);
+            if (Math.abs(diff) > 0) {
+                addVariance('CASH', Math.abs(diff), `Reconciliation on ${new Date().toLocaleDateString()}: Expected KES ${expectedCash.toLocaleString()}, Actual KES ${actualCash.toLocaleString()}`);
+            }
+            document.getElementById("varianceResult").style.display = "block";
+            document.getElementById("varianceResult").innerHTML = `<div class="${diff > 0 ? "warning-box" : diff < 0 ? "error-box" : "success-box"}">
+                <h3 class="font-bold">${status}</h3>
+                <p>Expected: KES ${expectedCash.toLocaleString()}<br>Actual: KES ${actualCash.toLocaleString()}<br>Difference: KES ${Math.abs(diff).toLocaleString()}</p>
+                ${Math.abs(diff) > 0 ? '<p class="mt-2 text-sm"><i class="fa-solid fa-exclamation-triangle"></i> A variance has been created for this discrepancy.</p>' : ''}
+                <p class="text-xs mt-2"><i class="fa-solid fa-lock"></i> Record LOCKED</p></div>`;
+            showToast(`Reconciliation ${status}: ${Math.abs(diff).toLocaleString()} KES`);
+            document.getElementById("actualCashInput").value = "";
+            loadVariances(); loadAllData();
+        }
+
+        // ==================== DELIVERY FUNCTIONS ====================
+        function savePreDip() { const fuel = document.getElementById("preFuel").value, litres = parseFloat(document.getElementById("preLitres").value); if (isNaN(litres) || litres <= 0) { showToast("Enter valid stock", "error"); return; } if (!pendingDelivery || pendingDelivery.fuel !== fuel) pendingDelivery = { fuel, preDip: litres, preDipSaved: true, registered: false }; else pendingDelivery.preDip = litres; document.getElementById("preStatus").innerHTML = `<div class="success-box">✓ Pre-dip: ${fuel} = ${litres.toLocaleString()} L</div>`; showToast("Pre-dip saved"); }
+        
+        function registerDelivery() { if (!pendingDelivery || !pendingDelivery.preDipSaved) { showToast("Complete Step 1 first!", "error"); return; } const fuel = document.getElementById("delFuel").value, driver = document.getElementById("driverName").value.trim(), declared = parseFloat(document.getElementById("declared").value); if (fuel !== pendingDelivery.fuel) { showToast("Fuel mismatch!", "error"); return; } if (!driver) { showToast("Enter driver name", "error"); return; } if (isNaN(declared) || declared <= 0) { showToast("Enter valid declared litres", "error"); return; } pendingDelivery.driver = driver; pendingDelivery.declared = declared; pendingDelivery.registered = true; document.getElementById("deliveryStatus").innerHTML = `<div class="success-box">✓ Delivery: ${declared.toLocaleString()} L by ${driver}</div>`; showToast("Delivery registered"); }
+        
+        async function verifyPostDip() { 
+            if (!pendingDelivery || !pendingDelivery.registered) { showToast("Complete Steps 1 & 2 first!", "error"); return; } 
+            const fuel = document.getElementById("postFuel").value, postDip = parseFloat(document.getElementById("postLitres").value); 
+            if (fuel !== pendingDelivery.fuel) { showToast("Fuel mismatch!", "error"); return; } 
+            if (isNaN(postDip) || postDip <= 0) { showToast("Enter valid post-dip", "error"); return; } 
+            const actualGain = postDip - pendingDelivery.preDip; 
+            const expectedStockAfter = pendingDelivery.preDip + pendingDelivery.declared;
+            const actualStockAfter = postDip;
+            const stockVariance = actualStockAfter - expectedStockAfter;
+            
+            if (actualGain < 0) { showToast("Post-dip must be greater than pre-dip!", "error"); return; } 
+            
+            if (Math.abs(stockVariance) > 0) {
+                const varianceCause = `Stock variance on ${new Date().toLocaleDateString()}: ${fuel} delivery - Expected Stock: ${expectedStockAfter.toLocaleString()}L (Pre-Dip ${pendingDelivery.preDip.toLocaleString()}L + Declared ${pendingDelivery.declared.toLocaleString()}L), Actual Stock: ${actualStockAfter.toLocaleString()}L, Variance: ${stockVariance.toLocaleString()}L`;
+                await addStockVariance(fuel, expectedStockAfter, actualStockAfter, varianceCause);
+                showToast(`⚠️ Stock variance of ${Math.abs(stockVariance).toLocaleString()}L recorded!`, "warning");
+            }
+            
+            const confirmMsg = `Delivery Summary:\nFuel: ${fuel}\nPre-Dip: ${pendingDelivery.preDip.toLocaleString()} L\nPost-Dip: ${postDip.toLocaleString()} L\nDeclared: ${pendingDelivery.declared.toLocaleString()} L\nActual Received: ${actualGain.toLocaleString()} L\nExpected Stock After: ${expectedStockAfter.toLocaleString()} L\nActual Stock After: ${actualStockAfter.toLocaleString()} L\nStock Variance: ${stockVariance.toLocaleString()} L\n\nConfirm and save this delivery?`;
+            if (!confirm(confirmMsg)) return; 
+            
+            const token = getToken(); 
+            try { 
+                await fetch(`${API_URL}/deliveries`, { 
+                    method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }, 
+                    body: JSON.stringify({ 
+                        fuel_type: fuel, driver_name: pendingDelivery.driver, declared_litres: pendingDelivery.declared, 
+                        pre_dip: pendingDelivery.preDip, post_dip: postDip, actual_gain: actualGain, 
+                        variance: actualGain - pendingDelivery.declared, status: Math.abs(actualGain - pendingDelivery.declared) < 10 ? "Completed" : "Warning" 
+                    }) 
+                }); 
+                pendingDelivery = null; await loadAllData(); await loadVariances(); showToast("Delivery completed!"); 
+                document.getElementById("preLitres").value = ""; document.getElementById("driverName").value = ""; 
+                document.getElementById("declared").value = ""; document.getElementById("postLitres").value = ""; 
+                document.getElementById("deliveryPreview").classList.add("hidden");
+            } catch(e) { showToast("Error saving delivery", "error"); } 
+        }
+        
+        // ==================== DAILY DIPS & SALES FUNCTIONS ====================
+        async function saveMorningDip() { 
+            const d = parseFloat(document.getElementById("morningDiesel").value), p = parseFloat(document.getElementById("morningPetrol").value); 
+            if (isNaN(d) || isNaN(p)) { showToast("Please enter both diesel and petrol readings", "error"); return; } 
+            if (d > TANK_CAPACITY.diesel || p > TANK_CAPACITY.petrol) { showToast(`Readings cannot exceed tank capacity`, "error"); return; } 
+            const token = getToken(); 
+            if (!token) { showToast("Please login again", "error"); return; }
+            try { 
+                const response = await fetch(`${API_URL}/fuel/morning-dip`, { 
+                    method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }, 
+                    body: JSON.stringify({ diesel: d, petrol: p }) 
+                }); 
+                if (response.ok) { 
+                    document.getElementById("morningStatus").innerHTML = `<div class="success-box">✓ Morning dip recorded: Diesel ${d.toLocaleString()}L, Petrol ${p.toLocaleString()}L</div>`; 
+                    showToast("Morning dip saved successfully!"); 
+                    document.getElementById("morningDiesel").value = ""; document.getElementById("morningPetrol").value = ""; 
+                    await loadAllData(); 
+                } else { showToast("Error recording morning dip", "error"); } 
+            } catch(e) { showToast("Server error", "error"); } 
+        }
+        
+        async function saveDailySales() { 
+            const ds = parseFloat(document.getElementById("dieselSold").value) || 0, ps = parseFloat(document.getElementById("petrolSold").value) || 0; 
+            if (ds === 0 && ps === 0) { showToast("Please enter at least one sales value", "error"); return; } 
+            const token = getToken(); 
+            if (!token) { showToast("Please login again", "error"); return; }
+            if (dailyRecords.length === 0) { showToast("Please save a morning dip first", "error"); return; }
+            const latestRecord = dailyRecords[0];
+            const morningDiesel = latestRecord.morning_diesel || 0, morningPetrol = latestRecord.morning_petrol || 0;
+            const alreadySoldDiesel = latestRecord.diesel_sold || 0, alreadySoldPetrol = latestRecord.petrol_sold || 0;
+            const remainingDiesel = morningDiesel - alreadySoldDiesel, remainingPetrol = morningPetrol - alreadySoldPetrol;
+            if (ds > remainingDiesel) { showToast(`Insufficient diesel stock! Available: ${remainingDiesel.toLocaleString()}L`, "error"); return; }
+            if (ps > remainingPetrol) { showToast(`Insufficient petrol stock! Available: ${remainingPetrol.toLocaleString()}L`, "error"); return; }
+            try { 
+                const response = await fetch(`${API_URL}/fuel/daily-sales`, { 
+                    method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }, 
+                    body: JSON.stringify({ dieselSold: ds, petrolSold: ps }) 
+                }); 
+                if (response.ok) { 
+                    document.getElementById("salesStatus").innerHTML = `<div class="success-box">✓ Sales recorded: Diesel ${ds.toLocaleString()}L, Petrol ${ps.toLocaleString()}L</div>`; 
+                    showToast(`Sales recorded successfully!`); 
+                    document.getElementById("dieselSold").value = ""; document.getElementById("petrolSold").value = ""; 
+                    await loadAllData(); 
+                } else { showToast("Error recording sales", "error"); } 
+            } catch(e) { showToast("Server error", "error"); } 
+        }
+        
+        async function loadAllData() { 
+            const token = getToken(); if (!token) return; 
+            try { 
+                const deliveriesRes = await fetch(`${API_URL}/deliveries`, { headers: { 'Authorization': `Bearer ${token}` } }); 
+                if (deliveriesRes.ok) deliveries = await deliveriesRes.json(); 
+                const dailyRes = await fetch(`${API_URL}/fuel/daily-records`, { headers: { 'Authorization': `Bearer ${token}` } }); 
+                if (dailyRes.ok) { dailyRecords = await dailyRes.json(); } 
+                updateDashboard(); renderTables(); 
+            } catch(e) { console.error('Load error:', e); showToast('Error loading data', 'error'); } 
+        }
+        
+        function renderTables() {
+            const tbody = document.getElementById("deliveryTableBody");
+            if (tbody) tbody.innerHTML = deliveries.length ? deliveries.slice(0, 20).map(d => `<tr class="border-b"><td class="p-2">${new Date(d.recorded_at).toLocaleDateString()}<\/td><td>${d.fuel_type}<\/td><td>${d.driver_name}<\/td><td>${(d.pre_dip||0).toLocaleString()}L<\/td><td>${(d.declared_litres||0).toLocaleString()}L<\/td><td>${(d.post_dip||0).toLocaleString()}L<\/td><td class="text-green-600">${(d.actual_gain||0).toLocaleString()}L<\/td><td class="${d.variance<0?'text-red-600':'text-green-600'}">${(d.variance||0).toLocaleString()}L<\/td><td><i class="fa-solid fa-trash text-red-500 cursor-pointer" onclick="deleteDelivery(${d.id})"><\/i><\/td><\/tr>`).join('') : '<tr><td colspan="9" class="text-center py-4">No deliveries recorded<\/tr>';
+            const dailyBody = document.getElementById("dailyTableBody");
+            if (dailyBody) dailyBody.innerHTML = dailyRecords.length ? dailyRecords.slice(0, 20).map(r => `<tr class="border-b"><td class="p-2">${r.record_date}<\/td><td>${(r.morning_diesel||0).toLocaleString()}L<\/td><td>${(r.morning_petrol||0).toLocaleString()}L<\/td><td class="text-red-600">${(r.diesel_sold||0).toLocaleString()}L<\/td><td class="text-red-600">${(r.petrol_sold||0).toLocaleString()}L<\/td><td>${((r.morning_diesel||0)+(r.morning_petrol||0))-((r.diesel_sold||0)+(r.petrol_sold||0))}L<\/td><td>${r.locked ? '<span class="badge-locked badge">LOCKED</span>' : '<span class="badge-success badge">Open</span>'}<\/td><td>${!r.locked ? `<i class="fa-solid fa-trash text-red-500 cursor-pointer" onclick="deleteDaily(${r.id})"><\/i>` : ''}<\/td><\/tr>`).join('') : '<tr><td colspan="8" class="text-center py-4">No daily records<\/tr>';
+        }
+        
+        async function deleteDelivery(id) { if (confirm("Delete?")) { await fetch(`${API_URL}/deliveries/${id}`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${getToken()}` } }); await loadAllData(); showToast("Deleted"); } }
+        function deleteDaily(id) { if (confirm("Delete?")) { dailyRecords = dailyRecords.filter(d => d.id !== id); loadAllData(); showToast("Deleted"); } }
+        async function logout() { localStorage.clear(); window.location.href = '/'; }
+
+        // ==================== VARIANCE FUNCTIONS ====================
+        async function loadVariances() {
+            const token = getToken(); if (!token) return;
+            try {
+                const response = await fetch(`${API_URL}/variances`, { headers: { 'Authorization': `Bearer ${token}` } });
+                if (response.ok) variances = await response.json(); else variances = [];
+                renderVarianceTable();
+            } catch (error) { variances = []; renderVarianceTable(); }
+        }
+
+        async function addVariance(type, amount, cause) {
+            const token = getToken(); if (!token) return;
+            try {
+                await fetch(`${API_URL}/variances`, {
+                    method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                    body: JSON.stringify({ type, amount, cause, status: 'Pending', date: new Date().toISOString().split('T')[0] })
+                });
+                await loadVariances();
+            } catch (error) { console.error('Error adding variance:', error); }
+        }
+        
+        async function addStockVariance(fuelType, expectedStock, actualStock, cause) {
+            const token = getToken(); if (!token) return;
+            const varianceAmount = Math.abs(expectedStock - actualStock);
+            try {
+                await fetch(`${API_URL}/variances`, {
+                    method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                    body: JSON.stringify({ 
+                        type: 'STOCK_VARIANCE', amount: varianceAmount, cause: cause, status: 'Pending', 
+                        date: new Date().toISOString().split('T')[0], fuel_type: fuelType, 
+                        expected_stock: expectedStock, actual_stock: actualStock
+                    })
+                });
+                await loadVariances();
+            } catch (error) { console.error('Error adding stock variance:', error); }
+        }
+
+        async function resolveVariance(varianceId) {
+            const resolution = prompt("Enter resolution notes for this variance:");
+            if (!resolution) return;
+            const token = getToken();
+            try {
+                await fetch(`${API_URL}/variances/${varianceId}/resolve`, {
+                    method: 'PUT', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                    body: JSON.stringify({ resolution_notes: resolution })
+                });
+                await loadVariances();
+                showToast("Variance resolved");
+            } catch (error) { showToast("Error resolving variance", "error"); }
+        }
+
+        function renderVarianceTable() {
+            const tbody = document.getElementById("varianceTableBody");
+            if (!tbody) return;
+            if (!variances || variances.length === 0) { 
+                tbody.innerHTML = '<tr><td colspan="8" class="text-center py-4"><div class="empty-state"><i class="fa-solid fa-chart-line"></i><p>No variances recorded yet</p><p class="text-xs text-gray-400">Complete a delivery with stock difference or click "Add Variance"</p></div><\/tr>'; 
+                return; 
+            }
+            tbody.innerHTML = variances.slice(0, 50).map(v => `
+                <tr class="border-b hover:bg-gray-50">
+                    <td class="p-2">${v.date || v.created_at?.split('T')[0] || 'Unknown'}<\/td>
+                    <td class="p-2"><span class="badge-info badge">${v.fuel_type || v.type || 'N/A'}<\/span><\/td>
+                    <td class="p-2">${v.expected_stock ? v.expected_stock.toLocaleString() + 'L' : '-'}<\/td>
+                    <td class="p-2">${v.actual_stock ? v.actual_stock.toLocaleString() + 'L' : '-'}<\/td>
+                    <td class="p-2 ${v.amount > 0 ? 'text-red-600 font-semibold' : ''}">${v.amount ? v.amount.toLocaleString() + 'L' : '-'}<\/td>
+                    <td class="p-2 max-w-md break-words">${(v.cause || '-').substring(0, 80)}${(v.cause || '').length > 80 ? '...' : ''}<\/td>
+                    <td class="p-2">${v.status === 'Resolved' ? '<span class="badge-success badge">Resolved</span>' : '<span class="badge-danger badge">Pending</span>'}<\/td>
+                    <td class="p-2">${v.status !== 'Resolved' ? `<button onclick="resolveVariance(${v.id})" class="btn-success text-xs px-2 py-1 rounded"><i class="fa-solid fa-check"></i> Resolve</button>` : '<span class="text-green-600 text-xs">✓ Completed</span>'}<\/td>
+                <\/tr>`).join('');
+            const pendingCount = variances.filter(v => v.status === 'Pending').length;
+            document.getElementById("pendingCount").innerHTML = pendingCount;
+        }
+
+        function showAddVarianceModal() { const modal = document.getElementById('varianceModal'); if (modal) { modal.classList.remove('hidden'); modal.classList.add('flex'); } }
+        
+        function closeVarianceModal() { 
+            const modal = document.getElementById('varianceModal'); 
+            if (modal) { modal.classList.add('hidden'); modal.classList.remove('flex'); } 
+            document.getElementById('varianceFuelType').value = 'Diesel';
+            document.getElementById('varianceExpected').value = ''; 
+            document.getElementById('varianceActual').value = ''; 
+            document.getElementById('varianceCause').value = ''; 
+        }
+        
+        async function saveStockVariance() {
+            const fuelType = document.getElementById('varianceFuelType').value;
+            const expectedStock = parseFloat(document.getElementById('varianceExpected').value);
+            const actualStock = parseFloat(document.getElementById('varianceActual').value);
+            const cause = document.getElementById('varianceCause').value;
+            
+            if (isNaN(expectedStock) || isNaN(actualStock)) { showToast("Please enter valid stock values", "error"); return; }
+            if (!cause) { showToast("Please enter a cause/description", "error"); return; }
+            
+            await addStockVariance(fuelType, expectedStock, actualStock, cause);
+            closeVarianceModal();
+        }
+
+        // ==================== RECORDS & REPORTS FUNCTIONS ====================
+        async function loadReconciliations() {
+            const token = getToken(); if (!token) return;
+            try {
+                const response = await fetch(`${API_URL}/reconciliation/history`, { headers: { 'Authorization': `Bearer ${token}` } });
+                if (response.ok) reconciliations = await response.json();
+                console.log('Reconciliations loaded:', reconciliations.length);
+            } catch (error) { console.error('Error loading reconciliations:', error); }
+        }
+
+        async function loadRecordsForReports() {
+            const token = getToken();
+            if (!token) return;
+            try {
+                console.log('Loading records for reports...');
+                await Promise.all([loadAllData(), loadVariances(), loadReconciliations()]);
+                buildAllRecords();
+                updateStatsCards();
+                applyFilters();
+                console.log('Records loaded successfully');
+            } catch (error) { 
+                console.error('Error loading records:', error);
+                showToast('Error loading records', 'error');
+            }
+        }
+
+        function buildAllRecords() {
+            allRecords = [];
+            
+            dailyRecords.forEach(record => { 
+                allRecords.push({ 
+                    id: record.id, 
+                    type: 'dip', 
+                    date: record.record_date, 
+                    details: `Morning D:${(record.morning_diesel || 0).toLocaleString()}L P:${(record.morning_petrol || 0).toLocaleString()}L`, 
+                    user: 'System', 
+                    status: record.locked ? 'Locked' : 'Open' 
+                }); 
+            });
+            
+            deliveries.forEach(delivery => { 
+                allRecords.push({ 
+                    id: delivery.id, 
+                    type: 'delivery', 
+                    date: delivery.delivery_date || delivery.recorded_at?.split('T')[0], 
+                    details: `${delivery.fuel_type}: ${(delivery.actual_gain || 0).toLocaleString()}L received`, 
+                    user: delivery.driver_name, 
+                    status: delivery.status || 'Completed' 
+                }); 
+            });
+            
+            variances.forEach(variance => { 
+                allRecords.push({ 
+                    id: variance.id, 
+                    type: 'variance', 
+                    date: variance.date, 
+                    details: `${variance.type}: ${(variance.amount || 0).toLocaleString()}L - ${(variance.cause || '').substring(0, 50)}`, 
+                    user: 'System', 
+                    status: variance.status 
+                }); 
+            });
+            
+            reconciliations.forEach(recon => { 
+                allRecords.push({ 
+                    id: recon.id, 
+                    type: 'reconciliation', 
+                    date: recon.record_date, 
+                    details: `Variance: KES ${(recon.variance || 0).toLocaleString()}`, 
+                    user: recon.recorded_by_name || 'System', 
+                    status: recon.status 
+                }); 
+            });
+            
+            allRecords.sort((a, b) => new Date(b.date) - new Date(a.date));
+            console.log('All records built:', allRecords.length);
+        }
+
+        function updateStatsCards() {
+            const today = new Date().toISOString().split('T')[0];
+            
+            document.getElementById('totalDips').innerText = dailyRecords.length.toLocaleString();
+            document.getElementById('totalSalesRecords').innerText = dailyRecords.filter(r => (r.diesel_sold || 0) + (r.petrol_sold || 0) > 0).length.toLocaleString();
+            document.getElementById('totalReconciliations').innerText = reconciliations.length.toLocaleString();
+            document.getElementById('totalDeliveries').innerText = deliveries.length.toLocaleString();
+            document.getElementById('todayEntries').innerText = allRecords.filter(r => r.date === today).length.toLocaleString();
+        }
+
+        function applyFilters() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
+            const recordType = document.getElementById('recordTypeFilter').value;
+            const sortBy = document.getElementById('sortBy').value;
+            
+            filteredRecords = allRecords.filter(record => {
+                if (searchTerm && !JSON.stringify(record).toLowerCase().includes(searchTerm)) return false;
+                if (startDate && record.date < startDate) return false;
+                if (endDate && record.date > endDate) return false;
+                if (recordType && record.type !== recordType) return false;
+                return true;
+            });
+            
+            if (sortBy === 'latest') filteredRecords.sort((a, b) => new Date(b.date) - new Date(a.date));
+            else if (sortBy === 'oldest') filteredRecords.sort((a, b) => new Date(a.date) - new Date(b.date));
+            
+            currentPage = 1;
+            renderRecordsTable();
+        }
+
+        function resetFilters() {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('startDate').value = '';
+            document.getElementById('endDate').value = '';
+            document.getElementById('recordTypeFilter').value = '';
+            document.getElementById('sortBy').value = 'latest';
+            applyFilters();
+            showToast('Filters reset', 'info');
+        }
+
+        function renderRecordsTable() {
+            const tbody = document.getElementById('recordsTableBody');
+            const total = filteredRecords.length;
+            const start = (currentPage - 1) * rowsPerPage;
+            const end = Math.min(start + rowsPerPage, total);
+            const pageRecords = filteredRecords.slice(start, end);
+            
+            document.getElementById('showingStart').innerText = total === 0 ? 0 : start + 1;
+            document.getElementById('showingEnd').innerText = end;
+            document.getElementById('totalRecords').innerText = total;
+            
+            if (pageRecords.length === 0) { 
+                tbody.innerHTML = '<tr><td colspan="7" class="text-center py-8"><div class="empty-state"><i class="fa-solid fa-folder-open"></i><p>No records found</p><p class="text-xs text-gray-400">Try adjusting your filters or add new records</p></div><\/tr>'; 
+                document.getElementById('paginationControls').innerHTML = ''; 
+                return; 
+            }
+            
+            tbody.innerHTML = pageRecords.map(record => `
+                <tr class="border-b hover:bg-gray-50">
+                    <td class="p-2">${record.id}<\/td>
+                    <td class="p-2">${record.date || '-'}<\/td>
+                    <td class="p-2"><span class="badge-info badge">${record.type}<\/span><\/td>
+                    <td class="p-2">${record.details || '-'}<\/td>
+                    <td class="p-2">${record.user || '-'}<\/td>
+                    <td class="p-2"><span class="badge ${record.status === 'Resolved' || record.status === 'Locked' ? 'badge-success' : record.status === 'Pending' ? 'badge-warning' : 'badge-info'}">${record.status || 'Active'}<\/span><\/td>
+                    <td class="p-2"><button onclick="viewRecordDetail(${record.id}, '${record.type}')" class="text-blue-600 hover:text-blue-800" title="View"><i class="fa-solid fa-eye"></i></button><\/td>
+                <\/tr>
+            `).join('');
+            
+            const totalPages = Math.ceil(total / rowsPerPage);
+            let paginationHtml = `<button onclick="goToPage(1)" ${currentPage === 1 ? 'disabled' : ''} class="pagination-btn px-3 py-1 rounded bg-gray-100 hover:bg-blue-100 disabled:opacity-50">First</button>
+                <button onclick="goToPage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''} class="pagination-btn px-3 py-1 rounded bg-gray-100 hover:bg-blue-100 disabled:opacity-50">Prev</button>`;
+            for (let i = 1; i <= Math.min(totalPages, 5); i++) paginationHtml += `<button onclick="goToPage(${i})" class="pagination-btn px-3 py-1 rounded ${currentPage === i ? 'bg-blue-900 text-white' : 'bg-gray-100 hover:bg-blue-100'}">${i}</button>`;
+            if (totalPages > 5) paginationHtml += `<span class="px-2">...</span><button onclick="goToPage(${totalPages})" class="pagination-btn px-3 py-1 rounded bg-gray-100 hover:bg-blue-100">${totalPages}</button>`;
+            paginationHtml += `<button onclick="goToPage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''} class="pagination-btn px-3 py-1 rounded bg-gray-100 hover:bg-blue-100 disabled:opacity-50">Next</button>
+                <button onclick="goToPage(${totalPages})" ${currentPage === totalPages ? 'disabled' : ''} class="pagination-btn px-3 py-1 rounded bg-gray-100 hover:bg-blue-100 disabled:opacity-50">Last</button>`;
+            document.getElementById('paginationControls').innerHTML = paginationHtml;
+        }
+
+        function goToPage(page) { currentPage = page; renderRecordsTable(); }
+
+        function viewRecordDetail(id, type) {
+            const record = allRecords.find(r => r.id === id && r.type === type);
+            if (!record) return;
+            alert(`📋 Record Details\n\nID: ${record.id}\nType: ${record.type}\nDate: ${record.date}\nDetails: ${record.details}\nUser: ${record.user}\nStatus: ${record.status}`);
+        }
+
+        async function exportToExcel() {
+            if (filteredRecords.length === 0) { showToast('No records to export', 'info'); return; }
+            const wsData = [['ID','Type','Date','Details','User','Status']];
+            filteredRecords.forEach(r => { wsData.push([r.id, r.type, r.date, r.details, r.user, r.status]); });
+            const ws = XLSX.utils.aoa_to_sheet(wsData);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, 'Records');
+            XLSX.writeFile(wb, `moreva_records_${new Date().toISOString().split('T')[0]}.xlsx`);
+            showToast("Excel export completed");
+        }
+
+        async function exportToCSV() {
+            if (filteredRecords.length === 0) { showToast('No records to export', 'info'); return; }
+            let csv = 'ID,Type,Date,Details,User,Status\n';
+            filteredRecords.forEach(r => { csv += `${r.id},${r.type},${r.date},${(r.details || '').replace(/,/g, ';')},${r.user},${r.status}\n`; });
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a'); a.href = url; a.download = `moreva_records_${new Date().toISOString().split('T')[0]}.csv`;
+            a.click(); URL.revokeObjectURL(url);
+            showToast("CSV export completed");
+        }
+        
+        // Initialize
+        (async function() { 
+            const token = getToken(); 
+            const user = getUser(); 
+            if (!token || !user) { 
+                window.location.href = "/"; 
+                return; 
+            }
+            document.getElementById("activeUserName").innerHTML = `${user.full_name || user.username} <span class="text-xs bg-slate-200 px-2 py-0.5 rounded-full">${user.role}</span>`; 
+            initCharts(); 
+            await loadAllData(); 
+            await loadVariances(); 
+            await loadReconciliations();
+            await buildAllRecords();
+            await updateStatsCards();
+            await applyFilters();
+        })();
+    </script>
+</body>
+</html>
