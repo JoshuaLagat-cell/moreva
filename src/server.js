@@ -11,10 +11,17 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 const SECRET_KEY = process.env.JWT_SECRET || 'moreva_super_secret_key_2026_enterprise';
 
-app.use(cors({ origin: true, credentials: true }));
+// ==================== MIDDLEWARE ====================
+app.use(cors({
+    origin: true,
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization']
+}));
 app.use(express.json());
 
-// Find public folder
+// ==================== STATIC FILES ====================
+// Try to find public folder
 let publicPath = null;
 const possiblePaths = [
     path.join(__dirname, 'public'),
@@ -39,7 +46,7 @@ if (!publicPath) {
 
 app.use(express.static(publicPath));
 
-// PostgreSQL Connection
+// ==================== DATABASE CONNECTION ====================
 const pool = new Pool({
     host: process.env.DB_HOST,
     port: process.env.DB_PORT || 5432,
@@ -47,34 +54,50 @@ const pool = new Pool({
     user: process.env.DB_USER,
     password: process.env.DB_PASSWORD,
     ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : false,
+    max: 10,
+    idleTimeoutMillis: 30000,
+    connectionTimeoutMillis: 20000,
 });
 
-pool.connect(async (err) => {
+// Test database connection
+pool.connect(async (err, client, release) => {
     if (err) {
-        console.error('❌ Database Error:', err.message);
+        console.error('❌ Database connection error:', err.message);
     } else {
-        console.log('✅ PostgreSQL Connected!');
-        await initTables();
+        console.log('✅ PostgreSQL connected successfully!');
+        release();
+        await initializeDatabase();
     }
 });
 
-async function initTables() {
+// ==================== INITIALIZE DATABASE ====================
+async function initializeDatabase() {
+    console.log('\n📋 Initializing database tables...');
+    
     try {
+        // Create users table
         await pool.query(`
             CREATE TABLE IF NOT EXISTS users (
                 id SERIAL PRIMARY KEY,
-                username VARCHAR(100) UNIQUE,
-                email VARCHAR(200) UNIQUE,
-                password_hash VARCHAR(255),
+                username VARCHAR(100) UNIQUE NOT NULL,
+                email VARCHAR(200) UNIQUE NOT NULL,
+                password_hash VARCHAR(255) NOT NULL,
                 full_name VARCHAR(200),
                 role VARCHAR(50) DEFAULT 'staff',
                 phone VARCHAR(50),
+                address TEXT,
                 is_active BOOLEAN DEFAULT FALSE,
+                email_verified BOOLEAN DEFAULT FALSE,
                 last_login TIMESTAMP,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                login_attempts INT DEFAULT 0,
+                locked_until TIMESTAMP,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
         `);
+        console.log('✓ Users table ready');
         
+        // Create daily_records table
         await pool.query(`
             CREATE TABLE IF NOT EXISTS daily_records (
                 id SERIAL PRIMARY KEY,
@@ -88,7 +111,9 @@ async function initTables() {
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
         `);
+        console.log('✓ Daily records table ready');
         
+        // Create deliveries table
         await pool.query(`
             CREATE TABLE IF NOT EXISTS deliveries (
                 id SERIAL PRIMARY KEY,
@@ -100,11 +125,14 @@ async function initTables() {
                 actual_gain DECIMAL(10,2),
                 variance DECIMAL(10,2),
                 status VARCHAR(50),
+                delivery_date DATE DEFAULT CURRENT_DATE,
                 recorded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 recorded_by INTEGER
             )
         `);
+        console.log('✓ Deliveries table ready');
         
+        // Create variances table
         await pool.query(`
             CREATE TABLE IF NOT EXISTS variances (
                 id SERIAL PRIMARY KEY,
@@ -116,11 +144,14 @@ async function initTables() {
                 fuel_type VARCHAR(50),
                 expected_stock DECIMAL(10,2),
                 actual_stock DECIMAL(10,2),
+                resolution_notes TEXT,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 recorded_by INTEGER
             )
         `);
+        console.log('✓ Variances table ready');
         
+        // Create reconciliations table
         await pool.query(`
             CREATE TABLE IF NOT EXISTS reconciliations (
                 id SERIAL PRIMARY KEY,
@@ -141,30 +172,50 @@ async function initTables() {
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
         `);
+        console.log('✓ Reconciliations table ready');
         
-        // Create admin user
+        // Create default admin user
         const adminCheck = await pool.query(`SELECT * FROM users WHERE username = 'admin'`);
         if (adminCheck.rows.length === 0) {
-            const hashed = await bcrypt.hash('admin123', 10);
+            const hashedPassword = await bcrypt.hash('admin123', 10);
             await pool.query(
-                `INSERT INTO users (username, email, password_hash, full_name, role, is_active) VALUES ($1, $2, $3, $4, $5, $6)`,
-                ['admin', 'admin@moreva.com', hashed, 'System Administrator', 'super_admin', true]
+                `INSERT INTO users (username, email, password_hash, full_name, role, is_active, email_verified) 
+                 VALUES ($1, $2, $3, $4, $5, $6, $7)`,
+                ['admin', 'admin@moreva.com', hashedPassword, 'System Administrator', 'super_admin', true, true]
             );
-            console.log('✅ Admin created: admin / admin123');
+            console.log('✓ Default admin user created: admin / admin123');
         }
         
-        console.log('✅ All tables ready');
-    } catch (err) {
-        console.error('Table error:', err.message);
+        // Create sample daily record if none exists
+        const dailyCheck = await pool.query(`SELECT COUNT(*) FROM daily_records`);
+        if (parseInt(dailyCheck.rows[0].count) === 0) {
+            const today = new Date().toISOString().split('T')[0];
+            await pool.query(
+                `INSERT INTO daily_records (record_date, morning_diesel, morning_petrol, locked) VALUES ($1, $2, $3, $4)`,
+                [today, 7500, 6800, false]
+            );
+            console.log('✓ Sample daily record created');
+        }
+        
+        console.log('✅ Database initialization complete!\n');
+    } catch (error) {
+        console.error('❌ Database initialization error:', error.message);
     }
 }
 
-// ==================== AUTH MIDDLEWARE ====================
+// ==================== AUTHENTICATION MIDDLEWARE ====================
 const authenticateToken = (req, res, next) => {
-    const token = req.headers['authorization']?.split(' ')[1];
-    if (!token) return res.status(401).json({ error: 'No token' });
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1];
+    
+    if (!token) {
+        return res.status(401).json({ error: 'Access denied. No token provided.' });
+    }
+    
     jwt.verify(token, SECRET_KEY, (err, user) => {
-        if (err) return res.status(403).json({ error: 'Invalid token' });
+        if (err) {
+            return res.status(403).json({ error: 'Invalid or expired token.' });
+        }
         req.user = user;
         next();
     });
@@ -181,120 +232,229 @@ const isAdmin = (req, res, next) => {
 // ==================== AUTH ROUTES ====================
 app.post('/api/login', async (req, res) => {
     const { username, password } = req.body;
-    console.log(`🔐 Login: ${username}`);
+    console.log(`🔐 Login attempt: ${username}`);
     
     try {
-        const result = await pool.query(`SELECT * FROM users WHERE username = $1 OR email = $1`, [username]);
-        if (result.rows.length === 0) return res.status(401).json({ error: 'Invalid credentials' });
+        const result = await pool.query(
+            `SELECT id, username, email, password_hash, full_name, role, is_active FROM users WHERE username = $1 OR email = $1`,
+            [username]
+        );
+        
+        if (result.rows.length === 0) {
+            return res.status(401).json({ error: 'Invalid credentials' });
+        }
         
         const user = result.rows[0];
-        if (!user.is_active) return res.status(403).json({ error: 'Account pending approval' });
         
-        const valid = await bcrypt.compare(password, user.password_hash);
-        if (!valid) return res.status(401).json({ error: 'Invalid credentials' });
+        if (!user.is_active) {
+            return res.status(403).json({ error: 'Account pending admin approval' });
+        }
         
-        const token = jwt.sign({ id: user.id, username: user.username, role: user.role }, SECRET_KEY, { expiresIn: '30d' });
-        res.json({ 
-            token, 
-            user: { id: user.id, username: user.username, full_name: user.full_name, role: user.role, email: user.email, is_active: user.is_active } 
+        const validPassword = await bcrypt.compare(password, user.password_hash);
+        
+        if (!validPassword) {
+            return res.status(401).json({ error: 'Invalid credentials' });
+        }
+        
+        await pool.query(`UPDATE users SET last_login = CURRENT_TIMESTAMP WHERE id = $1`, [user.id]);
+        
+        const token = jwt.sign(
+            { id: user.id, username: user.username, role: user.role },
+            SECRET_KEY,
+            { expiresIn: '30d' }
+        );
+        
+        console.log(`✅ Login successful: ${username}`);
+        res.json({
+            token,
+            user: {
+                id: user.id,
+                username: user.username,
+                full_name: user.full_name,
+                role: user.role,
+                email: user.email,
+                is_active: user.is_active
+            }
         });
-    } catch (err) {
+    } catch (error) {
+        console.error('Login error:', error);
         res.status(500).json({ error: 'Server error' });
     }
 });
 
 app.post('/api/auth/signup', async (req, res) => {
-    const { username, full_name, email, password, role } = req.body;
+    const { username, full_name, email, phone, password, role } = req.body;
+    console.log(`📝 Signup attempt: ${username}`);
+    
     try {
-        const existing = await pool.query(`SELECT * FROM users WHERE username = $1 OR email = $2`, [username, email]);
-        if (existing.rows.length > 0) return res.status(400).json({ error: 'Username or email exists' });
-        
-        const hashed = await bcrypt.hash(password, 10);
-        const result = await pool.query(
-            `INSERT INTO users (username, email, password_hash, full_name, role, is_active) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id, username, full_name, role, email, is_active`,
-            [username, email, hashed, full_name, role || 'staff', false]
+        const existing = await pool.query(
+            `SELECT * FROM users WHERE username = $1 OR email = $2`,
+            [username, email]
         );
-        res.status(201).json({ message: 'Registration pending admin approval', user: result.rows[0] });
-    } catch (err) {
+        
+        if (existing.rows.length > 0) {
+            return res.status(400).json({ error: 'Username or email already exists' });
+        }
+        
+        const hashedPassword = await bcrypt.hash(password, 10);
+        const result = await pool.query(
+            `INSERT INTO users (username, email, password_hash, full_name, role, phone, is_active, email_verified) 
+             VALUES ($1, $2, $3, $4, $5, $6, $7, $8) 
+             RETURNING id, username, full_name, role, email, is_active`,
+            [username, email, hashedPassword, full_name, role || 'staff', phone || null, false, false]
+        );
+        
+        console.log(`✅ User registered: ${username} (pending approval)`);
+        res.status(201).json({
+            message: 'Registration successful! Your account is pending admin approval.',
+            user: result.rows[0]
+        });
+    } catch (error) {
+        console.error('Signup error:', error);
         res.status(500).json({ error: 'Server error' });
     }
 });
 
 app.get('/api/verify', authenticateToken, async (req, res) => {
-    const result = await pool.query(`SELECT id, username, full_name, role, email, is_active FROM users WHERE id = $1`, [req.user.id]);
-    res.json({ valid: true, user: result.rows[0] });
+    try {
+        const result = await pool.query(
+            `SELECT id, username, full_name, role, email, is_active FROM users WHERE id = $1`,
+            [req.user.id]
+        );
+        
+        if (result.rows.length === 0) {
+            return res.status(401).json({ error: 'User not found' });
+        }
+        
+        if (!result.rows[0].is_active) {
+            return res.status(403).json({ error: 'Account deactivated' });
+        }
+        
+        res.json({ valid: true, user: result.rows[0] });
+    } catch (error) {
+        res.status(500).json({ error: 'Server error' });
+    }
 });
 
 // ==================== ADMIN ROUTES ====================
 app.get('/api/users', authenticateToken, isAdmin, async (req, res) => {
-    const result = await pool.query(`SELECT id, username, email, full_name, role, is_active, last_login, created_at FROM users ORDER BY created_at DESC`);
-    res.json(result.rows);
+    try {
+        const result = await pool.query(`
+            SELECT id, username, email, full_name, role, is_active, last_login, created_at 
+            FROM users 
+            ORDER BY created_at DESC
+        `);
+        res.json(result.rows);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
 });
 
 app.put('/api/users/:id/approve', authenticateToken, isAdmin, async (req, res) => {
-    await pool.query(`UPDATE users SET is_active = true WHERE id = $1`, [req.params.id]);
-    res.json({ message: 'User approved' });
+    try {
+        await pool.query(`UPDATE users SET is_active = true WHERE id = $1`, [req.params.id]);
+        res.json({ message: 'User approved successfully' });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
 });
 
 app.delete('/api/users/:id', authenticateToken, isAdmin, async (req, res) => {
-    const userId = parseInt(req.params.id);
-    if (userId === req.user.id) return res.status(400).json({ error: 'Cannot delete yourself' });
-    await pool.query(`DELETE FROM users WHERE id = $1`, [userId]);
-    res.json({ message: 'User deleted' });
+    try {
+        const userId = parseInt(req.params.id);
+        if (userId === req.user.id) {
+            return res.status(400).json({ error: 'Cannot delete your own account' });
+        }
+        await pool.query(`DELETE FROM users WHERE id = $1`, [userId]);
+        res.json({ message: 'User deleted successfully' });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
 });
 
 // ==================== DELIVERIES ROUTES ====================
 app.get('/api/deliveries', authenticateToken, async (req, res) => {
-    const result = await pool.query(`SELECT * FROM deliveries ORDER BY recorded_at DESC`);
-    res.json(result.rows);
+    try {
+        const result = await pool.query(`SELECT * FROM deliveries ORDER BY recorded_at DESC`);
+        res.json(result.rows);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
 });
 
 app.post('/api/deliveries', authenticateToken, async (req, res) => {
     const { fuel_type, driver_name, declared_litres, pre_dip, post_dip, actual_gain, variance, status } = req.body;
-    const result = await pool.query(
-        `INSERT INTO deliveries (fuel_type, driver_name, declared_litres, pre_dip, post_dip, actual_gain, variance, status, recorded_by) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING id`,
-        [fuel_type, driver_name, declared_litres, pre_dip, post_dip, actual_gain, variance, status, req.user.id]
-    );
-    res.json({ id: result.rows[0].id, message: 'Delivery saved' });
+    try {
+        const result = await pool.query(
+            `INSERT INTO deliveries (fuel_type, driver_name, declared_litres, pre_dip, post_dip, actual_gain, variance, status, recorded_by) 
+             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING id`,
+            [fuel_type, driver_name, declared_litres, pre_dip, post_dip, actual_gain, variance, status, req.user.id]
+        );
+        res.json({ id: result.rows[0].id, message: 'Delivery saved' });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
 });
 
 // ==================== VARIANCES ROUTES ====================
 app.get('/api/variances', authenticateToken, async (req, res) => {
-    const result = await pool.query(`SELECT * FROM variances ORDER BY created_at DESC`);
-    res.json(result.rows);
+    try {
+        const result = await pool.query(`SELECT * FROM variances ORDER BY created_at DESC`);
+        res.json(result.rows);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
 });
 
 app.post('/api/variances', authenticateToken, async (req, res) => {
     const { type, amount, cause, fuel_type, expected_stock, actual_stock } = req.body;
-    const result = await pool.query(
-        `INSERT INTO variances (type, amount, cause, fuel_type, expected_stock, actual_stock, recorded_by) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id`,
-        [type, amount, cause, fuel_type, expected_stock, actual_stock, req.user.id]
-    );
-    res.json({ id: result.rows[0].id, message: 'Variance recorded' });
+    try {
+        const result = await pool.query(
+            `INSERT INTO variances (type, amount, cause, fuel_type, expected_stock, actual_stock, recorded_by) 
+             VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id`,
+            [type, amount, cause, fuel_type, expected_stock, actual_stock, req.user.id]
+        );
+        res.json({ id: result.rows[0].id, message: 'Variance recorded' });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
 });
 
 app.put('/api/variances/:id/resolve', authenticateToken, async (req, res) => {
     const { resolution_notes } = req.body;
-    await pool.query(`UPDATE variances SET status = 'Resolved', resolution_notes = $1 WHERE id = $2`, [resolution_notes, req.params.id]);
-    res.json({ message: 'Variance resolved' });
+    try {
+        await pool.query(`UPDATE variances SET status = 'Resolved', resolution_notes = $1 WHERE id = $2`, [resolution_notes, req.params.id]);
+        res.json({ message: 'Variance resolved' });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
 });
 
 // ==================== RECONCILIATION ROUTES ====================
 app.post('/api/reconciliation', authenticateToken, async (req, res) => {
     const { total_sales, mpesa, credits, expenses, advances, returns_val, lubricants, expected_cash, actual_cash, variance, status } = req.body;
-    await pool.query(
-        `INSERT INTO reconciliations (total_sales, mpesa, credits, expenses, advances, returns_val, lubricants, expected_cash, actual_cash, variance, status, recorded_by, recorded_by_name) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)`,
-        [total_sales, mpesa, credits, expenses, advances, returns_val, lubricants, expected_cash, actual_cash, variance, status, req.user.id, req.user.username]
-    );
-    res.json({ message: 'Reconciliation saved' });
+    try {
+        await pool.query(
+            `INSERT INTO reconciliations (total_sales, mpesa, credits, expenses, advances, returns_val, lubricants, expected_cash, actual_cash, variance, status, recorded_by, recorded_by_name) 
+             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)`,
+            [total_sales, mpesa, credits, expenses, advances, returns_val, lubricants, expected_cash, actual_cash, variance, status, req.user.id, req.user.username]
+        );
+        res.json({ message: 'Reconciliation saved' });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
 });
 
 app.get('/api/reconciliation/history', authenticateToken, async (req, res) => {
-    const result = await pool.query(`SELECT * FROM reconciliations ORDER BY created_at DESC`);
-    res.json(result.rows);
+    try {
+        const result = await pool.query(`SELECT * FROM reconciliations ORDER BY created_at DESC`);
+        res.json(result.rows);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
 });
 
-// ==================== FUEL ROUTES (FIXED) ====================
+// ==================== FUEL ROUTES (CRITICAL - MUST BE HERE) ====================
 app.post('/api/fuel/morning-dip', authenticateToken, async (req, res) => {
     const { diesel, petrol } = req.body;
     const today = new Date().toISOString().split('T')[0];
@@ -302,19 +462,22 @@ app.post('/api/fuel/morning-dip', authenticateToken, async (req, res) => {
     
     try {
         const existing = await pool.query(`SELECT * FROM daily_records WHERE record_date = $1`, [today]);
+        
         if (existing.rows.length > 0) {
             await pool.query(
                 `UPDATE daily_records SET morning_diesel = $1, morning_petrol = $2, recorded_by = $3 WHERE record_date = $4`,
                 [diesel, petrol, req.user.id, today]
             );
+            res.json({ message: 'Morning dip updated' });
         } else {
             await pool.query(
                 `INSERT INTO daily_records (record_date, morning_diesel, morning_petrol, recorded_by) VALUES ($1, $2, $3, $4)`,
                 [today, diesel, petrol, req.user.id]
             );
+            res.json({ message: 'Morning dip saved' });
         }
-        res.json({ message: 'Morning dip saved' });
     } catch (error) {
+        console.error('Error saving morning dip:', error.message);
         res.status(500).json({ error: error.message });
     }
 });
@@ -322,7 +485,7 @@ app.post('/api/fuel/morning-dip', authenticateToken, async (req, res) => {
 app.post('/api/fuel/daily-sales', authenticateToken, async (req, res) => {
     const { dieselSold, petrolSold } = req.body;
     const today = new Date().toISOString().split('T')[0];
-    console.log(`💰 Sales: Diesel=${dieselSold}L, Petrol=${petrolSold}L`);
+    console.log(`💰 Daily sales: Diesel=${dieselSold}L, Petrol=${petrolSold}L`);
     
     try {
         await pool.query(
@@ -331,30 +494,75 @@ app.post('/api/fuel/daily-sales', authenticateToken, async (req, res) => {
         );
         res.json({ message: 'Sales recorded' });
     } catch (error) {
+        console.error('Error recording sales:', error.message);
         res.status(500).json({ error: error.message });
     }
 });
 
 app.get('/api/fuel/daily-records', authenticateToken, async (req, res) => {
-    const result = await pool.query(`SELECT * FROM daily_records ORDER BY record_date DESC`);
-    res.json(result.rows);
+    try {
+        const result = await pool.query(`SELECT * FROM daily_records ORDER BY record_date DESC`);
+        res.json(result.rows);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
 });
 
-// ==================== SERVE HTML ====================
-app.get('/', (req, res) => res.sendFile(path.join(publicPath, 'index.html')));
-app.get('/dashboard.html', (req, res) => res.sendFile(path.join(publicPath, 'dashboard.html')));
-app.get('/admin.html', (req, res) => res.sendFile(path.join(publicPath, 'admin.html')));
-app.get('/dashboard', (req, res) => res.sendFile(path.join(publicPath, 'dashboard.html')));
-app.get('/admin', (req, res) => res.sendFile(path.join(publicPath, 'admin.html')));
+// ==================== SERVE HTML FILES ====================
+app.get('/', (req, res) => {
+    res.sendFile(path.join(publicPath, 'index.html'));
+});
+
+app.get('/dashboard.html', (req, res) => {
+    res.sendFile(path.join(publicPath, 'dashboard.html'));
+});
+
+app.get('/admin.html', (req, res) => {
+    res.sendFile(path.join(publicPath, 'admin.html'));
+});
+
+app.get('/dashboard', (req, res) => {
+    res.sendFile(path.join(publicPath, 'dashboard.html'));
+});
+
+app.get('/admin', (req, res) => {
+    res.sendFile(path.join(publicPath, 'admin.html'));
+});
 
 // ==================== HEALTH CHECK ====================
-app.get('/api/health', (req, res) => {
-    res.json({ status: 'running', port: PORT, publicPath: publicPath });
+app.get('/api/health', async (req, res) => {
+    try {
+        await pool.query('SELECT 1');
+        res.json({
+            status: 'running',
+            database: 'connected',
+            port: PORT,
+            publicPath: publicPath,
+            timestamp: new Date().toISOString()
+        });
+    } catch (error) {
+        res.json({
+            status: 'running',
+            database: 'disconnected',
+            error: error.message
+        });
+    }
+});
+
+// ==================== ERROR HANDLER ====================
+app.use((err, req, res, next) => {
+    console.error('Server error:', err);
+    res.status(500).json({ error: 'Internal server error' });
 });
 
 // ==================== START SERVER ====================
 app.listen(PORT, () => {
-    console.log(`\n🚀 Server running on port ${PORT}`);
-    console.log(`📁 Serving from: ${publicPath}`);
-    console.log(`🌐 Access: http://localhost:${PORT}\n`);
+    console.log('\n' + '='.repeat(60));
+    console.log('🚀 MOREVA ENERGY Backend Server');
+    console.log('='.repeat(60));
+    console.log(`📡 Server running on: http://localhost:${PORT}`);
+    console.log(`📁 Static files from: ${publicPath}`);
+    console.log(`🌐 Access at: http://localhost:${PORT}`);
+    console.log(`🔐 Admin: admin / admin123`);
+    console.log('='.repeat(60) + '\n');
 });
