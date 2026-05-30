@@ -131,8 +131,8 @@
         .empty-state { text-align: center; padding: 3rem; color: #6b7280; }
         .empty-state i { font-size: 3rem; margin-bottom: 1rem; color: #9ca3af; }
         
-        /* Navbar */
-        .navbar { background: rgba(255,255,255,0.95); backdrop-filter: blur(8px); }
+        /* Fixed Navbar */
+        .navbar { position: sticky; top: 0; z-index: 100; background: rgba(255,255,255,0.95); backdrop-filter: blur(8px); }
         
         /* Hero */
         .hero-gradient { background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); }
@@ -148,7 +148,6 @@
             .stat-card { padding: 0.75rem; }
             .stat-card h3 { font-size: 1.5rem; }
             .kpi-box { padding: 0.5rem 0.75rem; min-width: 120px; }
-            .kpi-box .font-bold { font-size: 1.25rem; }
             .table-wrapper { font-size: 0.75rem; }
             th, td { padding: 0.5rem; }
             .tab-btn { padding: 0.5rem 1rem; font-size: 0.875rem; }
@@ -158,7 +157,6 @@
         
         @media (max-width: 480px) {
             .stats { grid-template-columns: 1fr; }
-            .flex-wrap { gap: 0.5rem; }
             .p-6 { padding: 1rem; }
         }
         
@@ -168,15 +166,17 @@
         ::-webkit-scrollbar-thumb { background: #888; border-radius: 10px; }
         ::-webkit-scrollbar-thumb:hover { background: #555; }
         
-        /* Delete Icon */
-        .delete-icon { color: #dc2626; cursor: pointer; margin: 0 5px; font-size: 0.9rem; transition: all 0.2s; }
-        .delete-icon:hover { color: #b91c1c; transform: scale(1.1); }
+        /* Sales Card */
+        .sales-detail { font-size: 0.75rem; color: #6b7280; margin-top: 0.5rem; padding-top: 0.5rem; border-top: 1px solid #e5e7eb; }
+        .sales-detail span { font-weight: 600; }
+        .sales-detail .diesel { color: #2563eb; }
+        .sales-detail .petrol { color: #dc2626; }
     </style>
 </head>
 <body class="bg-slate-100">
     <div id="mainApp">
-        <!-- Navbar -->
-        <nav class="navbar sticky top-0 z-50 backdrop-blur-md border-b shadow-sm">
+        <!-- Navbar - Fixed -->
+        <nav class="navbar sticky top-0 z-50 border-b shadow-sm">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex flex-wrap items-center justify-between gap-3">
                 <div class="flex items-center gap-3">
                     <div class="bg-gradient-to-r from-blue-900 to-red-600 w-10 h-10 rounded-xl flex items-center justify-center text-white font-bold text-xl shadow-md">M</div>
@@ -251,6 +251,10 @@
                     <div class="bg-white p-5 rounded-2xl shadow-md hover:shadow-lg transition">
                         <h4 class="text-slate-500 text-sm">Today's Total Sales</h4>
                         <h2 id="todaySales" class="text-3xl font-bold mt-1 text-green-600">0 L</h2>
+                        <div class="sales-detail">
+                            <span class="diesel">⛽ Diesel: <span id="todayDieselSalesDetail">0</span> L</span> &nbsp;|&nbsp;
+                            <span class="petrol">⛽ Petrol: <span id="todayPetrolSalesDetail">0</span> L</span>
+                        </div>
                         <span class="badge mt-2">From Daily Entry</span>
                     </div>
                     <div class="bg-white p-5 rounded-2xl shadow-md hover:shadow-lg transition">
@@ -305,9 +309,7 @@
                     <h3 class="font-bold text-lg flex items-center gap-2"><i class="fas fa-history text-purple-600"></i> Delivery History</h3>
                     <div class="table-wrapper mt-3">
                         <table class="min-w-full text-sm">
-                            <thead class="bg-slate-100">
-                                <tr><th class="p-2">Date</th><th>Fuel</th><th>Driver</th><th>Pre-Dip</th><th>Declared</th><th>Post-Dip</th><th>Actual</th><th>Variance</th><th></th></tr>
-                            </thead>
+                            <thead class="bg-slate-100"><tr><th class="p-2">Date</th><th>Fuel</th><th>Driver</th><th>Pre-Dip</th><th>Declared</th><th>Post-Dip</th><th>Actual</th><th>Variance</th><th></th></tr></thead>
                             <tbody id="deliveryTableBody"></tbody>
                         </table>
                     </div>
@@ -341,9 +343,7 @@
                     <h3 class="font-bold text-lg flex items-center gap-2"><i class="fas fa-calendar-alt text-teal-600"></i> Daily Records History</h3>
                     <div class="table-wrapper mt-3">
                         <table class="min-w-full text-sm">
-                            <thead class="bg-slate-100">
-                                <tr><th>Date</th><th>Morning D</th><th>Morning P</th><th>Diesel Sold</th><th>Petrol Sold</th><th>Stock After</th><th>Status</th><th></th></tr>
-                            </thead>
+                            <thead class="bg-slate-100"><tr><th>Date</th><th>Morning D</th><th>Morning P</th><th>Diesel Sold</th><th>Petrol Sold</th><th>Stock After</th><th>Status</th><th></th></tr></thead>
                             <tbody id="dailyTableBody"></tbody>
                         </table>
                     </div>
@@ -506,7 +506,6 @@
     </div>
 
     <script>
-        // [All JavaScript code remains exactly the same - no functionality changes]
         const API_URL = window.location.origin + '/api';
         const TANK_CAPACITY = { diesel: 10000, petrol: 10000 };
         let deliveries = [], dailyRecords = [], variances = [], reconciliations = [];
@@ -537,6 +536,11 @@
             toast.style.background = type === "error" ? "#dc2626" : type === "info" ? "#3b82f6" : "#10b981";
             toast.innerHTML = `<i class="fa-solid ${type === "error" ? "fa-circle-exclamation" : type === "info" ? "fa-info-circle" : "fa-circle-check"} mr-2"></i> ${msg}`;
             document.body.appendChild(toast); setTimeout(() => toast.remove(), 3000);
+        }
+
+        function logout() { 
+            localStorage.clear(); 
+            window.location.href = '/'; 
         }
 
         function showSection(sectionName) {
@@ -584,19 +588,23 @@
                 const currentD = morningD - soldD;
                 const currentP = morningP - soldP;
                 
-                document.getElementById("dieselStock").innerHTML = `${Math.max(0, currentD).toLocaleString()} L`;
+                document.getElementById("dieselStock").innerHTML = `${Math.max(0, Math.floor(currentD)).toLocaleString()} L`;
                 document.getElementById("dieselProgress").style.width = `${Math.min(100, Math.max(0, (currentD / 10000) * 100))}%`;
-                document.getElementById("lastMorningDiesel").innerHTML = morningD.toLocaleString();
-                document.getElementById("todayDieselSales").innerHTML = soldD.toLocaleString();
+                document.getElementById("lastMorningDiesel").innerHTML = Math.floor(morningD).toLocaleString();
+                document.getElementById("todayDieselSales").innerHTML = Math.floor(soldD).toLocaleString();
                 
-                document.getElementById("petrolStock").innerHTML = `${Math.max(0, currentP).toLocaleString()} L`;
+                document.getElementById("petrolStock").innerHTML = `${Math.max(0, Math.floor(currentP)).toLocaleString()} L`;
                 document.getElementById("petrolProgress").style.width = `${Math.min(100, Math.max(0, (currentP / 10000) * 100))}%`;
-                document.getElementById("lastMorningPetrol").innerHTML = morningP.toLocaleString();
-                document.getElementById("todayPetrolSales").innerHTML = soldP.toLocaleString();
+                document.getElementById("lastMorningPetrol").innerHTML = Math.floor(morningP).toLocaleString();
+                document.getElementById("todayPetrolSales").innerHTML = Math.floor(soldP).toLocaleString();
                 
-                document.getElementById("todaySales").innerHTML = `${(soldD + soldP).toLocaleString()} L`;
-                document.getElementById("currentDieselStock").innerHTML = Math.max(0, currentD).toLocaleString();
-                document.getElementById("currentPetrolStock").innerHTML = Math.max(0, currentP).toLocaleString();
+                const totalSales = soldD + soldP;
+                document.getElementById("todaySales").innerHTML = `${Math.floor(totalSales).toLocaleString()} L`;
+                document.getElementById("todayDieselSalesDetail").innerHTML = Math.floor(soldD).toLocaleString();
+                document.getElementById("todayPetrolSalesDetail").innerHTML = Math.floor(soldP).toLocaleString();
+                
+                document.getElementById("currentDieselStock").innerHTML = Math.max(0, Math.floor(currentD)).toLocaleString();
+                document.getElementById("currentPetrolStock").innerHTML = Math.max(0, Math.floor(currentP)).toLocaleString();
                 
                 updatePerformance();
                 updateCharts();
@@ -671,9 +679,9 @@
             let currentTotal = 0;
             if (dailyRecords.length > 0) { const l = dailyRecords[0]; currentTotal = Math.max(0, ((l.morning_diesel||0)-(l.diesel_sold||0)) + ((l.morning_petrol||0)-(l.petrol_sold||0))); }
             document.getElementById("performanceSummary").innerHTML = `
-                <div class="kpi-box"><div class="font-bold text-2xl">${currentTotal.toLocaleString()} L</div><div>Current Stock</div></div>
-                <div class="kpi-box"><div class="font-bold text-2xl">${totalSold.toLocaleString()} L</div><div>Total Sales</div></div>
-                <div class="kpi-box"><div class="font-bold text-2xl">${avgDaily.toFixed(0)} L</div><div>Daily Avg</div></div>
+                <div class="kpi-box"><div class="font-bold text-2xl">${Math.floor(currentTotal).toLocaleString()} L</div><div>Current Stock</div></div>
+                <div class="kpi-box"><div class="font-bold text-2xl">${Math.floor(totalSold).toLocaleString()} L</div><div>Total Sales</div></div>
+                <div class="kpi-box"><div class="font-bold text-2xl">${Math.floor(avgDaily).toLocaleString()} L</div><div>Daily Avg</div></div>
                 <div class="kpi-box"><div class="font-bold text-2xl">${dailyRecords.length}</div><div>Days</div></div>
                 <div class="kpi-box"><div class="font-bold text-2xl">${deliveries.length}</div><div>Deliveries</div></div>
                 <div class="kpi-box"><div class="font-bold text-2xl">${Math.round((currentTotal/20000)*100)}%</div><div>Tank Fill</div></div>
@@ -712,16 +720,16 @@
             document.getElementById("expectedCashAmount").innerHTML = `KES ${expectedCash.toLocaleString(undefined, { minimumFractionDigits: 2 })}`;
             document.getElementById("actualCashSection").style.display = "block";
             document.getElementById("reportBody").innerHTML = `
-                <tr style="background:#f0f7ff;"><td class="font-semibold">Total Sales</td><td class="font-bold">KES ${totalSales.toLocaleString()}</td></tr>
-                <tr><td class="pl-4">📱 M-Pesa</td><td>KES ${mpesa.toLocaleString()}</td></tr>
-                <tr><td class="pl-4">🧾 Credits</td><td>KES ${credit.toLocaleString()}</td></tr>
-                <tr><td class="pl-4">💸 Expenses</td><td>KES ${expenses.toLocaleString()}</td></tr>
-                <tr><td class="pl-4">💳 Advances</td><td>KES ${advance.toLocaleString()}</td></tr>
-                <tr><td class="pl-4 text-green-600">🔄 Returns</td><td class="text-green-600">+ KES ${returnsVal.toLocaleString()}</td></tr>
-                <tr><td class="pl-4 text-green-600">🛢️ Lubricants</td><td class="text-green-600">+ KES ${lubricants.toLocaleString()}</td></tr>
-                <tr style="background:#eef6ff;"><td class="font-bold">🎯 EXPECTED CASH</td><td class="font-bold text-blue-700">KES ${expectedCash.toLocaleString()}</td></tr>
+                <tr style="background:#f0f7ff;"><td class="font-semibold">Total Sales<\/td><td class="font-bold">KES ${Math.floor(totalSales).toLocaleString()}<\/td><\/tr>
+                <tr><td class="pl-4">📱 M-Pesa<\/td><td>KES ${Math.floor(mpesa).toLocaleString()}<\/td><\/tr>
+                <tr><td class="pl-4">🧾 Credits<\/td><td>KES ${Math.floor(credit).toLocaleString()}<\/td><\/tr>
+                <tr><td class="pl-4">💸 Expenses<\/td><td>KES ${Math.floor(expenses).toLocaleString()}<\/td><\/tr>
+                <tr><td class="pl-4">💳 Advances<\/td><td>KES ${Math.floor(advance).toLocaleString()}<\/td><\/tr>
+                <tr><td class="pl-4 text-green-600">🔄 Returns<\/td><td class="text-green-600">+ KES ${Math.floor(returnsVal).toLocaleString()}<\/td><\/tr>
+                <tr><td class="pl-4 text-green-600">🛢️ Lubricants<\/td><td class="text-green-600">+ KES ${Math.floor(lubricants).toLocaleString()}<\/td><\/tr>
+                <tr style="background:#eef6ff;"><td class="font-bold">🎯 EXPECTED CASH<\/td><td class="font-bold text-blue-700">KES ${Math.floor(expectedCash).toLocaleString()}<\/td><\/tr>
             `;
-            showToast(`Expected Cash: KES ${expectedCash.toLocaleString()} - Shift Report Generated`);
+            showToast(`Expected Cash: KES ${Math.floor(expectedCash).toLocaleString()} - Shift Report Generated`);
         }
 
         async function saveReconciliationToDatabase(reconciliationData) {
@@ -754,22 +762,22 @@
             };
             saveReconciliationToDatabase(reconciliationData);
             if (Math.abs(diff) > 0) {
-                addVariance('CASH', Math.abs(diff), `Reconciliation on ${new Date().toLocaleDateString()}: Expected KES ${expectedCash.toLocaleString()}, Actual KES ${actualCash.toLocaleString()}`);
+                addVariance('CASH', Math.abs(diff), `Reconciliation on ${new Date().toLocaleDateString()}: Expected KES ${Math.floor(expectedCash).toLocaleString()}, Actual KES ${Math.floor(actualCash).toLocaleString()}`);
             }
             document.getElementById("varianceResult").style.display = "block";
             document.getElementById("varianceResult").innerHTML = `<div class="${diff > 0 ? "warning-box" : diff < 0 ? "error-box" : "success-box"}">
-                <h3>${status}</h3><p>Expected: KES ${expectedCash.toLocaleString()}<br>Actual: KES ${actualCash.toLocaleString()}<br>Difference: KES ${Math.abs(diff).toLocaleString()}</p>
+                <h3>${status}</h3><p>Expected: KES ${Math.floor(expectedCash).toLocaleString()}<br>Actual: KES ${Math.floor(actualCash).toLocaleString()}<br>Difference: KES ${Math.abs(Math.floor(diff)).toLocaleString()}</p>
                 ${Math.abs(diff) > 0 ? '<p class="mt-2"><i class="fa-solid fa-exclamation-triangle"></i> A variance has been created for this discrepancy.</p>' : ''}
                 <p><i class="fa-solid fa-lock"></i> Record LOCKED</p></div>`;
-            showToast(`Reconciliation ${status}: ${Math.abs(diff).toLocaleString()} KES`);
+            showToast(`Reconciliation ${status}: ${Math.abs(Math.floor(diff)).toLocaleString()} KES`);
             document.getElementById("actualCashInput").value = "";
             loadVariances(); loadAllData();
         }
 
         // ==================== DELIVERY FUNCTIONS ====================
-        function savePreDip() { const fuel = document.getElementById("preFuel").value, litres = parseFloat(document.getElementById("preLitres").value); if (isNaN(litres) || litres <= 0) { showToast("Enter valid stock", "error"); return; } if (!pendingDelivery || pendingDelivery.fuel !== fuel) pendingDelivery = { fuel, preDip: litres, preDipSaved: true, registered: false }; else pendingDelivery.preDip = litres; document.getElementById("preStatus").innerHTML = `<div class="success-box">✓ Pre-dip: ${fuel} = ${litres.toLocaleString()} L</div>`; showToast("Pre-dip saved"); }
+        function savePreDip() { const fuel = document.getElementById("preFuel").value, litres = parseFloat(document.getElementById("preLitres").value); if (isNaN(litres) || litres <= 0) { showToast("Enter valid stock", "error"); return; } if (!pendingDelivery || pendingDelivery.fuel !== fuel) pendingDelivery = { fuel, preDip: litres, preDipSaved: true, registered: false }; else pendingDelivery.preDip = litres; document.getElementById("preStatus").innerHTML = `<div class="success-box">✓ Pre-dip: ${fuel} = ${Math.floor(litres).toLocaleString()} L</div>`; showToast("Pre-dip saved"); }
         
-        function registerDelivery() { if (!pendingDelivery || !pendingDelivery.preDipSaved) { showToast("Complete Step 1 first!", "error"); return; } const fuel = document.getElementById("delFuel").value, driver = document.getElementById("driverName").value.trim(), declared = parseFloat(document.getElementById("declared").value); if (fuel !== pendingDelivery.fuel) { showToast("Fuel mismatch!", "error"); return; } if (!driver) { showToast("Enter driver name", "error"); return; } if (isNaN(declared) || declared <= 0) { showToast("Enter valid declared litres", "error"); return; } pendingDelivery.driver = driver; pendingDelivery.declared = declared; pendingDelivery.registered = true; document.getElementById("deliveryStatus").innerHTML = `<div class="success-box">✓ Delivery: ${declared.toLocaleString()} L by ${driver}</div>`; showToast("Delivery registered"); }
+        function registerDelivery() { if (!pendingDelivery || !pendingDelivery.preDipSaved) { showToast("Complete Step 1 first!", "error"); return; } const fuel = document.getElementById("delFuel").value, driver = document.getElementById("driverName").value.trim(), declared = parseFloat(document.getElementById("declared").value); if (fuel !== pendingDelivery.fuel) { showToast("Fuel mismatch!", "error"); return; } if (!driver) { showToast("Enter driver name", "error"); return; } if (isNaN(declared) || declared <= 0) { showToast("Enter valid declared litres", "error"); return; } pendingDelivery.driver = driver; pendingDelivery.declared = declared; pendingDelivery.registered = true; document.getElementById("deliveryStatus").innerHTML = `<div class="success-box">✓ Delivery: ${Math.floor(declared).toLocaleString()} L by ${driver}</div>`; showToast("Delivery registered"); }
         
         async function verifyPostDip() { 
             if (!pendingDelivery || !pendingDelivery.registered) { showToast("Complete Steps 1 & 2 first!", "error"); return; } 
@@ -784,12 +792,12 @@
             if (actualGain < 0) { showToast("Post-dip must be greater than pre-dip!", "error"); return; } 
             
             if (Math.abs(stockVariance) > 0) {
-                const varianceCause = `Stock variance on ${new Date().toLocaleDateString()}: ${fuel} delivery - Expected Stock: ${expectedStockAfter.toLocaleString()}L (Pre-Dip ${pendingDelivery.preDip.toLocaleString()}L + Declared ${pendingDelivery.declared.toLocaleString()}L), Actual Stock: ${actualStockAfter.toLocaleString()}L, Variance: ${stockVariance.toLocaleString()}L`;
+                const varianceCause = `Stock variance on ${new Date().toLocaleDateString()}: ${fuel} delivery - Expected Stock: ${Math.floor(expectedStockAfter).toLocaleString()}L (Pre-Dip ${Math.floor(pendingDelivery.preDip).toLocaleString()}L + Declared ${Math.floor(pendingDelivery.declared).toLocaleString()}L), Actual Stock: ${Math.floor(actualStockAfter).toLocaleString()}L, Variance: ${Math.floor(stockVariance).toLocaleString()}L`;
                 await addStockVariance(fuel, expectedStockAfter, actualStockAfter, varianceCause);
-                showToast(`⚠️ Stock variance of ${Math.abs(stockVariance).toLocaleString()}L recorded!`, "warning");
+                showToast(`⚠️ Stock variance of ${Math.abs(Math.floor(stockVariance)).toLocaleString()}L recorded!`, "warning");
             }
             
-            const confirmMsg = `Delivery Summary:\nFuel: ${fuel}\nPre-Dip: ${pendingDelivery.preDip.toLocaleString()} L\nPost-Dip: ${postDip.toLocaleString()} L\nDeclared: ${pendingDelivery.declared.toLocaleString()} L\nActual Received: ${actualGain.toLocaleString()} L\nExpected Stock After: ${expectedStockAfter.toLocaleString()} L\nActual Stock After: ${actualStockAfter.toLocaleString()} L\nStock Variance: ${stockVariance.toLocaleString()} L\n\nConfirm and save this delivery?`;
+            const confirmMsg = `Delivery Summary:\nFuel: ${fuel}\nPre-Dip: ${Math.floor(pendingDelivery.preDip).toLocaleString()} L\nPost-Dip: ${Math.floor(postDip).toLocaleString()} L\nDeclared: ${Math.floor(pendingDelivery.declared).toLocaleString()} L\nActual Received: ${Math.floor(actualGain).toLocaleString()} L\nExpected Stock After: ${Math.floor(expectedStockAfter).toLocaleString()} L\nActual Stock After: ${Math.floor(actualStockAfter).toLocaleString()} L\nStock Variance: ${Math.floor(stockVariance).toLocaleString()} L\n\nConfirm and save this delivery?`;
             if (!confirm(confirmMsg)) return; 
             
             const token = getToken(); 
@@ -822,7 +830,7 @@
                     body: JSON.stringify({ diesel: d, petrol: p }) 
                 }); 
                 if (response.ok) { 
-                    document.getElementById("morningStatus").innerHTML = `<div class="success-box">✓ Morning dip recorded: Diesel ${d.toLocaleString()}L, Petrol ${p.toLocaleString()}L</div>`; 
+                    document.getElementById("morningStatus").innerHTML = `<div class="success-box">✓ Morning dip recorded: Diesel ${Math.floor(d).toLocaleString()}L, Petrol ${Math.floor(p).toLocaleString()}L</div>`; 
                     showToast("Morning dip saved successfully!"); 
                     document.getElementById("morningDiesel").value = ""; document.getElementById("morningPetrol").value = ""; 
                     await loadAllData(); 
@@ -840,15 +848,15 @@
             const morningDiesel = latestRecord.morning_diesel || 0, morningPetrol = latestRecord.morning_petrol || 0;
             const alreadySoldDiesel = latestRecord.diesel_sold || 0, alreadySoldPetrol = latestRecord.petrol_sold || 0;
             const remainingDiesel = morningDiesel - alreadySoldDiesel, remainingPetrol = morningPetrol - alreadySoldPetrol;
-            if (ds > remainingDiesel) { showToast(`Insufficient diesel stock! Available: ${remainingDiesel.toLocaleString()}L`, "error"); return; }
-            if (ps > remainingPetrol) { showToast(`Insufficient petrol stock! Available: ${remainingPetrol.toLocaleString()}L`, "error"); return; }
+            if (ds > remainingDiesel) { showToast(`Insufficient diesel stock! Available: ${Math.floor(remainingDiesel).toLocaleString()}L`, "error"); return; }
+            if (ps > remainingPetrol) { showToast(`Insufficient petrol stock! Available: ${Math.floor(remainingPetrol).toLocaleString()}L`, "error"); return; }
             try { 
                 const response = await fetch(`${API_URL}/fuel/daily-sales`, { 
                     method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }, 
                     body: JSON.stringify({ dieselSold: ds, petrolSold: ps }) 
                 }); 
                 if (response.ok) { 
-                    document.getElementById("salesStatus").innerHTML = `<div class="success-box">✓ Sales recorded: Diesel ${ds.toLocaleString()}L, Petrol ${ps.toLocaleString()}L</div>`; 
+                    document.getElementById("salesStatus").innerHTML = `<div class="success-box">✓ Sales recorded: Diesel ${Math.floor(ds).toLocaleString()}L, Petrol ${Math.floor(ps).toLocaleString()}L</div>`; 
                     showToast(`Sales recorded successfully!`); 
                     document.getElementById("dieselSold").value = ""; document.getElementById("petrolSold").value = ""; 
                     await loadAllData(); 
@@ -869,14 +877,13 @@
         
         function renderTables() {
             const tbody = document.getElementById("deliveryTableBody");
-            if (tbody) tbody.innerHTML = deliveries.length ? deliveries.slice(0, 20).map(d => `<tr class="border-b"><td class="p-2">${new Date(d.recorded_at).toLocaleDateString()}<\/td><td>${d.fuel_type}<\/td><td>${d.driver_name}<\/td><td>${(d.pre_dip||0).toLocaleString()}L<\/td><td>${(d.declared_litres||0).toLocaleString()}L<\/td><td>${(d.post_dip||0).toLocaleString()}L<\/td><td class="text-green-600">${(d.actual_gain||0).toLocaleString()}L<\/td><td class="${d.variance<0?'text-red-600':'text-green-600'}">${(d.variance||0).toLocaleString()}L<\/td><td><i class="fa-solid fa-trash text-red-500 cursor-pointer" onclick="deleteDelivery(${d.id})"><\/i><\/td><\/tr>`).join('') : '<td><td colspan="9" class="text-center py-4">No deliveries recorded<\/tr>';
+            if (tbody) tbody.innerHTML = deliveries.length ? deliveries.slice(0, 20).map(d => `<tr class="border-b"><td class="p-2">${new Date(d.recorded_at).toLocaleDateString()}<\/td><td>${d.fuel_type}<\/td><td>${d.driver_name}<\/td><td>${Math.floor(d.pre_dip||0).toLocaleString()}L<\/td><td>${Math.floor(d.declared_litres||0).toLocaleString()}L<\/td><td>${Math.floor(d.post_dip||0).toLocaleString()}L<\/td><td class="text-green-600">${Math.floor(d.actual_gain||0).toLocaleString()}L<\/td><td class="${d.variance<0?'text-red-600':'text-green-600'}">${Math.floor(d.variance||0).toLocaleString()}L<\/td><td><i class="fa-solid fa-trash text-red-500 cursor-pointer" onclick="deleteDelivery(${d.id})"><\/i><\/td><\/tr>`).join('') : '<tr><td colspan="9" class="text-center py-4">No deliveries recorded<\/tr>';
             const dailyBody = document.getElementById("dailyTableBody");
-            if (dailyBody) dailyBody.innerHTML = dailyRecords.length ? dailyRecords.slice(0, 20).map(r => `<tr class="border-b"><td class="p-2">${r.record_date}<\/td><td>${(r.morning_diesel||0).toLocaleString()}L<\/td><td>${(r.morning_petrol||0).toLocaleString()}L<\/td><td class="text-red-600">${(r.diesel_sold||0).toLocaleString()}L<\/td><td class="text-red-600">${(r.petrol_sold||0).toLocaleString()}L<\/td><td>${((r.morning_diesel||0)+(r.morning_petrol||0))-((r.diesel_sold||0)+(r.petrol_sold||0))}L<\/td><td>${r.locked ? '<span class="badge-locked badge">LOCKED</span>' : '<span class="badge-success badge">Open</span>'}<\/td><td>${!r.locked ? `<i class="fa-solid fa-trash text-red-500 cursor-pointer" onclick="deleteDaily(${r.id})"><\/i>` : ''}<\/td><\/tr>`).join('') : '<tr><td colspan="8" class="text-center py-4">No daily records<\/tr>';
+            if (dailyBody) dailyBody.innerHTML = dailyRecords.length ? dailyRecords.slice(0, 20).map(r => `<tr class="border-b"><td class="p-2">${r.record_date}<\/td><td>${Math.floor(r.morning_diesel||0).toLocaleString()}L<\/td><td>${Math.floor(r.morning_petrol||0).toLocaleString()}L<\/td><td class="text-red-600">${Math.floor(r.diesel_sold||0).toLocaleString()}L<\/td><td class="text-red-600">${Math.floor(r.petrol_sold||0).toLocaleString()}L<\/td><td>${Math.floor(((r.morning_diesel||0)+(r.morning_petrol||0))-((r.diesel_sold||0)+(r.petrol_sold||0)))}L<\/td><td>${r.locked ? '<span class="badge-locked badge">LOCKED</span>' : '<span class="badge-success badge">Open</span>'}<\/td><td>${!r.locked ? `<i class="fa-solid fa-trash text-red-500 cursor-pointer" onclick="deleteDaily(${r.id})"><\/i>` : ''}<\/td><\/tr>`).join('') : '<tr><td colspan="8" class="text-center py-4">No daily records<\/tr>';
         }
         
         async function deleteDelivery(id) { if (confirm("Delete?")) { await fetch(`${API_URL}/deliveries/${id}`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${getToken()}` } }); await loadAllData(); showToast("Deleted"); } }
         function deleteDaily(id) { if (confirm("Delete?")) { dailyRecords = dailyRecords.filter(d => d.id !== id); loadAllData(); showToast("Deleted"); } }
-        async function logout() { localStorage.clear(); window.location.href = '/'; }
 
         // ==================== VARIANCE FUNCTIONS ====================
         async function loadVariances() {
@@ -940,9 +947,9 @@
                 <tr class="border-b hover:bg-gray-50">
                     <td class="p-2">${v.date || v.created_at?.split('T')[0] || 'Unknown'}<\/td>
                     <td class="p-2"><span class="badge-info badge">${v.fuel_type || v.type || 'N/A'}<\/span><\/td>
-                    <td class="p-2">${v.expected_stock ? v.expected_stock.toLocaleString() + 'L' : '-'}<\/td>
-                    <td class="p-2">${v.actual_stock ? v.actual_stock.toLocaleString() + 'L' : '-'}<\/td>
-                    <td class="p-2 ${v.amount > 0 ? 'text-red-600 font-semibold' : ''}">${v.amount ? v.amount.toLocaleString() + 'L' : '-'}<\/td>
+                    <td class="p-2">${v.expected_stock ? Math.floor(v.expected_stock).toLocaleString() + 'L' : '-'}<\/td>
+                    <td class="p-2">${v.actual_stock ? Math.floor(v.actual_stock).toLocaleString() + 'L' : '-'}<\/td>
+                    <td class="p-2 ${v.amount > 0 ? 'text-red-600 font-semibold' : ''}">${v.amount ? Math.floor(v.amount).toLocaleString() + 'L' : '-'}<\/td>
                     <td class="p-2 max-w-md break-words">${(v.cause || '-').substring(0, 80)}${(v.cause || '').length > 80 ? '...' : ''}<\/td>
                     <td class="p-2">${v.status === 'Resolved' ? '<span class="badge-success badge">Resolved</span>' : '<span class="badge-danger badge">Pending</span>'}<\/td>
                     <td class="p-2">${v.status !== 'Resolved' ? `<button onclick="resolveVariance(${v.id})" class="btn-success text-xs px-2 py-1 rounded"><i class="fa-solid fa-check"></i> Resolve</button>` : '<span class="text-green-600 text-xs">✓ Completed</span>'}<\/td>
@@ -1009,7 +1016,7 @@
                     id: record.id, 
                     type: 'dip', 
                     date: record.record_date, 
-                    details: `Morning D:${(record.morning_diesel || 0).toLocaleString()}L P:${(record.morning_petrol || 0).toLocaleString()}L`, 
+                    details: `Morning D:${Math.floor(record.morning_diesel || 0).toLocaleString()}L P:${Math.floor(record.morning_petrol || 0).toLocaleString()}L`, 
                     user: 'System', 
                     status: record.locked ? 'Locked' : 'Open' 
                 }); 
@@ -1020,7 +1027,7 @@
                     id: delivery.id, 
                     type: 'delivery', 
                     date: delivery.delivery_date || delivery.recorded_at?.split('T')[0], 
-                    details: `${delivery.fuel_type}: ${(delivery.actual_gain || 0).toLocaleString()}L received`, 
+                    details: `${delivery.fuel_type}: ${Math.floor(delivery.actual_gain || 0).toLocaleString()}L received`, 
                     user: delivery.driver_name, 
                     status: delivery.status || 'Completed' 
                 }); 
@@ -1031,7 +1038,7 @@
                     id: variance.id, 
                     type: 'variance', 
                     date: variance.date, 
-                    details: `${variance.type}: ${(variance.amount || 0).toLocaleString()}L - ${(variance.cause || '').substring(0, 50)}`, 
+                    details: `${variance.type}: ${Math.floor(variance.amount || 0).toLocaleString()}L - ${(variance.cause || '').substring(0, 50)}`, 
                     user: 'System', 
                     status: variance.status 
                 }); 
@@ -1042,7 +1049,7 @@
                     id: recon.id, 
                     type: 'reconciliation', 
                     date: recon.record_date, 
-                    details: `Variance: KES ${(recon.variance || 0).toLocaleString()}`, 
+                    details: `Variance: KES ${Math.floor(recon.variance || 0).toLocaleString()}`, 
                     user: recon.recorded_by_name || 'System', 
                     status: recon.status 
                 }); 
