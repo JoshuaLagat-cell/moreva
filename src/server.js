@@ -21,26 +21,47 @@ app.use(cors({
 
 app.use(express.json());
 
-// ==================== STATIC FILES - FIXED PATH ====================
-// Go up one level from src to find public folder
-const publicPath = path.join(__dirname, '..', 'public');
+// ==================== STATIC FILES - USE PROCESS.CWD() ====================
+// Get the root directory (where package.json is)
+const rootDir = process.cwd();
+console.log(`📁 Root directory: ${rootDir}`);
+console.log(`📁 Files in root:`, fs.readdirSync(rootDir).join(', '));
+
+// Look for public folder in root directory
+const publicPath = path.join(rootDir, 'public');
 console.log(`📁 Looking for public folder at: ${publicPath}`);
 
-// Check if public folder exists
-if (!fs.existsSync(publicPath)) {
-    console.error(`❌ Public folder not found at: ${publicPath}`);
-    // Try alternative path
-    const altPath = path.join(process.cwd(), 'public');
-    if (fs.existsSync(altPath)) {
-        console.log(`✅ Found public folder at alternative path: ${altPath}`);
-        app.use(express.static(altPath));
-    } else {
-        console.error(`❌ Could not find public folder anywhere!`);
-    }
+if (fs.existsSync(publicPath)) {
+    console.log(`✅ Found public folder!`);
+    console.log(`📄 Files in public:`, fs.readdirSync(publicPath).join(', '));
 } else {
-    console.log(`✅ Serving static files from: ${publicPath}`);
-    app.use(express.static(publicPath));
+    console.error(`❌ Public folder NOT found at: ${publicPath}`);
+    // Create a basic index.html for testing
+    fs.mkdirSync(publicPath, { recursive: true });
+    const fallbackHtml = `<!DOCTYPE html>
+<html>
+<head><title>MOREVA ENERGY</title></head>
+<body>
+    <h1>MOREVA ENERGY</h1>
+    <p>Server is running. Setting up public folder...</p>
+    <div id="error"></div>
+    <script>
+        fetch('/api/health')
+            .then(r => r.json())
+            .then(data => {
+                document.getElementById('error').innerHTML = '<pre>' + JSON.stringify(data, null, 2) + '</pre>';
+            })
+            .catch(e => {
+                document.getElementById('error').innerHTML = 'Error: ' + e.message;
+            });
+    </script>
+</body>
+</html>`;
+    fs.writeFileSync(path.join(publicPath, 'index.html'), fallbackHtml);
+    console.log(`✅ Created fallback index.html`);
 }
+
+app.use(express.static(publicPath));
 
 // PostgreSQL Connection Pool
 const pool = new Pool({
@@ -73,7 +94,6 @@ async function initializeDatabase() {
     console.log('\n📋 Creating/Verifying database tables...');
     
     try {
-        // Create tables if they don't exist
         await pool.query(`
             CREATE TABLE IF NOT EXISTS daily_records (
                 id SERIAL PRIMARY KEY,
@@ -268,7 +288,6 @@ app.post('/api/login', async (req, res) => {
     }
 });
 
-// Register endpoint
 app.post('/api/auth/signup', async (req, res) => {
     const { username, full_name, email, phone, password, role } = req.body;
     console.log(`📝 Signup attempt: ${username}`);
@@ -302,7 +321,6 @@ app.post('/api/auth/signup', async (req, res) => {
     }
 });
 
-// Verify token endpoint
 app.get('/api/verify', authenticateToken, async (req, res) => {
     try {
         const result = await pool.query(
@@ -323,7 +341,7 @@ app.get('/api/verify', authenticateToken, async (req, res) => {
     }
 });
 
-// ==================== ADMIN USER MANAGEMENT ROUTES ====================
+// ==================== ADMIN ROUTES ====================
 app.get('/api/users', authenticateToken, isAdmin, async (req, res) => {
     try {
         const result = await pool.query(`
@@ -333,7 +351,6 @@ app.get('/api/users', authenticateToken, isAdmin, async (req, res) => {
         `);
         res.json(result.rows);
     } catch (error) {
-        console.error('Error fetching users:', error.message);
         res.status(500).json({ error: error.message });
     }
 });
@@ -343,7 +360,6 @@ app.put('/api/users/:id/approve', authenticateToken, isAdmin, async (req, res) =
         await pool.query(`UPDATE users SET is_active = true WHERE id = $1`, [req.params.id]);
         res.json({ message: 'User approved successfully' });
     } catch (error) {
-        console.error('Error approving user:', error.message);
         res.status(500).json({ error: error.message });
     }
 });
@@ -357,7 +373,6 @@ app.delete('/api/users/:id', authenticateToken, isAdmin, async (req, res) => {
         await pool.query(`DELETE FROM users WHERE id = $1`, [userId]);
         res.json({ message: 'User deleted successfully' });
     } catch (error) {
-        console.error('Error deleting user:', error.message);
         res.status(500).json({ error: error.message });
     }
 });
@@ -400,31 +415,28 @@ app.get('/api/fuel/daily-records', authenticateToken, async (req, res) => {
 });
 
 // ==================== SERVE HTML FILES ====================
-// Use the correct path for HTML files
-const htmlPath = path.join(__dirname, '..', 'public');
-
 app.get('/', (req, res) => {
-    res.sendFile(path.join(htmlPath, 'index.html'));
+    res.sendFile(path.join(publicPath, 'index.html'));
 });
 
 app.get('/index.html', (req, res) => {
-    res.sendFile(path.join(htmlPath, 'index.html'));
+    res.sendFile(path.join(publicPath, 'index.html'));
 });
 
 app.get('/dashboard.html', (req, res) => {
-    res.sendFile(path.join(htmlPath, 'dashboard.html'));
+    res.sendFile(path.join(publicPath, 'dashboard.html'));
 });
 
 app.get('/admin.html', (req, res) => {
-    res.sendFile(path.join(htmlPath, 'admin.html'));
+    res.sendFile(path.join(publicPath, 'admin.html'));
 });
 
 app.get('/dashboard', (req, res) => {
-    res.sendFile(path.join(htmlPath, 'dashboard.html'));
+    res.sendFile(path.join(publicPath, 'dashboard.html'));
 });
 
 app.get('/admin', (req, res) => {
-    res.sendFile(path.join(htmlPath, 'admin.html'));
+    res.sendFile(path.join(publicPath, 'admin.html'));
 });
 
 // ==================== HEALTH CHECK ====================
@@ -436,22 +448,16 @@ app.get('/api/health', async (req, res) => {
             database: 'connected',
             port: PORT,
             environment: process.env.NODE_ENV || 'development',
-            htmlPath: htmlPath
+            publicPath: publicPath,
+            rootDir: rootDir
         });
     } catch (error) {
         res.json({
             status: 'running',
             database: 'disconnected',
-            error: error.message,
-            timestamp: new Date().toISOString()
+            error: error.message
         });
     }
-});
-
-// ==================== ERROR HANDLING ====================
-app.use((err, req, res, next) => {
-    console.error('Server Error:', err.stack);
-    res.status(500).json({ error: 'Something went wrong! Please try again later.' });
 });
 
 // ==================== START SERVER ====================
@@ -460,23 +466,7 @@ app.listen(PORT, () => {
     console.log('🚀 MOREVA ENERGY Backend Server');
     console.log('='.repeat(60));
     console.log(`📡 Server running on: http://localhost:${PORT}`);
-    console.log(`📁 Static files served from: ${htmlPath}`);
+    console.log(`📁 Static files served from: ${publicPath}`);
     console.log(`🌐 Access the app at: http://localhost:${PORT}`);
-    console.log(`🖥️ Environment: ${process.env.NODE_ENV || 'development'}`);
     console.log('='.repeat(60) + '\n');
-});
-
-// Graceful shutdown
-process.on('SIGINT', async () => {
-    console.log('\n🛑 Shutting down server...');
-    await pool.end();
-    console.log('✅ Database connection closed');
-    process.exit(0);
-});
-
-process.on('SIGTERM', async () => {
-    console.log('\n🛑 Shutting down server...');
-    await pool.end();
-    console.log('✅ Database connection closed');
-    process.exit(0);
 });
