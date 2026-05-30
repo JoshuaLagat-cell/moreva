@@ -21,6 +21,7 @@ app.use(cors({
 app.use(express.json());
 
 // ==================== STATIC FILES ====================
+// Try to find public folder
 let publicPath = null;
 const possiblePaths = [
     path.join(__dirname, 'public'),
@@ -53,13 +54,18 @@ const pool = new Pool({
     user: process.env.DB_USER,
     password: process.env.DB_PASSWORD,
     ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : false,
+    max: 10,
+    idleTimeoutMillis: 30000,
+    connectionTimeoutMillis: 20000,
 });
 
-pool.connect(async (err) => {
+// Test database connection
+pool.connect(async (err, client, release) => {
     if (err) {
         console.error('❌ Database connection error:', err.message);
     } else {
         console.log('✅ PostgreSQL connected successfully!');
+        release();
         await initializeDatabase();
     }
 });
@@ -191,22 +197,7 @@ async function initializeDatabase() {
             console.log('✓ Sample daily record created');
         }
         
-        // Get statistics
-        const stats = await pool.query(`
-            SELECT 
-                (SELECT COUNT(*) FROM users) as users,
-                (SELECT COUNT(*) FROM deliveries) as deliveries,
-                (SELECT COUNT(*) FROM variances) as variances,
-                (SELECT COUNT(*) FROM daily_records) as daily_records
-        `);
-        
-        console.log('\n📊 Database Status:');
-        console.log(`   👥 Users: ${stats.rows[0].users}`);
-        console.log(`   🚚 Deliveries: ${stats.rows[0].deliveries}`);
-        console.log(`   ⚠️ Variances: ${stats.rows[0].variances}`);
-        console.log(`   📅 Daily Records: ${stats.rows[0].daily_records}`);
-        console.log('');
-        
+        console.log('✅ Database initialization complete!\n');
     } catch (error) {
         console.error('❌ Database initialization error:', error.message);
     }
@@ -244,7 +235,10 @@ app.post('/api/login', async (req, res) => {
     console.log(`🔐 Login attempt: ${username}`);
     
     try {
-        const result = await pool.query(`SELECT * FROM users WHERE username = $1 OR email = $1`, [username]);
+        const result = await pool.query(
+            `SELECT id, username, email, password_hash, full_name, role, is_active FROM users WHERE username = $1 OR email = $1`,
+            [username]
+        );
         
         if (result.rows.length === 0) {
             return res.status(401).json({ error: 'Invalid credentials' });
@@ -293,7 +287,10 @@ app.post('/api/auth/signup', async (req, res) => {
     console.log(`📝 Signup attempt: ${username}`);
     
     try {
-        const existing = await pool.query(`SELECT * FROM users WHERE username = $1 OR email = $2`, [username, email]);
+        const existing = await pool.query(
+            `SELECT * FROM users WHERE username = $1 OR email = $2`,
+            [username, email]
+        );
         
         if (existing.rows.length > 0) {
             return res.status(400).json({ error: 'Username or email already exists' });
@@ -320,7 +317,10 @@ app.post('/api/auth/signup', async (req, res) => {
 
 app.get('/api/verify', authenticateToken, async (req, res) => {
     try {
-        const result = await pool.query(`SELECT id, username, full_name, role, email, is_active FROM users WHERE id = $1`, [req.user.id]);
+        const result = await pool.query(
+            `SELECT id, username, full_name, role, email, is_active FROM users WHERE id = $1`,
+            [req.user.id]
+        );
         
         if (result.rows.length === 0) {
             return res.status(401).json({ error: 'User not found' });
@@ -344,10 +344,8 @@ app.get('/api/users', authenticateToken, isAdmin, async (req, res) => {
             FROM users 
             ORDER BY created_at DESC
         `);
-        console.log(`📋 Returning ${result.rows.length} users`);
         res.json(result.rows);
     } catch (error) {
-        console.error('Error fetching users:', error);
         res.status(500).json({ error: error.message });
     }
 });
@@ -355,7 +353,6 @@ app.get('/api/users', authenticateToken, isAdmin, async (req, res) => {
 app.put('/api/users/:id/approve', authenticateToken, isAdmin, async (req, res) => {
     try {
         await pool.query(`UPDATE users SET is_active = true WHERE id = $1`, [req.params.id]);
-        console.log(`✅ User ${req.params.id} approved`);
         res.json({ message: 'User approved successfully' });
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -369,7 +366,6 @@ app.delete('/api/users/:id', authenticateToken, isAdmin, async (req, res) => {
             return res.status(400).json({ error: 'Cannot delete your own account' });
         }
         await pool.query(`DELETE FROM users WHERE id = $1`, [userId]);
-        console.log(`🗑️ User ${userId} deleted`);
         res.json({ message: 'User deleted successfully' });
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -380,7 +376,6 @@ app.delete('/api/users/:id', authenticateToken, isAdmin, async (req, res) => {
 app.get('/api/deliveries', authenticateToken, async (req, res) => {
     try {
         const result = await pool.query(`SELECT * FROM deliveries ORDER BY recorded_at DESC`);
-        console.log(`📋 Returning ${result.rows.length} deliveries`);
         res.json(result.rows);
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -395,7 +390,6 @@ app.post('/api/deliveries', authenticateToken, async (req, res) => {
              VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING id`,
             [fuel_type, driver_name, declared_litres, pre_dip, post_dip, actual_gain, variance, status, req.user.id]
         );
-        console.log(`✅ Delivery saved with ID: ${result.rows[0].id}`);
         res.json({ id: result.rows[0].id, message: 'Delivery saved' });
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -406,7 +400,6 @@ app.post('/api/deliveries', authenticateToken, async (req, res) => {
 app.get('/api/variances', authenticateToken, async (req, res) => {
     try {
         const result = await pool.query(`SELECT * FROM variances ORDER BY created_at DESC`);
-        console.log(`📋 Returning ${result.rows.length} variances`);
         res.json(result.rows);
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -421,7 +414,6 @@ app.post('/api/variances', authenticateToken, async (req, res) => {
              VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id`,
             [type, amount, cause, fuel_type, expected_stock, actual_stock, req.user.id]
         );
-        console.log(`✅ Variance recorded with ID: ${result.rows[0].id}`);
         res.json({ id: result.rows[0].id, message: 'Variance recorded' });
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -432,7 +424,6 @@ app.put('/api/variances/:id/resolve', authenticateToken, async (req, res) => {
     const { resolution_notes } = req.body;
     try {
         await pool.query(`UPDATE variances SET status = 'Resolved', resolution_notes = $1 WHERE id = $2`, [resolution_notes, req.params.id]);
-        console.log(`✅ Variance ${req.params.id} resolved`);
         res.json({ message: 'Variance resolved' });
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -448,7 +439,6 @@ app.post('/api/reconciliation', authenticateToken, async (req, res) => {
              VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)`,
             [total_sales, mpesa, credits, expenses, advances, returns_val, lubricants, expected_cash, actual_cash, variance, status, req.user.id, req.user.username]
         );
-        console.log(`✅ Reconciliation saved`);
         res.json({ message: 'Reconciliation saved' });
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -458,14 +448,13 @@ app.post('/api/reconciliation', authenticateToken, async (req, res) => {
 app.get('/api/reconciliation/history', authenticateToken, async (req, res) => {
     try {
         const result = await pool.query(`SELECT * FROM reconciliations ORDER BY created_at DESC`);
-        console.log(`📋 Returning ${result.rows.length} reconciliations`);
         res.json(result.rows);
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
 });
 
-// ==================== FUEL ROUTES ====================
+// ==================== FUEL ROUTES (CRITICAL - MUST BE HERE) ====================
 app.post('/api/fuel/morning-dip', authenticateToken, async (req, res) => {
     const { diesel, petrol } = req.body;
     const today = new Date().toISOString().split('T')[0];
@@ -476,17 +465,19 @@ app.post('/api/fuel/morning-dip', authenticateToken, async (req, res) => {
         
         if (existing.rows.length > 0) {
             await pool.query(
-                `UPDATE daily_records SET morning_diesel = $1, morning_petrol = $2 WHERE record_date = $3`,
-                [diesel, petrol, today]
+                `UPDATE daily_records SET morning_diesel = $1, morning_petrol = $2, recorded_by = $3 WHERE record_date = $4`,
+                [diesel, petrol, req.user.id, today]
             );
+            res.json({ message: 'Morning dip updated' });
         } else {
             await pool.query(
-                `INSERT INTO daily_records (record_date, morning_diesel, morning_petrol) VALUES ($1, $2, $3)`,
-                [today, diesel, petrol]
+                `INSERT INTO daily_records (record_date, morning_diesel, morning_petrol, recorded_by) VALUES ($1, $2, $3, $4)`,
+                [today, diesel, petrol, req.user.id]
             );
+            res.json({ message: 'Morning dip saved' });
         }
-        res.json({ message: 'Morning dip saved' });
     } catch (error) {
+        console.error('Error saving morning dip:', error.message);
         res.status(500).json({ error: error.message });
     }
 });
@@ -498,11 +489,12 @@ app.post('/api/fuel/daily-sales', authenticateToken, async (req, res) => {
     
     try {
         await pool.query(
-            `UPDATE daily_records SET diesel_sold = diesel_sold + $1, petrol_sold = petrol_sold + $2 WHERE record_date = $3`,
-            [dieselSold, petrolSold, today]
+            `UPDATE daily_records SET diesel_sold = diesel_sold + $1, petrol_sold = petrol_sold + $2, recorded_by = $3 WHERE record_date = $4`,
+            [dieselSold, petrolSold, req.user.id, today]
         );
         res.json({ message: 'Sales recorded' });
     } catch (error) {
+        console.error('Error recording sales:', error.message);
         res.status(500).json({ error: error.message });
     }
 });
@@ -555,6 +547,12 @@ app.get('/api/health', async (req, res) => {
             error: error.message
         });
     }
+});
+
+// ==================== ERROR HANDLER ====================
+app.use((err, req, res, next) => {
+    console.error('Server error:', err);
+    res.status(500).json({ error: 'Internal server error' });
 });
 
 // ==================== START SERVER ====================
