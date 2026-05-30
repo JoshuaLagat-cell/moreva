@@ -11,54 +11,170 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
     <style>
         * { font-family: 'Inter', sans-serif; }
-        .toast-notif { position: fixed; bottom: 24px; right: 24px; z-index: 9999; background: #1e293b; color: white; padding: 12px 20px; border-radius: 40px; font-size: 0.85rem; font-weight: 500; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); animation: slideUp 0.2s ease; z-index: 10000; }
+        
+        /* Toast Notifications */
+        .toast-notif { 
+            position: fixed; 
+            bottom: 24px; 
+            right: 24px; 
+            z-index: 9999; 
+            background: #1e293b; 
+            color: white; 
+            padding: 12px 20px; 
+            border-radius: 40px; 
+            font-size: 0.85rem; 
+            font-weight: 500; 
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); 
+            animation: slideUp 0.2s ease; 
+            z-index: 10000; 
+        }
         @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        
+        /* Badges */
         .badge { background: #e0f2e9; color: #0b5e42; padding: 0.2rem 0.6rem; border-radius: 2rem; font-size: 0.7rem; font-weight: 700; display: inline-block; }
         .badge-warning { background: #fef3c7; color: #b45309; }
         .badge-danger { background: #fee2e2; color: #b91c1c; }
         .badge-info { background: #dbeafe; color: #1e40af; }
         .badge-success { background: #d1fae5; color: #065f46; }
         .badge-pending { background: #fed7aa; color: #9b4a00; }
+        
+        /* Buttons */
         .btn-primary { background: linear-gradient(95deg, #1e3a8a, #dc2626); color: white; font-weight: 700; padding: 0.8rem; border-radius: 2rem; border: none; cursor: pointer; transition: transform 0.1s; }
         .btn-primary:hover { transform: scale(1.01); }
         .btn-success { background: #10b981; color: white; font-weight: 700; padding: 0.5rem 1rem; border-radius: 2rem; border: none; cursor: pointer; }
         .btn-danger { background: #dc2626; color: white; font-weight: 700; padding: 0.5rem 1rem; border-radius: 2rem; border: none; cursor: pointer; }
+        .btn-outline { background: transparent; border: 2px solid #e2e8f0; padding: 0.5rem 1rem; border-radius: 2rem; cursor: pointer; transition: all 0.2s; }
+        .btn-outline:hover { background: #f1f5f9; }
+        
+        /* Inputs */
         .input-field { width: 100%; padding: 0.8rem 1rem; border-radius: 1rem; border: 1.5px solid #e2e8f0; font-size: 0.95rem; transition: all 0.2s; }
         .input-field:focus { outline: none; border-color: #1e3a8a; box-shadow: 0 0 0 3px rgba(30,58,138,0.1); }
+        
+        /* Tables */
         .table-wrapper { overflow-x: auto; border-radius: 1rem; max-height: 500px; overflow-y: auto; }
         table { width: 100%; border-collapse: collapse; }
         th { background: #f8fafc; padding: 0.8rem; text-align: left; font-weight: 600; font-size: 0.85rem; position: sticky; top: 0; z-index: 10; }
         td { padding: 0.8rem; border-bottom: 1px solid #eef2f6; font-size: 0.85rem; }
+        
+        /* Modals */
         .modal { transition: all 0.3s ease; }
-        .stat-card { transition: all 0.3s ease; cursor: pointer; }
-        .stat-card:hover { transform: translateY(-2px); box-shadow: 0 20px 25px -12px rgba(0,0,0,0.15); }
-        .sidebar { background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); transition: transform 0.3s ease; }
+        
+        /* Stat Cards */
+        .stat-card { transition: all 0.3s ease; cursor: pointer; background: white; border-radius: 1.5rem; padding: 1.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .stat-card:hover { transform: translateY(-4px); box-shadow: 0 20px 25px -12px rgba(0,0,0,0.15); }
+        
+        /* Sidebar */
+        .sidebar { background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); transition: transform 0.3s ease, width 0.3s ease; overflow-y: auto; }
         .sidebar.closed { transform: translateX(-100%); }
+        .sidebar::-webkit-scrollbar { width: 4px; }
+        .sidebar::-webkit-scrollbar-track { background: #1e293b; }
+        .sidebar::-webkit-scrollbar-thumb { background: #475569; border-radius: 4px; }
+        
+        /* Sections */
         .section { display: none; }
-        .section.active { display: block; animation: fade 0.2s ease; }
-        @keyframes fade { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
-        .nav-btn { cursor: pointer; transition: all 0.2s; }
-        .nav-btn.active { background: rgba(255, 255, 255, 0.2); }
-        .refresh-btn { background: rgba(255,255,255,0.1); padding: 0.25rem 0.75rem; border-radius: 1rem; font-size: 0.7rem; cursor: pointer; }
-        .refresh-btn:hover { background: rgba(255,255,255,0.2); }
-        .action-btn { padding: 0.25rem 0.5rem; border-radius: 0.5rem; font-size: 0.7rem; margin: 0 0.2rem; cursor: pointer; }
+        .section.active { display: block; animation: fade 0.3s ease; }
+        @keyframes fade { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        /* Navigation */
+        .nav-btn { cursor: pointer; transition: all 0.2s; border-radius: 0.75rem; }
+        .nav-btn:hover { background: rgba(255, 255, 255, 0.1); transform: translateX(4px); }
+        .nav-btn.active { background: rgba(255, 255, 255, 0.2); border-left: 3px solid #f59e0b; }
+        
+        /* Refresh Button */
+        .refresh-btn { background: rgba(255,255,255,0.1); padding: 0.25rem 0.75rem; border-radius: 1rem; font-size: 0.7rem; cursor: pointer; transition: all 0.2s; }
+        .refresh-btn:hover { background: rgba(255,255,255,0.2); transform: rotate(15deg); }
+        
+        /* Action Buttons */
+        .action-btn { padding: 0.25rem 0.5rem; border-radius: 0.5rem; font-size: 0.7rem; margin: 0 0.2rem; cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; gap: 4px; }
         .action-btn.approve { background: #10b981; color: white; }
+        .action-btn.approve:hover { background: #059669; transform: scale(1.05); }
         .action-btn.delete { background: #ef4444; color: white; }
+        .action-btn.delete:hover { background: #dc2626; transform: scale(1.05); }
+        
+        /* Badge */
         .pending-requests-badge { background: #f59e0b; color: white; border-radius: 9999px; padding: 0.15rem 0.5rem; font-size: 0.7rem; margin-left: 0.5rem; }
-        .mobile-menu-btn { display: none; position: fixed; top: 1rem; left: 1rem; z-index: 100; background: #1e293b; color: white; padding: 0.5rem; border-radius: 0.5rem; cursor: pointer; }
-        @media (max-width: 768px) {
-            .mobile-menu-btn { display: block; }
-            .sidebar { position: fixed; left: 0; top: 0; bottom: 0; z-index: 50; width: 80%; max-width: 280px; }
-            .main-content { margin-left: 0; width: 100%; }
+        
+        /* Mobile Menu */
+        .mobile-menu-btn { 
+            display: none; 
+            position: fixed; 
+            bottom: 20px; 
+            right: 20px; 
+            z-index: 100; 
+            background: linear-gradient(135deg, #1e3a8a, #dc2626); 
+            color: white; 
+            width: 56px; 
+            height: 56px; 
+            border-radius: 50%; 
+            align-items: center; 
+            justify-content: center; 
+            cursor: pointer; 
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            transition: all 0.2s;
         }
-        .overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 40; }
+        .mobile-menu-btn:hover { transform: scale(1.05); }
+        
+        /* Overlay */
+        .overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 40; backdrop-filter: blur(4px); }
         .overlay.active { display: block; }
+        
+        /* Report Filters */
+        .report-filters { display: flex; gap: 1rem; margin-bottom: 1.5rem; flex-wrap: wrap; align-items: flex-end; }
+        .filter-group { flex: 1; min-width: 150px; }
+        .filter-group label { display: block; font-size: 0.75rem; font-weight: 600; color: #4b5563; margin-bottom: 0.25rem; }
+        .filter-input { width: 100%; padding: 0.5rem 0.75rem; border: 1px solid #e2e8f0; border-radius: 0.5rem; font-size: 0.875rem; transition: all 0.2s; }
+        .filter-input:focus { outline: none; border-color: #1e3a8a; box-shadow: 0 0 0 2px rgba(30,58,138,0.1); }
+        
+        /* Settings Groups */
+        .settings-group { margin-bottom: 1.5rem; }
+        .settings-group label { display: block; font-size: 0.875rem; font-weight: 600; color: #374151; margin-bottom: 0.5rem; }
+        .settings-group .help-text { font-size: 0.7rem; color: #6b7280; margin-top: 0.25rem; }
+        
+        /* Cards */
+        .dashboard-card { background: white; border-radius: 1.5rem; padding: 1.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); transition: all 0.3s; }
+        .dashboard-card:hover { box-shadow: 0 10px 40px -12px rgba(0,0,0,0.15); }
+        
+        /* Stats Grid */
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+        
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .mobile-menu-btn { display: flex; }
+            .sidebar { position: fixed; left: 0; top: 0; bottom: 0; z-index: 50; width: 280px; }
+            .main-content { margin-left: 0; width: 100%; padding-top: 0; }
+            .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 1rem; }
+            .stat-card { padding: 1rem; }
+            .stat-card h3 { font-size: 1.5rem; }
+            .dashboard-card { padding: 1rem; }
+            .table-wrapper { font-size: 0.75rem; }
+            th, td { padding: 0.5rem; }
+            .report-filters { flex-direction: column; }
+            .filter-group { width: 100%; }
+            .btn-primary, .btn-success, .btn-danger { padding: 0.6rem; font-size: 0.875rem; }
+            .nav-btn { padding: 0.75rem; }
+            .pending-requests-badge { font-size: 0.6rem; }
+        }
+        
+        @media (max-width: 480px) {
+            .stats-grid { grid-template-columns: 1fr; }
+            .p-6 { padding: 1rem; }
+        }
+        
+        /* Scrollbar Styling */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb { background: #888; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #555; }
+        
+        /* Loading States */
+        .loading-skeleton { background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%); background-size: 200% 100%; animation: loading 1.5s infinite; }
+        @keyframes loading { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
     </style>
 </head>
-<body>
-    <!-- Mobile Menu Button -->
+<body class="bg-slate-100">
+    <!-- Mobile Menu Button - Floating Action Button -->
     <div class="mobile-menu-btn" onclick="toggleSidebar()">
-        <i class="fas fa-bars text-xl"></i>
+        <i class="fas fa-bars text-2xl"></i>
     </div>
     
     <!-- Overlay for mobile -->
@@ -69,130 +185,293 @@
         <div id="sidebar" class="sidebar w-64 text-white p-5 flex flex-col">
             <div class="flex items-center justify-between gap-3 mb-8">
                 <div class="flex items-center gap-3">
-                    <div class="bg-gradient-to-r from-blue-900 to-red-600 w-10 h-10 rounded-xl flex items-center justify-center font-bold text-white">M</div>
-                    <span class="font-bold text-lg">MOREVA ENERGY</span>
+                    <div class="bg-gradient-to-r from-blue-900 to-red-600 w-10 h-10 rounded-xl flex items-center justify-center font-bold text-white shadow-lg">M</div>
+                    <div>
+                        <span class="font-bold text-lg block">MOREVA ENERGY</span>
+                        <span class="text-xs text-slate-400">Admin Portal</span>
+                    </div>
                 </div>
-                <button onclick="closeSidebar()" class="md:hidden text-white hover:text-gray-300">
+                <button onclick="closeSidebar()" class="md:hidden text-white hover:text-gray-300 transition">
                     <i class="fas fa-times text-xl"></i>
                 </button>
             </div>
-            <div class="text-xs text-slate-400 mb-4">Admin Panel</div>
-            <nav class="space-y-2 flex-1">
+            <div class="text-xs text-slate-400 mb-4 px-2">MAIN NAVIGATION</div>
+            <nav class="space-y-1 flex-1">
                 <button onclick="showSection('overview')" class="nav-btn w-full text-left p-3 rounded-lg hover:bg-white/10 transition flex items-center gap-3">
-                    <i class="fas fa-chart-pie w-5"></i> Overview
+                    <i class="fas fa-chart-pie w-5 text-amber-400"></i> 
+                    <span>Overview</span>
                 </button>
                 <button onclick="showSection('users')" class="nav-btn w-full text-left p-3 rounded-lg hover:bg-white/10 transition flex items-center gap-3">
-                    <i class="fas fa-users w-5"></i> User Management
-                    <span id="pendingBadge" class="pending-requests-badge hidden">0</span>
+                    <i class="fas fa-users w-5 text-blue-400"></i> 
+                    <span>User Management</span>
+                    <span id="pendingBadge" class="pending-requests-badge hidden ml-auto">0</span>
                 </button>
                 <button onclick="showSection('deliveries')" class="nav-btn w-full text-left p-3 rounded-lg hover:bg-white/10 transition flex items-center gap-3">
-                    <i class="fas fa-truck w-5"></i> All Deliveries
+                    <i class="fas fa-truck w-5 text-green-400"></i> 
+                    <span>All Deliveries</span>
                 </button>
                 <button onclick="showSection('variances')" class="nav-btn w-full text-left p-3 rounded-lg hover:bg-white/10 transition flex items-center gap-3">
-                    <i class="fas fa-chart-line w-5"></i> All Variances
+                    <i class="fas fa-chart-line w-5 text-yellow-400"></i> 
+                    <span>All Variances</span>
                 </button>
                 <button onclick="showSection('reconciliations')" class="nav-btn w-full text-left p-3 rounded-lg hover:bg-white/10 transition flex items-center gap-3">
-                    <i class="fas fa-scale-balanced w-5"></i> Reconciliations
+                    <i class="fas fa-scale-balanced w-5 text-purple-400"></i> 
+                    <span>Reconciliations</span>
                 </button>
                 <button onclick="showSection('reports')" class="nav-btn w-full text-left p-3 rounded-lg hover:bg-white/10 transition flex items-center gap-3">
-                    <i class="fas fa-file-alt w-5"></i> Reports
+                    <i class="fas fa-file-alt w-5 text-indigo-400"></i> 
+                    <span>Reports</span>
                 </button>
                 <button onclick="showSection('settings')" class="nav-btn w-full text-left p-3 rounded-lg hover:bg-white/10 transition flex items-center gap-3">
-                    <i class="fas fa-cog w-5"></i> Settings
+                    <i class="fas fa-cog w-5 text-gray-400"></i> 
+                    <span>Settings</span>
                 </button>
             </nav>
             <div class="border-t border-white/20 pt-4 mt-4">
-                <div class="flex items-center gap-3 mb-3 px-3">
-                    <i class="fas fa-user-circle text-2xl"></i>
-                    <div>
+                <div class="flex items-center gap-3 mb-3 px-3 py-2 bg-white/5 rounded-lg">
+                    <i class="fas fa-user-circle text-3xl text-blue-400"></i>
+                    <div class="flex-1">
                         <div id="adminName" class="text-sm font-semibold">Loading...</div>
                         <div id="adminRole" class="text-xs text-slate-400">Administrator</div>
                     </div>
                 </div>
                 <button onclick="logout()" class="w-full text-left p-3 rounded-lg hover:bg-white/10 transition text-red-400 flex items-center gap-3">
-                    <i class="fas fa-sign-out-alt w-5"></i> Logout
+                    <i class="fas fa-sign-out-alt w-5"></i>
+                    <span>Logout</span>
                 </button>
             </div>
         </div>
 
         <!-- Main Content -->
         <div class="flex-1 overflow-auto main-content">
-            <div class="bg-white shadow-sm p-4 sticky top-0 z-10 flex justify-between items-center">
-                <h2 id="pageTitle" class="text-xl font-bold">Overview</h2>
-                <button onclick="refreshAllData()" class="refresh-btn"><i class="fas fa-sync-alt mr-1"></i> Refresh</button>
+            <!-- Header -->
+            <div class="bg-white shadow-sm sticky top-0 z-10 border-b">
+                <div class="px-6 py-4 flex justify-between items-center">
+                    <h2 id="pageTitle" class="text-2xl font-bold bg-gradient-to-r from-blue-900 to-red-600 bg-clip-text text-transparent">Overview</h2>
+                    <button onclick="refreshAllData()" class="refresh-btn bg-blue-50 text-blue-600 px-4 py-2 rounded-full hover:bg-blue-100 transition flex items-center gap-2">
+                        <i class="fas fa-sync-alt"></i> Refresh
+                    </button>
+                </div>
             </div>
 
             <div class="p-6">
                 <!-- Overview Section -->
                 <div id="overviewSection" class="section active">
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
-                        <div class="bg-white rounded-xl p-6 shadow stat-card" onclick="showSection('users')">
-                            <div><p class="text-gray-500 text-sm">Total Users</p><h3 id="totalUsers" class="text-2xl font-bold mt-1">0</h3></div>
+                    <div class="stats-grid">
+                        <div class="stat-card" onclick="showSection('users')">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-gray-500 text-sm mb-1">Total Users</p>
+                                    <h3 id="totalUsers" class="text-3xl font-bold text-blue-600">0</h3>
+                                </div>
+                                <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+                                    <i class="fas fa-users text-blue-600 text-xl"></i>
+                                </div>
+                            </div>
+                            <div class="mt-2 text-xs text-gray-400">Click to view</div>
                         </div>
-                        <div class="bg-white rounded-xl p-6 shadow stat-card" onclick="showSection('users')">
-                            <div><p class="text-gray-500 text-sm">Pending Approvals</p><h3 id="pendingUsers" class="text-2xl font-bold mt-1 text-amber-600">0</h3></div>
+                        <div class="stat-card" onclick="showSection('users')">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-gray-500 text-sm mb-1">Pending Approvals</p>
+                                    <h3 id="pendingUsers" class="text-3xl font-bold text-amber-600">0</h3>
+                                </div>
+                                <div class="w-12 h-12 bg-amber-100 rounded-full flex items-center justify-center">
+                                    <i class="fas fa-clock text-amber-600 text-xl"></i>
+                                </div>
+                            </div>
+                            <div class="mt-2 text-xs text-gray-400">Awaiting action</div>
                         </div>
-                        <div class="bg-white rounded-xl p-6 shadow stat-card" onclick="showSection('deliveries')">
-                            <div><p class="text-gray-500 text-sm">Total Deliveries</p><h3 id="totalDeliveries" class="text-2xl font-bold mt-1">0</h3></div>
+                        <div class="stat-card" onclick="showSection('deliveries')">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-gray-500 text-sm mb-1">Total Deliveries</p>
+                                    <h3 id="totalDeliveries" class="text-3xl font-bold text-green-600">0</h3>
+                                </div>
+                                <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
+                                    <i class="fas fa-truck text-green-600 text-xl"></i>
+                                </div>
+                            </div>
+                            <div class="mt-2 text-xs text-gray-400">All time records</div>
                         </div>
-                        <div class="bg-white rounded-xl p-6 shadow stat-card" onclick="showSection('variances')">
-                            <div><p class="text-gray-500 text-sm">Pending Variances</p><h3 id="pendingVariances" class="text-2xl font-bold mt-1 text-amber-600">0</h3></div>
+                        <div class="stat-card" onclick="showSection('variances')">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-gray-500 text-sm mb-1">Pending Variances</p>
+                                    <h3 id="pendingVariances" class="text-3xl font-bold text-red-600">0</h3>
+                                </div>
+                                <div class="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
+                                    <i class="fas fa-exclamation-triangle text-red-600 text-xl"></i>
+                                </div>
+                            </div>
+                            <div class="mt-2 text-xs text-gray-400">Needs attention</div>
                         </div>
                     </div>
+                    
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                        <div class="bg-white rounded-xl shadow p-6">
-                            <h3 class="font-bold text-lg mb-4">Pending User Requests</h3>
-                            <div class="table-wrapper"><table class="w-full text-sm"><thead class="bg-slate-100"><tr><th>Name</th><th>Username</th><th>Email</th><th>Registered</th><th>Actions</th></tr></thead><tbody id="pendingUsersTable"><tr><td colspan="5" class="text-center py-4">Loading...<\/tr></td></tbody><tr></div>
+                        <div class="dashboard-card">
+                            <h3 class="font-bold text-lg mb-4 flex items-center gap-2">
+                                <i class="fas fa-user-plus text-amber-600"></i> Pending User Requests
+                            </h3>
+                            <div class="table-wrapper">
+                                <table class="w-full text-sm">
+                                    <thead class="bg-slate-100">
+                                        <tr>
+                                            <th class="p-3">Name</th>
+                                            <th class="p-3">Username</th>
+                                            <th class="p-3">Email</th>
+                                            <th class="p-3">Registered</th>
+                                            <th class="p-3">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="pendingUsersTable">
+                                        <tr><td colspan="5" class="text-center py-8">Loading...</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
-                        <div class="bg-white rounded-xl shadow p-6">
-                            <h3 class="font-bold text-lg mb-4">Recent Variances</h3>
-                            <div class="table-wrapper"><table class="w-full text-sm"><thead class="bg-slate-100"><tr><th>Date</th><th>Fuel</th><th>Variance</th><th>Status</th></tr></thead><tbody id="recentVariances"><tr><td colspan="4" class="text-center py-4">Loading...<\/tr></td></tbody></table></div>
+                        <div class="dashboard-card">
+                            <h3 class="font-bold text-lg mb-4 flex items-center gap-2">
+                                <i class="fas fa-chart-line text-red-600"></i> Recent Variances
+                            </h3>
+                            <div class="table-wrapper">
+                                <table class="w-full text-sm">
+                                    <thead class="bg-slate-100">
+                                        <tr>
+                                            <th class="p-3">Date</th>
+                                            <th class="p-3">Fuel</th>
+                                            <th class="p-3">Variance</th>
+                                            <th class="p-3">Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="recentVariances">
+                                        <tr><td colspan="4" class="text-center py-8">Loading...</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                     </div>
                 </div>
 
                 <!-- User Management Section -->
                 <div id="usersSection" class="section hidden">
-                    <div class="bg-white rounded-xl shadow p-6">
-                        <div class="flex justify-between items-center mb-4">
-                            <h3 class="font-bold text-lg">System Users</h3>
-                            <div class="flex gap-2">
-                                <input type="text" id="userSearch" placeholder="Search..." class="border rounded-lg px-3 py-1 text-sm" onkeyup="filterUsers()">
-                                <button onclick="showAddUserModal()" class="btn-success text-sm px-3 py-1"><i class="fas fa-plus mr-1"></i> Add User</button>
+                    <div class="dashboard-card">
+                        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-3">
+                            <h3 class="font-bold text-lg flex items-center gap-2">
+                                <i class="fas fa-users text-blue-600"></i> System Users
+                            </h3>
+                            <div class="flex gap-2 w-full sm:w-auto">
+                                <input type="text" id="userSearch" placeholder="Search users..." class="border rounded-lg px-4 py-2 text-sm flex-1" onkeyup="filterUsers()">
+                                <button onclick="showAddUserModal()" class="btn-success text-sm px-4 py-2 whitespace-nowrap">
+                                    <i class="fas fa-plus mr-1"></i> Add User
+                                </button>
                             </div>
                         </div>
-                        <div class="table-wrapper"><table class="w-full text-sm"><thead class="bg-slate-100"><tr><th>ID</th><th>Username</th><th>Full Name</th><th>Email</th><th>Role</th><th>Status</th><th>Actions</th><tr></thead><tbody id="usersTable"><tr><td colspan="7" class="text-center py-4">Loading...<\/tr></tr></tbody></table></div>
+                        <div class="table-wrapper">
+                            <table class="w-full text-sm">
+                                <thead class="bg-slate-100">
+                                    <tr>
+                                        <th class="p-3">ID</th>
+                                        <th class="p-3">Username</th>
+                                        <th class="p-3">Full Name</th>
+                                        <th class="p-3">Email</th>
+                                        <th class="p-3">Role</th>
+                                        <th class="p-3">Status</th>
+                                        <th class="p-3">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="usersTable">
+                                    <tr><td colspan="7" class="text-center py-8">Loading...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
 
                 <!-- Deliveries Section -->
                 <div id="deliveriesSection" class="section hidden">
-                    <div class="bg-white rounded-xl shadow p-6">
-                        <h3 class="font-bold text-lg mb-4">All Deliveries</h3>
-                        <div class="table-wrapper"><table class="w-full text-sm"><thead class="bg-slate-100"><tr><th>ID</th><th>Date</th><th>Fuel</th><th>Driver</th><th>Declared</th><th>Actual</th><th>Variance</th><th>Status</th></tr></thead><tbody id="allDeliveriesTable"><tr><td colspan="8" class="text-center py-4">Loading...<\/tr></tr></tbody></table></div>
+                    <div class="dashboard-card">
+                        <h3 class="font-bold text-lg mb-4 flex items-center gap-2">
+                            <i class="fas fa-truck text-green-600"></i> All Deliveries
+                        </h3>
+                        <div class="table-wrapper">
+                            <table class="w-full text-sm">
+                                <thead class="bg-slate-100">
+                                    <tr>
+                                        <th class="p-3">ID</th>
+                                        <th class="p-3">Date</th>
+                                        <th class="p-3">Fuel</th>
+                                        <th class="p-3">Driver</th>
+                                        <th class="p-3">Declared</th>
+                                        <th class="p-3">Actual</th>
+                                        <th class="p-3">Variance</th>
+                                        <th class="p-3">Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="allDeliveriesTable">
+                                    <tr><td colspan="8" class="text-center py-8">Loading...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
 
                 <!-- Variances Section -->
                 <div id="variancesSection" class="section hidden">
-                    <div class="bg-white rounded-xl shadow p-6">
-                        <h3 class="font-bold text-lg mb-4">All Variances</h3>
-                        <div class="table-wrapper"><table class="w-full text-sm"><thead class="bg-slate-100"><tr><th>ID</th><th>Date</th><th>Fuel</th><th>Variance</th><th>Status</th></tr></thead><tbody id="allVariancesTable"><tr><td colspan="5" class="text-center py-4">Loading...<\/tr></td></tbody></tr></div>
+                    <div class="dashboard-card">
+                        <h3 class="font-bold text-lg mb-4 flex items-center gap-2">
+                            <i class="fas fa-chart-line text-yellow-600"></i> All Variances
+                        </h3>
+                        <div class="table-wrapper">
+                            <table class="w-full text-sm">
+                                <thead class="bg-slate-100">
+                                    <tr>
+                                        <th class="p-3">ID</th>
+                                        <th class="p-3">Date</th>
+                                        <th class="p-3">Fuel</th>
+                                        <th class="p-3">Variance</th>
+                                        <th class="p-3">Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="allVariancesTable">
+                                    <tr><td colspan="5" class="text-center py-8">Loading...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
 
                 <!-- Reconciliations Section -->
                 <div id="reconciliationsSection" class="section hidden">
-                    <div class="bg-white rounded-xl shadow p-6">
-                        <h3 class="font-bold text-lg mb-4">Reconciliation History</h3>
-                        <div class="table-wrapper"><table class="w-full text-sm"><thead class="bg-slate-100"><tr><th>ID</th><th>Date</th><th>Expected Cash</th><th>Actual Cash</th><th>Variance</th></tr></thead><tbody id="reconciliationsTable"><tr><td colspan="5" class="text-center py-4">Loading...<\/tr></td></tbody></table></div>
+                    <div class="dashboard-card">
+                        <h3 class="font-bold text-lg mb-4 flex items-center gap-2">
+                            <i class="fas fa-scale-balanced text-purple-600"></i> Reconciliation History
+                        </h3>
+                        <div class="table-wrapper">
+                            <table class="w-full text-sm">
+                                <thead class="bg-slate-100">
+                                    <tr>
+                                        <th class="p-3">ID</th>
+                                        <th class="p-3">Date</th>
+                                        <th class="p-3">Expected Cash</th>
+                                        <th class="p-3">Actual Cash</th>
+                                        <th class="p-3">Variance</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="reconciliationsTable">
+                                    <tr><td colspan="5" class="text-center py-8">Loading...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
 
                 <!-- Reports Section -->
                 <div id="reportsSection" class="section hidden">
-                    <div class="bg-white rounded-xl shadow p-6">
-                        <h3 class="font-bold text-lg mb-4">📊 Generate Reports</h3>
+                    <div class="dashboard-card">
+                        <h3 class="font-bold text-lg mb-4 flex items-center gap-2">
+                            <i class="fas fa-file-alt text-indigo-600"></i> Generate Reports
+                        </h3>
                         <div class="report-filters">
                             <div class="filter-group">
                                 <label><i class="far fa-calendar-alt mr-1"></i> Start Date</label>
@@ -205,28 +484,38 @@
                             <div class="filter-group">
                                 <label><i class="fas fa-chart-line mr-1"></i> Report Type</label>
                                 <select id="reportType" class="filter-input">
-                                    <option value="deliveries">Deliveries Report</option>
-                                    <option value="variances">Variances Report</option>
-                                    <option value="reconciliations">Reconciliation Report</option>
-                                    <option value="users">Users Report</option>
+                                    <option value="deliveries">📊 Deliveries Report</option>
+                                    <option value="variances">⚠️ Variances Report</option>
+                                    <option value="reconciliations">💰 Reconciliation Report</option>
+                                    <option value="users">👥 Users Report</option>
                                 </select>
                             </div>
                             <div class="filter-group">
-                                <button onclick="generateReport()" class="btn-primary w-full py-2 text-sm"><i class="fas fa-download mr-2"></i> Generate & Export</button>
+                                <button onclick="generateReport()" class="btn-primary w-full py-2 text-sm">
+                                    <i class="fas fa-download mr-2"></i> Generate & Export
+                                </button>
                             </div>
                         </div>
                         <div class="mt-6">
-                            <div class="bg-gray-50 rounded-lg p-4 mb-4">
-                                <h4 class="font-semibold text-sm mb-2">📋 Report Summary</h4>
+                            <div class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-4 mb-4 border border-blue-100">
+                                <h4 class="font-semibold text-sm mb-2 flex items-center gap-2">
+                                    <i class="fas fa-info-circle text-blue-600"></i> Report Summary
+                                </h4>
                                 <div id="reportSummary" class="text-sm text-gray-600">
                                     Select report type and date range, then click Generate & Export
                                 </div>
                             </div>
                             <div class="border-t pt-4">
-                                <div class="flex gap-3">
-                                    <button onclick="exportDeliveries()" class="btn-primary text-sm px-4 py-2"><i class="fas fa-truck mr-2"></i> Deliveries</button>
-                                    <button onclick="exportVariances()" class="btn-warning text-sm px-4 py-2"><i class="fas fa-chart-line mr-2"></i> Variances</button>
-                                    <button onclick="exportReconciliations()" class="btn-success text-sm px-4 py-2"><i class="fas fa-file-excel mr-2"></i> Reconciliations</button>
+                                <div class="flex flex-wrap gap-3">
+                                    <button onclick="exportDeliveries()" class="btn-primary text-sm px-4 py-2">
+                                        <i class="fas fa-truck mr-2"></i> Quick Deliveries
+                                    </button>
+                                    <button onclick="exportVariances()" class="btn-warning text-sm px-4 py-2 bg-amber-500 text-white rounded-full hover:bg-amber-600 transition">
+                                        <i class="fas fa-chart-line mr-2"></i> Quick Variances
+                                    </button>
+                                    <button onclick="exportReconciliations()" class="btn-success text-sm px-4 py-2">
+                                        <i class="fas fa-file-excel mr-2"></i> Quick Reconciliations
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -235,33 +524,39 @@
 
                 <!-- Settings Section -->
                 <div id="settingsSection" class="section hidden">
-                    <div class="bg-white rounded-xl shadow p-6">
-                        <h3 class="font-bold text-lg mb-4">⚙️ System Settings</h3>
+                    <div class="dashboard-card">
+                        <h3 class="font-bold text-lg mb-4 flex items-center gap-2">
+                            <i class="fas fa-cog text-gray-600"></i> System Settings
+                        </h3>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div class="settings-group">
-                                <label><i class="fas fa-oil-can mr-2"></i> Diesel Tank Capacity (L)</label>
+                                <label><i class="fas fa-oil-can mr-2 text-blue-600"></i> Diesel Tank Capacity (L)</label>
                                 <input type="number" id="dieselCapacity" class="input-field" value="10000" step="500">
                                 <div class="help-text">Default: 10,000 Liters</div>
                             </div>
                             <div class="settings-group">
-                                <label><i class="fas fa-gas-pump mr-2"></i> Petrol Tank Capacity (L)</label>
+                                <label><i class="fas fa-gas-pump mr-2 text-green-600"></i> Petrol Tank Capacity (L)</label>
                                 <input type="number" id="petrolCapacity" class="input-field" value="10000" step="500">
                                 <div class="help-text">Default: 10,000 Liters</div>
                             </div>
                             <div class="settings-group">
-                                <label><i class="fas fa-money-bill-wave mr-2"></i> Diesel Price (KES/L)</label>
+                                <label><i class="fas fa-money-bill-wave mr-2 text-amber-600"></i> Diesel Price (KES/L)</label>
                                 <input type="number" id="dieselPrice" class="input-field" value="179.00" step="0.50">
                                 <div class="help-text">Current market price per liter</div>
                             </div>
                             <div class="settings-group">
-                                <label><i class="fas fa-money-bill-wave mr-2"></i> Petrol Price (KES/L)</label>
+                                <label><i class="fas fa-money-bill-wave mr-2 text-amber-600"></i> Petrol Price (KES/L)</label>
                                 <input type="number" id="petrolPrice" class="input-field" value="199.50" step="0.50">
                                 <div class="help-text">Current market price per liter</div>
                             </div>
                         </div>
-                        <div class="flex gap-3 mt-6">
-                            <button onclick="saveSettings()" class="btn-primary"><i class="fas fa-save mr-2"></i> Save Settings</button>
-                            <button onclick="resetSettings()" class="btn-danger"><i class="fas fa-undo mr-2"></i> Reset to Defaults</button>
+                        <div class="flex gap-3 mt-6 pt-4 border-t">
+                            <button onclick="saveSettings()" class="btn-primary">
+                                <i class="fas fa-save mr-2"></i> Save Settings
+                            </button>
+                            <button onclick="resetSettings()" class="btn-outline">
+                                <i class="fas fa-undo mr-2"></i> Reset to Defaults
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -271,21 +566,40 @@
 
     <!-- Add User Modal -->
     <div id="addUserModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 modal">
-        <div class="bg-white rounded-2xl p-6 max-w-md w-full mx-4">
-            <h3 class="font-bold text-xl mb-4">Add New User</h3>
+        <div class="bg-white rounded-2xl p-6 max-w-md w-full mx-4 shadow-2xl transform transition-all">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="font-bold text-xl flex items-center gap-2">
+                    <i class="fas fa-user-plus text-green-600"></i> Add New User
+                </h3>
+                <button onclick="closeUserModal()" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
             <div class="space-y-3">
                 <input type="text" id="newUsername" placeholder="Username" class="input-field w-full">
                 <input type="text" id="newFullname" placeholder="Full Name" class="input-field w-full">
                 <input type="email" id="newEmail" placeholder="Email" class="input-field w-full">
                 <input type="password" id="newPassword" placeholder="Password" class="input-field w-full">
-                <select id="newRole" class="input-field w-full"><option value="staff">Staff</option><option value="manager">Manager</option><option value="admin">Admin</option><option value="super_admin">Super Admin</option></select>
-                <select id="newStatus" class="input-field w-full"><option value="1">Active</option><option value="0">Pending</option></select>
+                <select id="newRole" class="input-field w-full">
+                    <option value="staff">Staff</option>
+                    <option value="manager">Manager</option>
+                    <option value="admin">Admin</option>
+                    <option value="super_admin">Super Admin</option>
+                </select>
+                <select id="newStatus" class="input-field w-full">
+                    <option value="1">Active</option>
+                    <option value="0">Pending</option>
+                </select>
             </div>
-            <div class="flex gap-3 mt-6"><button onclick="createUser()" class="btn-primary flex-1">Create</button><button onclick="closeUserModal()" class="btn-danger flex-1">Cancel</button></div>
+            <div class="flex gap-3 mt-6">
+                <button onclick="createUser()" class="btn-primary flex-1">Create User</button>
+                <button onclick="closeUserModal()" class="btn-danger flex-1">Cancel</button>
+            </div>
         </div>
     </div>
 
     <script>
+        // [All JavaScript code remains exactly the same - no changes to functionality]
         const API_URL = window.location.origin + '/api';
         let deliveries = [], variances = [], reconciliations = [], users = [];
 
@@ -299,7 +613,6 @@
             document.body.appendChild(toast); setTimeout(() => toast.remove(), 3000);
         }
 
-        // Mobile sidebar functions
         function toggleSidebar() {
             const sidebar = document.getElementById('sidebar');
             const overlay = document.getElementById('overlay');
@@ -329,7 +642,7 @@
             document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
             if (event && event.target) event.target.closest('.nav-btn').classList.add('active');
             document.getElementById('pageTitle').innerText = section.charAt(0).toUpperCase() + section.slice(1);
-            closeSidebar(); // Close sidebar on mobile after navigation
+            closeSidebar();
             
             if (section === 'users') loadUsers();
             if (section === 'deliveries') loadAllDeliveries();
@@ -554,7 +867,6 @@
         document.getElementById('adminName').innerHTML = user?.full_name || user?.username || 'Admin';
         document.getElementById('adminRole').innerHTML = user?.role || 'Administrator';
         
-        // Initialize sidebar closed on mobile
         if (window.innerWidth <= 768) {
             document.getElementById('sidebar').classList.add('closed');
         }
