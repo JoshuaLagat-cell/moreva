@@ -10,9 +10,27 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 const SECRET_KEY = process.env.JWT_SECRET || 'moreva_super_secret_key_2026_enterprise';
 
-// ==================== CORS CONFIGURATION ====================
+// ==================== CORS CONFIGURATION FOR PRODUCTION ====================
+// Allow all origins in production, or specify your Render URL
+const allowedOrigins = [
+    'http://localhost:5000',
+    'http://127.0.0.1:5000',
+    'http://localhost:5500',
+    'http://127.0.0.1:5500',
+    process.env.RENDER_URL || 'https://moreva-energy.onrender.com'
+].filter(Boolean);
+
 app.use(cors({
-    origin: ['http://localhost:5000', 'http://127.0.0.1:5000', 'http://localhost:5500', 'http://127.0.0.1:5500'],
+    origin: function(origin, callback) {
+        // Allow requests with no origin (like mobile apps or curl)
+        if (!origin) return callback(null, true);
+        if (allowedOrigins.indexOf(origin) === -1 && process.env.NODE_ENV === 'production') {
+            console.warn(`Origin ${origin} not allowed by CORS`);
+            // In production, still allow but log warning
+            return callback(null, true);
+        }
+        return callback(null, true);
+    },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization']
@@ -25,7 +43,7 @@ const publicPath = path.join(__dirname, '../public');
 console.log(`📁 Serving static files from: ${publicPath}`);
 app.use(express.static(publicPath));
 
-// PostgreSQL Connection Pool
+// PostgreSQL Connection Pool (using Neon.tech)
 const pool = new Pool({
     host: process.env.DB_HOST,
     port: process.env.DB_PORT || 5432,
@@ -42,7 +60,11 @@ const pool = new Pool({
 pool.connect(async (err, client, release) => {
     if (err) {
         console.error('❌ PostgreSQL Connection Error:', err.message);
-        process.exit(1);
+        console.error('⚠️ Make sure your Neon.tech database is accessible');
+        // Don't exit on connection error in production - retry later
+        if (process.env.NODE_ENV !== 'production') {
+            process.exit(1);
+        }
     } else {
         console.log('✅ PostgreSQL Connected Successfully!');
         console.log(`📡 Host: ${process.env.DB_HOST}`);
@@ -70,7 +92,7 @@ async function initializeDatabase() {
                 diesel_sold DECIMAL(10,2) DEFAULT 0,
                 petrol_sold DECIMAL(10,2) DEFAULT 0,
                 locked BOOLEAN DEFAULT FALSE,
-                recorded_by INTEGER REFERENCES users(id),
+                recorded_by INTEGER,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
         `);
@@ -89,7 +111,7 @@ async function initializeDatabase() {
                 status VARCHAR(50),
                 delivery_date DATE DEFAULT CURRENT_DATE,
                 recorded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                recorded_by INTEGER REFERENCES users(id)
+                recorded_by INTEGER
             )
         `);
         console.log('✓ Deliveries table ready');
@@ -107,7 +129,7 @@ async function initializeDatabase() {
                 actual_stock DECIMAL(10,2),
                 resolution_notes TEXT,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                recorded_by INTEGER REFERENCES users(id)
+                recorded_by INTEGER
             )
         `);
         console.log('✓ Variances table ready');
@@ -127,7 +149,7 @@ async function initializeDatabase() {
                 variance DECIMAL(10,2),
                 status VARCHAR(50),
                 record_date DATE DEFAULT CURRENT_DATE,
-                recorded_by INTEGER REFERENCES users(id),
+                recorded_by INTEGER,
                 recorded_by_name VARCHAR(200),
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
@@ -349,7 +371,7 @@ app.post('/api/auth/signup', async (req, res) => {
                 role: user.role,
                 email: user.email,
                 is_active: user.is_active
-            }
+            } 
         });
     } catch (error) {
         console.error('❌ Signup error:', error.message);
@@ -379,9 +401,7 @@ app.get('/api/verify', authenticateToken, async (req, res) => {
     }
 });
 
-// ==================== ADMIN USER MANAGEMENT ROUTES (For admin.html) ====================
-
-// IMPORTANT: These routes are without /admin prefix to match your admin.html
+// ==================== ADMIN USER MANAGEMENT ROUTES ====================
 
 // Get all users (admin only)
 app.get('/api/users', authenticateToken, isAdmin, async (req, res) => {
@@ -729,15 +749,23 @@ app.get('/api/health', async (req, res) => {
             status: 'running',
             database: 'connected',
             port: PORT,
+            environment: process.env.NODE_ENV || 'development',
             timestamp: new Date().toISOString()
         });
     } catch (error) {
         res.json({
             status: 'running',
             database: 'disconnected',
-            error: error.message
+            error: error.message,
+            timestamp: new Date().toISOString()
         });
     }
+});
+
+// ==================== ERROR HANDLING MIDDLEWARE ====================
+app.use((err, req, res, next) => {
+    console.error('Server Error:', err.stack);
+    res.status(500).json({ error: 'Something went wrong! Please try again later.' });
 });
 
 // ==================== START SERVER ====================
@@ -749,17 +777,29 @@ app.listen(PORT, () => {
     console.log(`📁 Static files served from: ${publicPath}`);
     console.log(`🌐 Access the app at: http://localhost:${PORT}`);
     console.log(`🔐 Admin login: admin / admin123`);
-    console.log('\n📋 Admin API Endpoints:');
-    console.log(`   GET    /api/users - Get all users`);
-    console.log(`   PUT    /api/users/:id/approve - Approve user`);
-    console.log(`   DELETE /api/users/:id - Delete user`);
-    console.log(`   POST   /api/users - Create user`);
-    console.log(`   PUT    /api/users/:id - Update user`);
+    console.log(`🖥️ Environment: ${process.env.NODE_ENV || 'development'}`);
+    console.log('\n📋 API Endpoints:');
+    console.log(`   POST   /api/login - User login`);
+    console.log(`   POST   /api/auth/signup - User registration`);
+    console.log(`   GET    /api/users - Get all users (admin only)`);
+    console.log(`   PUT    /api/users/:id/approve - Approve user (admin only)`);
+    console.log(`   DELETE /api/users/:id - Delete user (admin only)`);
+    console.log(`   POST   /api/users - Create user (admin only)`);
+    console.log(`   GET    /api/deliveries - Get all deliveries`);
+    console.log(`   GET    /api/variances - Get all variances`);
+    console.log(`   GET    /api/reconciliation/history - Get reconciliation history`);
     console.log('='.repeat(60) + '\n');
 });
 
 // Graceful shutdown
 process.on('SIGINT', async () => {
+    console.log('\n🛑 Shutting down server...');
+    await pool.end();
+    console.log('✅ Database connection closed');
+    process.exit(0);
+});
+
+process.on('SIGTERM', async () => {
     console.log('\n🛑 Shutting down server...');
     await pool.end();
     console.log('✅ Database connection closed');
