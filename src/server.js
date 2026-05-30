@@ -21,47 +21,84 @@ app.use(cors({
 
 app.use(express.json());
 
-// ==================== STATIC FILES - USE PROCESS.CWD() ====================
-// Get the root directory (where package.json is)
-const rootDir = process.cwd();
-console.log(`📁 Root directory: ${rootDir}`);
-console.log(`📁 Files in root:`, fs.readdirSync(rootDir).join(', '));
+// ==================== FIND PUBLIC FOLDER - ROBUST SEARCH ====================
+console.log('\n🔍 Searching for public folder...');
 
-// Look for public folder in root directory
-const publicPath = path.join(rootDir, 'public');
-console.log(`📁 Looking for public folder at: ${publicPath}`);
+// Try multiple possible locations
+const possiblePaths = [
+    path.join(process.cwd(), 'public'),           // /opt/render/project/src/public
+    path.join(__dirname, 'public'),               // /opt/render/project/src/src/public
+    path.join(__dirname, '..', 'public'),         // /opt/render/project/src/public
+    path.join(process.cwd(), '..', 'public'),     // /opt/render/project/public
+    '/opt/render/project/src/public',
+    '/opt/render/project/public'
+];
 
-if (fs.existsSync(publicPath)) {
-    console.log(`✅ Found public folder!`);
-    console.log(`📄 Files in public:`, fs.readdirSync(publicPath).join(', '));
-} else {
-    console.error(`❌ Public folder NOT found at: ${publicPath}`);
-    // Create a basic index.html for testing
+let publicPath = null;
+
+for (const testPath of possiblePaths) {
+    if (fs.existsSync(testPath)) {
+        publicPath = testPath;
+        console.log(`✅ Found public folder at: ${publicPath}`);
+        const files = fs.readdirSync(publicPath);
+        console.log(`📄 Files: ${files.join(', ')}`);
+        break;
+    }
+}
+
+// If no public folder found, create it with fallback HTML
+if (!publicPath) {
+    console.log('⚠️ No public folder found, creating one...');
+    publicPath = path.join(process.cwd(), 'public');
     fs.mkdirSync(publicPath, { recursive: true });
+    
+    // Create fallback HTML files
     const fallbackHtml = `<!DOCTYPE html>
-<html>
-<head><title>MOREVA ENERGY</title></head>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MOREVA ENERGY</title>
+    <script src="https://cdn.tailwindcss.com/3.4.1"></script>
+    <style>
+        body { background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); min-height: 100vh; display: flex; align-items: center; justify-content: center; font-family: 'Inter', sans-serif; }
+        .card { background: white; border-radius: 2rem; padding: 2rem; max-width: 400px; width: 100%; }
+        .brand { background: linear-gradient(135deg, #1e3a8a, #dc2626); width: 60px; height: 60px; border-radius: 1.5rem; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; color: white; margin: 0 auto; }
+    </style>
+</head>
 <body>
-    <h1>MOREVA ENERGY</h1>
-    <p>Server is running. Setting up public folder...</p>
-    <div id="error"></div>
+    <div class="card">
+        <div class="brand mb-4">M</div>
+        <h1 class="text-2xl font-bold text-center">MOREVA ENERGY</h1>
+        <p class="text-center text-gray-500 mt-2">Server is running!</p>
+        <div class="mt-4 p-3 bg-green-50 rounded-lg">
+            <p class="text-sm text-green-800">✅ Backend is operational</p>
+            <p id="status" class="text-xs text-gray-500 mt-2">Checking database connection...</p>
+        </div>
+    </div>
     <script>
         fetch('/api/health')
             .then(r => r.json())
             .then(data => {
-                document.getElementById('error').innerHTML = '<pre>' + JSON.stringify(data, null, 2) + '</pre>';
+                document.getElementById('status').innerHTML = 'Database: ' + (data.database === 'connected' ? '✅ Connected' : '❌ ' + data.error);
             })
             .catch(e => {
-                document.getElementById('error').innerHTML = 'Error: ' + e.message;
+                document.getElementById('status').innerHTML = 'Error connecting to API';
             });
     </script>
 </body>
 </html>`;
+    
     fs.writeFileSync(path.join(publicPath, 'index.html'), fallbackHtml);
-    console.log(`✅ Created fallback index.html`);
+    fs.writeFileSync(path.join(publicPath, 'dashboard.html'), fallbackHtml);
+    fs.writeFileSync(path.join(publicPath, 'admin.html'), fallbackHtml);
+    console.log(`✅ Created fallback HTML files in ${publicPath}`);
 }
 
+// Serve static files
 app.use(express.static(publicPath));
+
+console.log(`📁 Serving static files from: ${publicPath}\n`);
 
 // PostgreSQL Connection Pool
 const pool = new Pool({
@@ -448,8 +485,7 @@ app.get('/api/health', async (req, res) => {
             database: 'connected',
             port: PORT,
             environment: process.env.NODE_ENV || 'development',
-            publicPath: publicPath,
-            rootDir: rootDir
+            publicPath: publicPath
         });
     } catch (error) {
         res.json({
