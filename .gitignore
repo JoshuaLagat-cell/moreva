@@ -1,7 +1,6 @@
-node_modules/ 
-.env 
-moreva_energy.db 
-*.log 
-.DS_Store 
-dist/ 
-.vscode/ 
+"# Node modules" 
+"node_modules/" 
+".env" 
+"*.log" 
+"moreva_energy.db" 
+"dist/" 
