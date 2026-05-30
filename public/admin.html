@@ -32,7 +32,8 @@
         .modal { transition: all 0.3s ease; }
         .stat-card { transition: all 0.3s ease; cursor: pointer; }
         .stat-card:hover { transform: translateY(-2px); box-shadow: 0 20px 25px -12px rgba(0,0,0,0.15); }
-        .sidebar { background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); }
+        .sidebar { background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); transition: transform 0.3s ease; }
+        .sidebar.closed { transform: translateX(-100%); }
         .section { display: none; }
         .section.active { display: block; animation: fade 0.2s ease; }
         @keyframes fade { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
@@ -44,23 +45,36 @@
         .action-btn.approve { background: #10b981; color: white; }
         .action-btn.delete { background: #ef4444; color: white; }
         .pending-requests-badge { background: #f59e0b; color: white; border-radius: 9999px; padding: 0.15rem 0.5rem; font-size: 0.7rem; margin-left: 0.5rem; }
-        .report-filters { display: flex; gap: 1rem; margin-bottom: 1.5rem; flex-wrap: wrap; align-items: flex-end; }
-        .report-filters .filter-group { flex: 1; min-width: 150px; }
-        .report-filters label { display: block; font-size: 0.75rem; font-weight: 600; color: #4b5563; margin-bottom: 0.25rem; }
-        .report-filters input, .report-filters select { width: 100%; padding: 0.5rem; border: 1px solid #e2e8f0; border-radius: 0.5rem; font-size: 0.875rem; }
-        .settings-group { margin-bottom: 1.5rem; }
-        .settings-group label { display: block; font-size: 0.875rem; font-weight: 600; color: #374151; margin-bottom: 0.5rem; }
-        .settings-group input { width: 100%; padding: 0.75rem; border: 1px solid #e2e8f0; border-radius: 0.75rem; }
-        .settings-group .help-text { font-size: 0.7rem; color: #6b7280; margin-top: 0.25rem; }
+        .mobile-menu-btn { display: none; position: fixed; top: 1rem; left: 1rem; z-index: 100; background: #1e293b; color: white; padding: 0.5rem; border-radius: 0.5rem; cursor: pointer; }
+        @media (max-width: 768px) {
+            .mobile-menu-btn { display: block; }
+            .sidebar { position: fixed; left: 0; top: 0; bottom: 0; z-index: 50; width: 80%; max-width: 280px; }
+            .main-content { margin-left: 0; width: 100%; }
+        }
+        .overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 40; }
+        .overlay.active { display: block; }
     </style>
 </head>
-<body class="bg-slate-100">
+<body>
+    <!-- Mobile Menu Button -->
+    <div class="mobile-menu-btn" onclick="toggleSidebar()">
+        <i class="fas fa-bars text-xl"></i>
+    </div>
+    
+    <!-- Overlay for mobile -->
+    <div id="overlay" class="overlay" onclick="closeSidebar()"></div>
+
     <div class="flex h-screen">
         <!-- Sidebar -->
-        <div class="sidebar w-64 text-white p-5 flex flex-col">
-            <div class="flex items-center gap-3 mb-8">
-                <div class="bg-gradient-to-r from-blue-900 to-red-600 w-10 h-10 rounded-xl flex items-center justify-center font-bold text-white">M</div>
-                <span class="font-bold text-lg">MOREVA ENERGY</span>
+        <div id="sidebar" class="sidebar w-64 text-white p-5 flex flex-col">
+            <div class="flex items-center justify-between gap-3 mb-8">
+                <div class="flex items-center gap-3">
+                    <div class="bg-gradient-to-r from-blue-900 to-red-600 w-10 h-10 rounded-xl flex items-center justify-center font-bold text-white">M</div>
+                    <span class="font-bold text-lg">MOREVA ENERGY</span>
+                </div>
+                <button onclick="closeSidebar()" class="md:hidden text-white hover:text-gray-300">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
             </div>
             <div class="text-xs text-slate-400 mb-4">Admin Panel</div>
             <nav class="space-y-2 flex-1">
@@ -102,7 +116,7 @@
         </div>
 
         <!-- Main Content -->
-        <div class="flex-1 overflow-auto">
+        <div class="flex-1 overflow-auto main-content">
             <div class="bg-white shadow-sm p-4 sticky top-0 z-10 flex justify-between items-center">
                 <h2 id="pageTitle" class="text-xl font-bold">Overview</h2>
                 <button onclick="refreshAllData()" class="refresh-btn"><i class="fas fa-sync-alt mr-1"></i> Refresh</button>
@@ -128,11 +142,11 @@
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                         <div class="bg-white rounded-xl shadow p-6">
                             <h3 class="font-bold text-lg mb-4">Pending User Requests</h3>
-                            <div class="table-wrapper"><table class="w-full text-sm"><thead class="bg-slate-100"><tr><th>Name</th><th>Username</th><th>Email</th><th>Registered</th><th>Actions</th></tr></thead><tbody id="pendingUsersTable"><tr><td colspan="5" class="text-center py-4">Loading...<\/tr></td></tbody></table></div>
+                            <div class="table-wrapper"><table class="w-full text-sm"><thead class="bg-slate-100"><tr><th>Name</th><th>Username</th><th>Email</th><th>Registered</th><th>Actions</th></tr></thead><tbody id="pendingUsersTable"><tr><td colspan="5" class="text-center py-4">Loading...<\/tr></td></tbody><tr></div>
                         </div>
                         <div class="bg-white rounded-xl shadow p-6">
                             <h3 class="font-bold text-lg mb-4">Recent Variances</h3>
-                            <div class="table-wrapper"><table class="w-full text-sm"><thead class="bg-slate-100"><tr><th>Date</th><th>Fuel</th><th>Variance</th><th>Status</th></table></thead><tbody id="recentVariances"><tr><td colspan="4" class="text-center py-4">Loading...<\/tr></tr></tbody></tr></div>
+                            <div class="table-wrapper"><table class="w-full text-sm"><thead class="bg-slate-100"><tr><th>Date</th><th>Fuel</th><th>Variance</th><th>Status</th></tr></thead><tbody id="recentVariances"><tr><td colspan="4" class="text-center py-4">Loading...<\/tr></td></tbody></table></div>
                         </div>
                     </div>
                 </div>
@@ -147,7 +161,7 @@
                                 <button onclick="showAddUserModal()" class="btn-success text-sm px-3 py-1"><i class="fas fa-plus mr-1"></i> Add User</button>
                             </div>
                         </div>
-                        <div class="table-wrapper"><table class="w-full text-sm"><thead class="bg-slate-100"><tr><th>ID</th><th>Username</th><th>Full Name</th><th>Email</th><th>Role</th><th>Status</th><th>Actions</th></td></thead><tbody id="usersTable"><tr><td colspan="7" class="text-center py-4">Loading...<\/tr></table></tbody></table></div>
+                        <div class="table-wrapper"><table class="w-full text-sm"><thead class="bg-slate-100"><tr><th>ID</th><th>Username</th><th>Full Name</th><th>Email</th><th>Role</th><th>Status</th><th>Actions</th><tr></thead><tbody id="usersTable"><tr><td colspan="7" class="text-center py-4">Loading...<\/tr></tr></tbody></table></div>
                     </div>
                 </div>
 
@@ -163,7 +177,7 @@
                 <div id="variancesSection" class="section hidden">
                     <div class="bg-white rounded-xl shadow p-6">
                         <h3 class="font-bold text-lg mb-4">All Variances</h3>
-                        <div class="table-wrapper"><table class="w-full text-sm"><thead class="bg-slate-100"><tr><th>ID</th><th>Date</th><th>Fuel</th><th>Variance</th><th>Status</th></tr></thead><tbody id="allVariancesTable"><tr><td colspan="5" class="text-center py-4">Loading...<\/tr></td></tbody><td></div>
+                        <div class="table-wrapper"><table class="w-full text-sm"><thead class="bg-slate-100"><tr><th>ID</th><th>Date</th><th>Fuel</th><th>Variance</th><th>Status</th></tr></thead><tbody id="allVariancesTable"><tr><td colspan="5" class="text-center py-4">Loading...<\/tr></td></tbody></tr></div>
                     </div>
                 </div>
 
@@ -171,11 +185,11 @@
                 <div id="reconciliationsSection" class="section hidden">
                     <div class="bg-white rounded-xl shadow p-6">
                         <h3 class="font-bold text-lg mb-4">Reconciliation History</h3>
-                        <div class="table-wrapper"><table class="w-full text-sm"><thead class="bg-slate-100"><tr><th>ID</th><th>Date</th><th>Expected Cash</th><th>Actual Cash</th><th>Variance</th></tr></thead><tbody id="reconciliationsTable"><tr><td colspan="5" class="text-center py-4">Loading...<\/tr></tr></tbody></table></div>
+                        <div class="table-wrapper"><table class="w-full text-sm"><thead class="bg-slate-100"><tr><th>ID</th><th>Date</th><th>Expected Cash</th><th>Actual Cash</th><th>Variance</th></tr></thead><tbody id="reconciliationsTable"><tr><td colspan="5" class="text-center py-4">Loading...<\/tr></td></tbody></table></div>
                     </div>
                 </div>
 
-                <!-- Reports Section - FIXED and POPULATED -->
+                <!-- Reports Section -->
                 <div id="reportsSection" class="section hidden">
                     <div class="bg-white rounded-xl shadow p-6">
                         <h3 class="font-bold text-lg mb-4">📊 Generate Reports</h3>
@@ -219,7 +233,7 @@
                     </div>
                 </div>
 
-                <!-- Settings Section - FIXED and POPULATED -->
+                <!-- Settings Section -->
                 <div id="settingsSection" class="section hidden">
                     <div class="bg-white rounded-xl shadow p-6">
                         <h3 class="font-bold text-lg mb-4">⚙️ System Settings</h3>
@@ -243,26 +257,6 @@
                                 <label><i class="fas fa-money-bill-wave mr-2"></i> Petrol Price (KES/L)</label>
                                 <input type="number" id="petrolPrice" class="input-field" value="199.50" step="0.50">
                                 <div class="help-text">Current market price per liter</div>
-                            </div>
-                        </div>
-                        <div class="border-t mt-6 pt-6">
-                            <h4 class="font-semibold text-md mb-4">📱 Application Preferences</h4>
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div class="settings-group">
-                                    <label><i class="fas fa-moon mr-2"></i> Theme Preference</label>
-                                    <select id="themePreference" class="input-field">
-                                        <option value="light">Light Mode</option>
-                                        <option value="dark">Dark Mode</option>
-                                        <option value="system">System Default</option>
-                                    </select>
-                                </div>
-                                <div class="settings-group">
-                                    <label><i class="fas fa-language mr-2"></i> Language</label>
-                                    <select id="languagePreference" class="input-field">
-                                        <option value="en">English</option>
-                                        <option value="sw">Swahili</option>
-                                    </select>
-                                </div>
                             </div>
                         </div>
                         <div class="flex gap-3 mt-6">
@@ -305,6 +299,21 @@
             document.body.appendChild(toast); setTimeout(() => toast.remove(), 3000);
         }
 
+        // Mobile sidebar functions
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('overlay');
+            sidebar.classList.toggle('closed');
+            overlay.classList.toggle('active');
+        }
+        
+        function closeSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('overlay');
+            sidebar.classList.add('closed');
+            overlay.classList.remove('active');
+        }
+
         function refreshAllData() {
             loadDashboardStats();
             if (document.getElementById('usersSection').classList.contains('active')) loadUsers();
@@ -320,6 +329,7 @@
             document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
             if (event && event.target) event.target.closest('.nav-btn').classList.add('active');
             document.getElementById('pageTitle').innerText = section.charAt(0).toUpperCase() + section.slice(1);
+            closeSidebar(); // Close sidebar on mobile after navigation
             
             if (section === 'users') loadUsers();
             if (section === 'deliveries') loadAllDeliveries();
@@ -330,16 +340,23 @@
 
         async function loadDashboardStats() {
             const token = getToken();
-            if (!token) return;
+            if (!token) {
+                showToast('Please login again', 'error');
+                return;
+            }
             try {
+                console.log('Loading dashboard stats...');
                 const [deliveriesRes, variancesRes, usersRes] = await Promise.all([
                     fetch(`${API_URL}/deliveries`, { headers: { 'Authorization': `Bearer ${token}` } }),
                     fetch(`${API_URL}/variances`, { headers: { 'Authorization': `Bearer ${token}` } }),
                     fetch(`${API_URL}/users`, { headers: { 'Authorization': `Bearer ${token}` } })
                 ]);
-                deliveries = await deliveriesRes.json();
-                variances = await variancesRes.json();
-                users = await usersRes.json();
+                
+                if (deliveriesRes.ok) deliveries = await deliveriesRes.json();
+                if (variancesRes.ok) variances = await variancesRes.json();
+                if (usersRes.ok) users = await usersRes.json();
+                
+                console.log('Stats loaded:', { deliveries: deliveries.length, variances: variances.length, users: users.length });
                 
                 const pendingCount = users.filter(u => !u.is_active).length;
                 document.getElementById('totalUsers').innerText = users.length;
@@ -352,11 +369,11 @@
                 else { badge.classList.add('hidden'); }
                 
                 const pendingTable = users.filter(u => !u.is_active).slice(0, 5);
-                document.getElementById('pendingUsersTable').innerHTML = pendingTable.length ? pendingTable.map(u => `<tr><td class="p-2">${u.full_name || '-'}<\/td><td class="p-2">${u.username}<\/td><td class="p-2">${u.email || '-'}<\/td><td class="p-2">${new Date(u.created_at).toLocaleDateString()}<\/td><td class="p-2"><button onclick="approveUser(${u.id})" class="action-btn approve px-2 py-1 rounded text-xs"><i class="fas fa-check"></i> Approve</button> <button onclick="deleteUser(${u.id})" class="action-btn delete px-2 py-1 rounded text-xs"><i class="fas fa-trash"></i> Reject</button><\/td><\/tr>`).join('') : '<tr><td colspan="5" class="text-center py-4">No pending requests<\/tr>';
+                document.getElementById('pendingUsersTable').innerHTML = pendingTable.length ? pendingTable.map(u => `<tr class="border-b"><td class="p-2">${u.full_name || '-'}<\/td><td class="p-2">${u.username}<\/td><td class="p-2">${u.email || '-'}<\/td><td class="p-2">${new Date(u.created_at).toLocaleDateString()}<\/td><td class="p-2"><button onclick="approveUser(${u.id})" class="action-btn approve px-2 py-1 rounded text-xs"><i class="fas fa-check"></i> Approve</button> <button onclick="deleteUser(${u.id})" class="action-btn delete px-2 py-1 rounded text-xs"><i class="fas fa-trash"></i> Reject</button><\/td><\/tr>`).join('') : '<tr><td colspan="5" class="text-center py-4">No pending requests<\/tr>';
                 
                 const recentVars = variances.slice(0, 5);
-                document.getElementById('recentVariances').innerHTML = recentVars.length ? recentVars.map(v => `<tr><td class="p-2">${v.date || '-'}<\/td><td class="p-2">${v.fuel_type || '-'}<\/td><td class="text-red-600">${v.amount}L<\/td><td class="p-2"><span class="${v.status === 'Resolved' ? 'badge-success' : 'badge-warning'} badge">${v.status}<\/span><\/td><\/tr>`).join('') : '<tr><td colspan="4" class="text-center py-4">No variances<\/tr>';
-            } catch(e) { console.error(e); showToast('Error loading stats', 'error'); }
+                document.getElementById('recentVariances').innerHTML = recentVars.length ? recentVars.map(v => `<tr class="border-b"><td class="p-2">${v.date || '-'}<\/td><td class="p-2">${v.fuel_type || '-'}<\/td><td class="text-red-600">${v.amount}L<\/td><td class="p-2"><span class="${v.status === 'Resolved' ? 'badge-success' : 'badge-warning'} badge">${v.status}<\/span><\/td><\/tr>`).join('') : '<tr><td colspan="4" class="text-center py-4">No variances<\/tr>';
+            } catch(e) { console.error('Dashboard stats error:', e); showToast('Error loading stats: ' + e.message, 'error'); }
         }
 
         async function loadUsers() {
@@ -372,7 +389,7 @@
         function filterUsers() {
             const search = document.getElementById('userSearch')?.value.toLowerCase() || '';
             const filtered = users.filter(u => u.username?.toLowerCase().includes(search) || u.full_name?.toLowerCase().includes(search) || u.email?.toLowerCase().includes(search));
-            document.getElementById('usersTable').innerHTML = filtered.length ? filtered.map(u => `<tr class="border-b"><td class="p-2">${u.id}<\/td><td class="p-2">${u.username}<\/td><td class="p-2">${u.full_name || '-'}<\/td><td class="p-2">${u.email || '-'}<\/td><td class="p-2"><span class="badge-info badge">${u.role}<\/span><\/td><td class="p-2">${u.is_active ? '<span class="badge-success badge">Active</span>' : '<span class="badge-pending badge">Pending</span>'}<\/td><td class="p-2">${!u.is_active ? `<button onclick="approveUser(${u.id})" class="action-btn approve px-2 py-1 rounded text-xs"><i class="fas fa-check"></i> Approve</button>` : ''}<button onclick="deleteUser(${u.id})" class="action-btn delete px-2 py-1 rounded text-xs"><i class="fas fa-trash"></i><\/button><\/td><\/tr>`).join('') : '</table><td colspan="7" class="text-center py-4">No users found<\/tr>';
+            document.getElementById('usersTable').innerHTML = filtered.length ? filtered.map(u => `<tr class="border-b"><td class="p-2">${u.id}<\/td><td class="p-2">${u.username}<\/td><td class="p-2">${u.full_name || '-'}<\/td><td class="p-2">${u.email || '-'}<\/td><td class="p-2"><span class="badge-info badge">${u.role}<\/span><\/td><td class="p-2">${u.is_active ? '<span class="badge-success badge">Active</span>' : '<span class="badge-pending badge">Pending</span>'}<\/td><td class="p-2">${!u.is_active ? `<button onclick="approveUser(${u.id})" class="action-btn approve px-2 py-1 rounded text-xs"><i class="fas fa-check"></i> Approve</button>` : ''}<button onclick="deleteUser(${u.id})" class="action-btn delete px-2 py-1 rounded text-xs"><i class="fas fa-trash"></i><\/button><\/td><\/tr>`).join('') : '<tr><td colspan="7" class="text-center py-4">No users found<\/tr>';
         }
 
         async function approveUser(id) {
@@ -438,7 +455,7 @@
                 showToast('Please fill all fields', 'error'); return;
             }
             try {
-                const res = await fetch(`${API_URL}/users`, {
+                const res = await fetch(`${API_URL}/auth/signup`, {
                     method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
                     body: JSON.stringify(data)
                 });
@@ -497,26 +514,15 @@
             showToast('Report exported', 'success');
         }
         
-        function exportDeliveries() { 
-            const filtered = deliveries;
-            exportToExcel(filtered, 'Deliveries_Report'); 
-        }
-        function exportVariances() { 
-            const filtered = variances;
-            exportToExcel(filtered, 'Variances_Report'); 
-        }
-        function exportReconciliations() { 
-            const filtered = reconciliations;
-            exportToExcel(filtered, 'Reconciliations_Report'); 
-        }
+        function exportDeliveries() { exportToExcel(deliveries, 'Deliveries_Report'); }
+        function exportVariances() { exportToExcel(variances, 'Variances_Report'); }
+        function exportReconciliations() { exportToExcel(reconciliations, 'Reconciliations_Report'); }
 
         function saveSettings() {
             localStorage.setItem('diesel_capacity', document.getElementById('dieselCapacity').value);
             localStorage.setItem('petrol_capacity', document.getElementById('petrolCapacity').value);
             localStorage.setItem('diesel_price', document.getElementById('dieselPrice').value);
             localStorage.setItem('petrol_price', document.getElementById('petrolPrice').value);
-            localStorage.setItem('theme_preference', document.getElementById('themePreference').value);
-            localStorage.setItem('language_preference', document.getElementById('languagePreference').value);
             showToast('Settings saved successfully!', 'success');
         }
 
@@ -525,8 +531,6 @@
             document.getElementById('petrolCapacity').value = '10000';
             document.getElementById('dieselPrice').value = '179.00';
             document.getElementById('petrolPrice').value = '199.50';
-            document.getElementById('themePreference').value = 'light';
-            document.getElementById('languagePreference').value = 'en';
             saveSettings();
             showToast('Settings reset to defaults', 'success');
         }
@@ -536,21 +540,29 @@
             document.getElementById('petrolCapacity').value = localStorage.getItem('petrol_capacity') || 10000;
             document.getElementById('dieselPrice').value = localStorage.getItem('diesel_price') || 179.00;
             document.getElementById('petrolPrice').value = localStorage.getItem('petrol_price') || 199.50;
-            document.getElementById('themePreference').value = localStorage.getItem('theme_preference') || 'light';
-            document.getElementById('languagePreference').value = localStorage.getItem('language_preference') || 'en';
         }
 
         function logout() { localStorage.clear(); window.location.href = '/'; }
 
+        // Initialize
         const user = getUser();
         const token = getToken();
-        if (!token || !user || (user.role !== 'super_admin' && user.role !== 'admin')) window.location.href = '/';
+        if (!token || !user || (user.role !== 'super_admin' && user.role !== 'admin')) {
+            window.location.href = '/';
+        }
         
         document.getElementById('adminName').innerHTML = user?.full_name || user?.username || 'Admin';
         document.getElementById('adminRole').innerHTML = user?.role || 'Administrator';
         
+        // Initialize sidebar closed on mobile
+        if (window.innerWidth <= 768) {
+            document.getElementById('sidebar').classList.add('closed');
+        }
+        
         loadDashboardStats();
         loadSettings();
+        loadAllDeliveries();
+        loadAllVariances();
     </script>
 </body>
 </html>
