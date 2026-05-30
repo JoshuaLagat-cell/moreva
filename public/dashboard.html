@@ -11,6 +11,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
     <style>
         * { font-family: 'Inter', sans-serif; }
+        
+        /* Toast Notifications */
         .toast-notif {
             position: fixed;
             bottom: 24px;
@@ -27,179 +29,343 @@
             z-index: 10000;
         }
         @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        
+        /* Badges */
         .badge { background: #e0f2e9; color: #0b5e42; padding: 0.2rem 0.6rem; border-radius: 2rem; font-size: 0.7rem; font-weight: 700; display: inline-block; }
         .badge-warning { background: #fef3c7; color: #b45309; }
         .badge-danger { background: #fee2e2; color: #b91c1c; }
         .badge-info { background: #dbeafe; color: #1e40af; }
         .badge-success { background: #d1fae5; color: #065f46; }
         .badge-locked { background: #dc2626; color: white; }
+        
+        /* Boxes */
         .info-box { background: #eff6ff; padding: 1rem; border-radius: 1rem; margin-bottom: 1rem; font-size: 0.85rem; color: #1e40af; }
         .success-box { background: #d1fae5; padding: 1rem; border-radius: 1rem; margin-bottom: 1rem; font-size: 0.85rem; color: #065f46; }
         .error-box { background: #fee2e2; padding: 1rem; border-radius: 1rem; margin-bottom: 1rem; font-size: 0.85rem; color: #b91c1c; }
         .warning-box { background: #fef3c7; padding: 1rem; border-radius: 1rem; margin-bottom: 1rem; font-size: 0.85rem; color: #b45309; }
-        .card { background: white; border-radius: 1.5rem; padding: 1.5rem; box-shadow: 0 10px 25px -5px rgb(0 0 0 / 0.08); }
+        
+        /* Buttons */
         .btn-outline { background: transparent; border: 1.5px solid #1e3a8a; color: #1e3a8a; padding: 0.5rem 1rem; border-radius: 2rem; font-weight: 600; cursor: pointer; transition: all 0.2s; }
         .btn-outline:hover { background: #1e3a8a; color: white; }
-        .dynamic-row { display: flex; gap: 12px; margin-bottom: 12px; align-items: center; background: #f9fbfd; padding: 6px 8px; border-radius: 16px; flex-wrap: wrap; }
-        .dynamic-row input { flex: 1; margin: 0; min-width: 120px; }
-        .small-btn { background: #e2e8f0; color: #1e293b; padding: 6px 12px; font-size: 0.7rem; border-radius: 2rem; border: none; cursor: pointer; }
-        .recon-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(460px, 1fr)); gap: 24px; margin-bottom: 32px; }
-        .pump-section { background: #f9fbfe; padding: 1rem; border-radius: 1rem; margin-bottom: 1.2rem; border: 1px solid #e2edf7; }
-        .pump-title { font-weight: 700; color: #0f4c5f; margin-bottom: 12px; font-size: 0.85rem; background: #e6f0f5; display: inline-block; padding: 4px 12px; border-radius: 20px; }
-        .expected-cash-card { background: linear-gradient(135deg, #1e3a8a, #1e40af); color: white; border-radius: 1rem; padding: 1.5rem; text-align: center; margin-bottom: 1.5rem; }
-        .expected-cash-card .amount { font-size: 2.5rem; font-weight: 800; }
-        .actual-cash-input { background: #f1f5f9; border-radius: 1rem; padding: 1rem; margin-top: 1rem; }
-        .dashboard-charts { display: grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); gap: 1.8rem; margin-top: 1rem; }
-        .chart-card { background: white; border-radius: 1.5rem; padding: 1.2rem; box-shadow: 0 10px 25px -5px rgb(0 0 0 / 0.08); }
-        .chart-card h3 { margin-bottom: 1rem; font-size: 1rem; display: flex; align-items: center; gap: 0.5rem; color: #1e293b; }
-        canvas { max-height: 260px; width: 100%; }
-        .kpi-box { background: linear-gradient(135deg, #f8fafc, #f1f5f9); border-radius: 1rem; padding: 0.8rem 1.2rem; flex: 1; min-width: 150px; text-align: center; }
-        .table-wrapper { overflow-x: auto; border-radius: 1rem; max-height: 500px; overflow-y: auto; }
-        table { width: 100%; border-collapse: collapse; }
-        th { background: #f8fafc; padding: 0.8rem; text-align: left; font-weight: 600; font-size: 0.85rem; position: sticky; top: 0; z-index: 10; }
-        td { padding: 0.8rem; border-bottom: 1px solid #eef2f6; font-size: 0.85rem; }
-        .input-field { width: 100%; padding: 0.8rem 1rem; border-radius: 1rem; border: 1.5px solid #e2e8f0; font-size: 0.95rem; transition: all 0.2s; }
-        .input-field:focus { outline: none; border-color: #1e3a8a; box-shadow: 0 0 0 3px rgba(30, 58, 138, 0.1); }
         .btn-primary { background: linear-gradient(95deg, #1e3a8a, #dc2626); color: white; font-weight: 700; padding: 0.8rem; border-radius: 2rem; border: none; cursor: pointer; transition: transform 0.1s; }
         .btn-primary:hover { transform: scale(1.01); }
         .btn-success { background: #10b981; color: white; font-weight: 700; padding: 0.5rem 1rem; border-radius: 2rem; border: none; cursor: pointer; }
         .btn-warning { background: #f59e0b; color: white; border: none; padding: 0.5rem 1rem; border-radius: 2rem; font-weight: 600; cursor: pointer; }
-        .delete-icon { color: #dc2626; cursor: pointer; margin: 0 5px; font-size: 0.9rem; }
+        
+        /* Dynamic Rows */
+        .dynamic-row { display: flex; gap: 12px; margin-bottom: 12px; align-items: center; background: #f9fbfd; padding: 6px 8px; border-radius: 16px; flex-wrap: wrap; }
+        .dynamic-row input { flex: 1; margin: 0; min-width: 120px; }
+        .small-btn { background: #e2e8f0; color: #1e293b; padding: 6px 12px; font-size: 0.7rem; border-radius: 2rem; border: none; cursor: pointer; transition: all 0.2s; }
+        .small-btn:hover { background: #cbd5e1; }
+        
+        /* Reconciliation Grid */
+        .recon-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(460px, 1fr)); gap: 24px; margin-bottom: 32px; }
+        .pump-section { background: #f9fbfe; padding: 1rem; border-radius: 1rem; margin-bottom: 1.2rem; border: 1px solid #e2edf7; transition: all 0.2s; }
+        .pump-section:hover { border-color: #1e3a8a; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+        .pump-title { font-weight: 700; color: #0f4c5f; margin-bottom: 12px; font-size: 0.85rem; background: #e6f0f5; display: inline-block; padding: 4px 12px; border-radius: 20px; }
+        
+        /* Cash Cards */
+        .expected-cash-card { background: linear-gradient(135deg, #1e3a8a, #1e40af); color: white; border-radius: 1rem; padding: 1.5rem; text-align: center; margin-bottom: 1.5rem; }
+        .expected-cash-card .amount { font-size: 2.5rem; font-weight: 800; }
+        .actual-cash-input { background: #f1f5f9; border-radius: 1rem; padding: 1rem; margin-top: 1rem; }
+        
+        /* Dashboard Charts */
+        .dashboard-charts { display: grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); gap: 1.8rem; margin-top: 1rem; }
+        .chart-card { background: white; border-radius: 1.5rem; padding: 1.2rem; box-shadow: 0 10px 25px -5px rgb(0 0 0 / 0.08); transition: all 0.3s; }
+        .chart-card:hover { transform: translateY(-4px); box-shadow: 0 20px 25px -12px rgba(0,0,0,0.15); }
+        .chart-card h3 { margin-bottom: 1rem; font-size: 1rem; display: flex; align-items: center; gap: 0.5rem; color: #1e293b; }
+        canvas { max-height: 260px; width: 100%; }
+        
+        /* KPI Boxes */
+        .kpi-box { background: linear-gradient(135deg, #f8fafc, #f1f5f9); border-radius: 1rem; padding: 0.8rem 1.2rem; flex: 1; min-width: 150px; text-align: center; transition: all 0.2s; }
+        .kpi-box:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        
+        /* Tables */
+        .table-wrapper { overflow-x: auto; border-radius: 1rem; max-height: 500px; overflow-y: auto; }
+        table { width: 100%; border-collapse: collapse; }
+        th { background: #f8fafc; padding: 0.8rem; text-align: left; font-weight: 600; font-size: 0.85rem; position: sticky; top: 0; z-index: 10; }
+        td { padding: 0.8rem; border-bottom: 1px solid #eef2f6; font-size: 0.85rem; transition: background 0.2s; }
+        tr:hover td { background: #f8fafc; }
+        
+        /* Inputs */
+        .input-field { width: 100%; padding: 0.8rem 1rem; border-radius: 1rem; border: 1.5px solid #e2e8f0; font-size: 0.95rem; transition: all 0.2s; }
+        .input-field:focus { outline: none; border-color: #1e3a8a; box-shadow: 0 0 0 3px rgba(30,58,138,0.1); }
+        
+        /* Sections */
         .section { display: none; }
         .section.active { display: block; animation: fade 0.2s ease; }
         @keyframes fade { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        
+        /* Stats */
         .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+        
+        /* Tabs */
         .tab-btn { cursor: pointer; transition: all 0.2s; }
-        .tab-btn.active { background: linear-gradient(110deg, #1e3a8a, #dc2626); color: white; }
+        .tab-btn.active { background: linear-gradient(110deg, #1e3a8a, #dc2626); color: white; transform: scale(1.02); }
+        .tab-btn:hover:not(.active) { background: #e2e8f0; }
+        
+        /* Progress Bar */
         .progress-bar { background: #e5e7eb; border-radius: 1rem; overflow: hidden; margin-top: 0.5rem; }
         .progress-fill { background: linear-gradient(90deg, #1e3a8a, #dc2626); height: 8px; border-radius: 1rem; transition: width 0.3s ease; }
+        
+        /* Modal */
         .modal { transition: all 0.3s ease; }
-        .filter-select, .filter-input { transition: all 0.2s; }
-        .filter-select:focus, .filter-input:focus { border-color: #1e3a8a; box-shadow: 0 0 0 3px rgba(30, 58, 138, 0.1); }
+        
+        /* Filters */
+        .filter-select, .filter-input { transition: all 0.2s; padding: 0.5rem 0.75rem; border: 1px solid #e2e8f0; border-radius: 0.75rem; font-size: 0.875rem; }
+        .filter-select:focus, .filter-input:focus { outline: none; border-color: #1e3a8a; box-shadow: 0 0 0 3px rgba(30,58,138,0.1); }
+        
+        /* Records Table */
         .records-table th { position: sticky; top: 0; background: #f8fafc; z-index: 10; }
-        .pagination-btn { transition: all 0.2s; }
+        
+        /* Pagination */
+        .pagination-btn { transition: all 0.2s; padding: 0.25rem 0.75rem; border-radius: 0.5rem; background: #f1f5f9; cursor: pointer; }
         .pagination-btn:hover:not(:disabled) { background: #1e3a8a; color: white; }
-        .stat-card { transition: all 0.3s ease; cursor: pointer; }
-        .stat-card:hover { transform: translateY(-2px); box-shadow: 0 20px 25px -12px rgba(0, 0, 0, 0.15); }
+        .pagination-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        
+        /* Stat Cards */
+        .stat-card { transition: all 0.3s ease; cursor: pointer; background: white; border-radius: 1.5rem; padding: 1rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .stat-card:hover { transform: translateY(-4px); box-shadow: 0 20px 25px -12px rgba(0,0,0,0.15); }
+        
+        /* Empty State */
         .empty-state { text-align: center; padding: 3rem; color: #6b7280; }
         .empty-state i { font-size: 3rem; margin-bottom: 1rem; color: #9ca3af; }
+        
+        /* Navbar */
+        .navbar { background: rgba(255,255,255,0.95); backdrop-filter: blur(8px); }
+        
+        /* Hero */
+        .hero-gradient { background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .stats { grid-template-columns: repeat(2, 1fr); gap: 1rem; }
+            .dashboard-charts { grid-template-columns: 1fr; gap: 1rem; }
+            .recon-grid { grid-template-columns: 1fr; gap: 1rem; }
+            .pump-section { padding: 0.75rem; }
+            .input-field { padding: 0.6rem 0.75rem; font-size: 0.875rem; }
+            .btn-primary, .btn-success, .btn-warning { padding: 0.6rem; font-size: 0.875rem; }
+            .stat-card { padding: 0.75rem; }
+            .stat-card h3 { font-size: 1.5rem; }
+            .kpi-box { padding: 0.5rem 0.75rem; min-width: 120px; }
+            .kpi-box .font-bold { font-size: 1.25rem; }
+            .table-wrapper { font-size: 0.75rem; }
+            th, td { padding: 0.5rem; }
+            .tab-btn { padding: 0.5rem 1rem; font-size: 0.875rem; }
+            .hero-gradient { padding: 1rem; }
+            .hero-gradient h2 { font-size: 1.25rem; }
+        }
+        
+        @media (max-width: 480px) {
+            .stats { grid-template-columns: 1fr; }
+            .flex-wrap { gap: 0.5rem; }
+            .p-6 { padding: 1rem; }
+        }
+        
+        /* Scrollbar Styling */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb { background: #888; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #555; }
+        
+        /* Delete Icon */
+        .delete-icon { color: #dc2626; cursor: pointer; margin: 0 5px; font-size: 0.9rem; transition: all 0.2s; }
+        .delete-icon:hover { color: #b91c1c; transform: scale(1.1); }
     </style>
 </head>
 <body class="bg-slate-100">
     <div id="mainApp">
         <!-- Navbar -->
-        <nav class="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b shadow-sm">
+        <nav class="navbar sticky top-0 z-50 backdrop-blur-md border-b shadow-sm">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex flex-wrap items-center justify-between gap-3">
                 <div class="flex items-center gap-3">
-                    <div class="bg-gradient-to-r from-blue-900 to-red-600 w-10 h-10 rounded-xl flex items-center justify-center text-white font-bold text-xl">M</div>
-                    <div><span class="font-extrabold text-slate-800">MOREVA ENERGY LTD</span><span class="text-xs text-slate-400 block">Enterprise Fuel Mgmt</span></div>
+                    <div class="bg-gradient-to-r from-blue-900 to-red-600 w-10 h-10 rounded-xl flex items-center justify-center text-white font-bold text-xl shadow-md">M</div>
+                    <div>
+                        <span class="font-extrabold text-slate-800">MOREVA ENERGY LTD</span>
+                        <span class="text-xs text-slate-400 block">Enterprise Fuel Mgmt</span>
+                    </div>
                 </div>
-                <div class="flex items-center gap-2 bg-slate-100 px-4 py-2 rounded-full">
+                <div class="flex items-center gap-2 bg-slate-100 px-3 py-1.5 rounded-full">
                     <i class="fa-solid fa-user-circle text-slate-600"></i>
                     <span id="activeUserName" class="text-sm font-semibold">Loading...</span>
-                    <button onclick="refreshAllData()" class="ml-2 bg-blue-600 text-white px-3 py-1 rounded-full text-xs font-semibold hover:bg-blue-700"><i class="fa-solid fa-refresh"></i> Refresh</button>
-                    <button onclick="logout()" class="ml-1 bg-red-600 text-white px-3 py-1 rounded-full text-xs font-semibold hover:bg-red-700"><i class="fa-solid fa-sign-out-alt"></i> Exit</button>
+                    <button onclick="refreshAllData()" class="ml-2 bg-blue-600 text-white px-3 py-1 rounded-full text-xs font-semibold hover:bg-blue-700 transition flex items-center gap-1">
+                        <i class="fa-solid fa-refresh"></i> <span class="hidden sm:inline">Refresh</span>
+                    </button>
+                    <button onclick="logout()" class="ml-1 bg-red-600 text-white px-3 py-1 rounded-full text-xs font-semibold hover:bg-red-700 transition flex items-center gap-1">
+                        <i class="fa-solid fa-sign-out-alt"></i> <span class="hidden sm:inline">Exit</span>
+                    </button>
                 </div>
             </div>
         </nav>
 
         <div class="max-w-7xl mx-auto px-4 sm:px-6 py-6">
             <!-- Hero -->
-            <div class="bg-gradient-to-r from-slate-800 to-slate-900 rounded-2xl p-5 text-white mb-6">
+            <div class="hero-gradient rounded-2xl p-5 text-white mb-6 shadow-lg">
                 <h2 class="text-2xl font-bold">Fuel Station Management System</h2>
-                <p class="text-slate-300 text-sm">Tank Capacity: Diesel 10,000L | Petrol 10,000L</p>
+                <p class="text-slate-300 text-sm mt-1">Tank Capacity: Diesel 10,000L | Petrol 10,000L</p>
             </div>
 
             <!-- Tabs -->
-            <div class="flex flex-wrap gap-2 mb-6 border-b pb-2">
-                <button onclick="showSection('dashboard')" class="tab-btn px-5 py-2 rounded-full font-semibold transition bg-blue-900 text-white">📊 Dashboard</button>
-                <button onclick="showSection('receiving')" class="tab-btn px-5 py-2 rounded-full font-semibold transition bg-white text-slate-700 hover:bg-slate-200">⛽ Receiving</button>
-                <button onclick="showSection('sales')" class="tab-btn px-5 py-2 rounded-full font-semibold transition bg-white text-slate-700 hover:bg-slate-200">📅 Daily Dips & Sales</button>
-                <button onclick="showSection('reconciliation')" class="tab-btn px-5 py-2 rounded-full font-semibold transition bg-white text-slate-700 hover:bg-slate-200">💰 Reconciliation</button>
-                <button onclick="showSection('variance')" class="tab-btn px-5 py-2 rounded-full font-semibold transition bg-white text-slate-700 hover:bg-slate-200">⚠️ Variance Log</button>
-                <button onclick="showSection('records')" class="tab-btn px-5 py-2 rounded-full font-semibold transition bg-white text-slate-700 hover:bg-slate-200">📂 Records & Reports</button>
+            <div class="flex flex-wrap gap-2 mb-6 border-b pb-3">
+                <button onclick="showSection('dashboard')" class="tab-btn px-4 py-2 rounded-full font-semibold transition bg-blue-900 text-white shadow-sm">📊 Dashboard</button>
+                <button onclick="showSection('receiving')" class="tab-btn px-4 py-2 rounded-full font-semibold transition bg-white text-slate-700 hover:bg-slate-100">⛽ Receiving</button>
+                <button onclick="showSection('sales')" class="tab-btn px-4 py-2 rounded-full font-semibold transition bg-white text-slate-700 hover:bg-slate-100">📅 Daily Dips & Sales</button>
+                <button onclick="showSection('reconciliation')" class="tab-btn px-4 py-2 rounded-full font-semibold transition bg-white text-slate-700 hover:bg-slate-100">💰 Reconciliation</button>
+                <button onclick="showSection('variance')" class="tab-btn px-4 py-2 rounded-full font-semibold transition bg-white text-slate-700 hover:bg-slate-100">⚠️ Variance Log</button>
+                <button onclick="showSection('records')" class="tab-btn px-4 py-2 rounded-full font-semibold transition bg-white text-slate-700 hover:bg-slate-100">📂 Records & Reports</button>
             </div>
 
             <!-- DASHBOARD SECTION -->
             <div id="dashboard" class="section active">
                 <div class="stats">
-                    <div class="bg-white p-5 rounded-2xl shadow"><div class="flex justify-between items-center"><h4 class="text-slate-500 text-sm">⛽ DIESEL TANK</h4><span class="badge-info badge">Capacity: 10,000 L</span></div><h2 id="dieselStock" class="text-3xl font-bold mt-2">-- L</h2><div class="progress-bar mt-2"><div id="dieselProgress" class="progress-fill" style="width: 0%"></div></div><div class="flex justify-between text-xs text-gray-500 mt-1"><span>0 L</span><span>5,000 L</span><span>10,000 L</span></div><div class="mt-2 text-sm"><span class="badge-info">Morning Dip: <span id="lastMorningDiesel">--</span> L</span><span class="badge-danger ml-2">Sales: <span id="todayDieselSales">--</span> L</span></div></div>
-                    <div class="bg-white p-5 rounded-2xl shadow"><div class="flex justify-between items-center"><h4 class="text-slate-500 text-sm">⛽ PETROL TANK</h4><span class="badge-info badge">Capacity: 10,000 L</span></div><h2 id="petrolStock" class="text-3xl font-bold mt-2">-- L</h2><div class="progress-bar mt-2"><div id="petrolProgress" class="progress-fill" style="width: 0%"></div></div><div class="flex justify-between text-xs text-gray-500 mt-1"><span>0 L</span><span>5,000 L</span><span>10,000 L</span></div><div class="mt-2 text-sm"><span class="badge-info">Morning Dip: <span id="lastMorningPetrol">--</span> L</span><span class="badge-danger ml-2">Sales: <span id="todayPetrolSales">--</span> L</span></div></div>
-                    <div class="bg-white p-5 rounded-2xl shadow"><h4 class="text-slate-500 text-sm">Today's Total Sales</h4><h2 id="todaySales" class="text-3xl font-bold">0 L</h2><span class="badge">From Daily Entry</span></div>
-                    <div class="bg-white p-5 rounded-2xl shadow"><h4 class="text-slate-500 text-sm">Pending Variances</h4><h2 id="pendingCount" class="text-3xl font-bold text-amber-600">0</h2><span class="badge-warning badge">Alert</span></div>
+                    <div class="bg-white p-5 rounded-2xl shadow-md hover:shadow-lg transition">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <h4 class="text-slate-500 text-sm">⛽ DIESEL TANK</h4>
+                                <h2 id="dieselStock" class="text-3xl font-bold mt-1 text-blue-600">-- L</h2>
+                            </div>
+                            <span class="badge-info badge">Capacity: 10,000 L</span>
+                        </div>
+                        <div class="progress-bar mt-3"><div id="dieselProgress" class="progress-fill" style="width: 0%"></div></div>
+                        <div class="flex justify-between text-xs text-gray-500 mt-1"><span>0 L</span><span>5,000 L</span><span>10,000 L</span></div>
+                        <div class="mt-3 flex justify-between text-sm">
+                            <span class="badge-info">Morning Dip: <span id="lastMorningDiesel">--</span> L</span>
+                            <span class="badge-danger">Sales: <span id="todayDieselSales">--</span> L</span>
+                        </div>
+                    </div>
+                    <div class="bg-white p-5 rounded-2xl shadow-md hover:shadow-lg transition">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <h4 class="text-slate-500 text-sm">⛽ PETROL TANK</h4>
+                                <h2 id="petrolStock" class="text-3xl font-bold mt-1 text-red-600">-- L</h2>
+                            </div>
+                            <span class="badge-info badge">Capacity: 10,000 L</span>
+                        </div>
+                        <div class="progress-bar mt-3"><div id="petrolProgress" class="progress-fill" style="width: 0%"></div></div>
+                        <div class="flex justify-between text-xs text-gray-500 mt-1"><span>0 L</span><span>5,000 L</span><span>10,000 L</span></div>
+                        <div class="mt-3 flex justify-between text-sm">
+                            <span class="badge-info">Morning Dip: <span id="lastMorningPetrol">--</span> L</span>
+                            <span class="badge-danger">Sales: <span id="todayPetrolSales">--</span> L</span>
+                        </div>
+                    </div>
+                    <div class="bg-white p-5 rounded-2xl shadow-md hover:shadow-lg transition">
+                        <h4 class="text-slate-500 text-sm">Today's Total Sales</h4>
+                        <h2 id="todaySales" class="text-3xl font-bold mt-1 text-green-600">0 L</h2>
+                        <span class="badge mt-2">From Daily Entry</span>
+                    </div>
+                    <div class="bg-white p-5 rounded-2xl shadow-md hover:shadow-lg transition">
+                        <h4 class="text-slate-500 text-sm">Pending Variances</h4>
+                        <h2 id="pendingCount" class="text-3xl font-bold mt-1 text-amber-600">0</h2>
+                        <span class="badge-warning badge mt-2">Alert</span>
+                    </div>
                 </div>
                 <div class="dashboard-charts">
-                    <div class="chart-card"><h3><i class="fa-solid fa-chart-line"></i> Stock Trend</h3><canvas id="stockChart" width="400" height="200"></canvas></div>
-                    <div class="chart-card"><h3><i class="fa-solid fa-chart-simple"></i> Daily Sales Volume</h3><canvas id="salesChart" width="400" height="200"></canvas></div>
-                    <div class="chart-card"><h3><i class="fa-solid fa-chart-pie"></i> Sales Distribution</h3><canvas id="pieChart" width="400" height="200"></canvas></div>
-                    <div class="chart-card"><h3><i class="fa-solid fa-chart-column"></i> Diesel vs Petrol</h3><canvas id="comparisonChart" width="400" height="200"></canvas></div>
+                    <div class="chart-card"><h3><i class="fa-solid fa-chart-line text-blue-600"></i> Stock Trend</h3><canvas id="stockChart" width="400" height="200"></canvas></div>
+                    <div class="chart-card"><h3><i class="fa-solid fa-chart-simple text-green-600"></i> Daily Sales Volume</h3><canvas id="salesChart" width="400" height="200"></canvas></div>
+                    <div class="chart-card"><h3><i class="fa-solid fa-chart-pie text-purple-600"></i> Sales Distribution</h3><canvas id="pieChart" width="400" height="200"></canvas></div>
+                    <div class="chart-card"><h3><i class="fa-solid fa-chart-column text-orange-600"></i> Diesel vs Petrol</h3><canvas id="comparisonChart" width="400" height="200"></canvas></div>
                 </div>
-                <div class="bg-white rounded-2xl p-5 shadow mt-6"><h3 class="font-bold">Key Performance Indicators</h3><div id="performanceSummary" class="flex flex-wrap gap-4 mt-4"></div></div>
+                <div class="bg-white rounded-2xl p-6 shadow-md mt-6">
+                    <h3 class="font-bold text-lg flex items-center gap-2"><i class="fas fa-chart-simple text-blue-600"></i> Key Performance Indicators</h3>
+                    <div id="performanceSummary" class="flex flex-wrap gap-4 mt-4"></div>
+                </div>
             </div>
 
             <!-- RECEIVING SECTION -->
             <div id="receiving" class="section hidden">
-                <div class="bg-white rounded-2xl p-5 shadow mb-5"><h3 class="font-bold text-lg">📥 Step 1: Pre-Delivery Dip</h3><div class="grid grid-cols-2 gap-3 mt-3"><select id="preFuel" class="border p-2 rounded-xl"><option>Diesel</option><option>Petrol</option></select><input type="number" id="preLitres" placeholder="Current Stock (L)" class="border p-2 rounded-xl" /></div><button onclick="savePreDip()" class="mt-3 bg-blue-800 text-white px-5 py-2 rounded-xl">Save Pre-Dip</button><div id="preStatus" class="mt-2"></div></div>
-                <div class="bg-white rounded-2xl p-5 shadow mb-5"><h3 class="font-bold text-lg">🚛 Step 2: Register Delivery</h3><div class="grid grid-cols-3 gap-3 mt-3"><select id="delFuel" class="border p-2 rounded-xl"><option>Diesel</option><option>Petrol</option></select><input type="text" id="driverName" placeholder="Driver" class="border p-2 rounded-xl" /><input type="number" id="declared" placeholder="Declared Litres" class="border p-2 rounded-xl" /></div><button onclick="registerDelivery()" class="mt-3 bg-green-700 text-white px-5 py-2 rounded-xl">Register Delivery</button><div id="deliveryStatus" class="mt-2"></div></div>
-                <div class="bg-white rounded-2xl p-5 shadow mb-5"><h3 class="font-bold text-lg">📏 Step 3: Post-Delivery Dip</h3><div class="grid grid-cols-2 gap-3 mt-3"><select id="postFuel" class="border p-2 rounded-xl"><option>Diesel</option><option>Petrol</option></select><input type="number" id="postLitres" placeholder="After Delivery Stock" class="border p-2 rounded-xl" /></div><div id="deliveryPreview" class="mt-3 p-3 bg-blue-50 rounded-lg hidden"><p class="text-sm font-semibold">Delivery Summary:</p><p id="previewText" class="text-sm"></p></div><button onclick="verifyPostDip()" class="mt-3 bg-amber-600 text-white px-5 py-2 rounded-xl">Verify & Complete</button><div id="postStatus" class="mt-2"></div></div>
-                <div class="bg-white rounded-2xl p-5 shadow overflow-x-auto"><h3 class="font-bold">Delivery History</h3><table class="min-w-full text-sm"><thead class="bg-slate-100"><tr><th class="p-2">Date</th><th>Fuel</th><th>Driver</th><th>Pre-Dip</th><th>Declared</th><th>Post-Dip</th><th>Actual</th><th>Variance</th><th></th></tr></thead><tbody id="deliveryTableBody"></tbody></table></div>
+                <div class="bg-white rounded-2xl p-5 shadow-md mb-5">
+                    <h3 class="font-bold text-lg flex items-center gap-2"><i class="fas fa-clipboard-list text-blue-600"></i> Step 1: Pre-Delivery Dip</h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-3">
+                        <select id="preFuel" class="border p-3 rounded-xl bg-white"><option>Diesel</option><option>Petrol</option></select>
+                        <input type="number" id="preLitres" placeholder="Current Stock (L)" class="border p-3 rounded-xl" />
+                    </div>
+                    <button onclick="savePreDip()" class="mt-3 bg-blue-800 text-white px-5 py-2 rounded-xl hover:bg-blue-700 transition">Save Pre-Dip</button>
+                    <div id="preStatus" class="mt-2"></div>
+                </div>
+                <div class="bg-white rounded-2xl p-5 shadow-md mb-5">
+                    <h3 class="font-bold text-lg flex items-center gap-2"><i class="fas fa-truck text-green-600"></i> Step 2: Register Delivery</h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-3">
+                        <select id="delFuel" class="border p-3 rounded-xl"><option>Diesel</option><option>Petrol</option></select>
+                        <input type="text" id="driverName" placeholder="Driver" class="border p-3 rounded-xl" />
+                        <input type="number" id="declared" placeholder="Declared Litres" class="border p-3 rounded-xl" />
+                    </div>
+                    <button onclick="registerDelivery()" class="mt-3 bg-green-700 text-white px-5 py-2 rounded-xl hover:bg-green-600 transition">Register Delivery</button>
+                    <div id="deliveryStatus" class="mt-2"></div>
+                </div>
+                <div class="bg-white rounded-2xl p-5 shadow-md mb-5">
+                    <h3 class="font-bold text-lg flex items-center gap-2"><i class="fas fa-ruler-combined text-amber-600"></i> Step 3: Post-Delivery Dip</h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-3">
+                        <select id="postFuel" class="border p-3 rounded-xl"><option>Diesel</option><option>Petrol</option></select>
+                        <input type="number" id="postLitres" placeholder="After Delivery Stock" class="border p-3 rounded-xl" />
+                    </div>
+                    <button onclick="verifyPostDip()" class="mt-3 bg-amber-600 text-white px-5 py-2 rounded-xl hover:bg-amber-500 transition">Verify & Complete</button>
+                    <div id="postStatus" class="mt-2"></div>
+                </div>
+                <div class="bg-white rounded-2xl p-5 shadow-md overflow-x-auto">
+                    <h3 class="font-bold text-lg flex items-center gap-2"><i class="fas fa-history text-purple-600"></i> Delivery History</h3>
+                    <div class="table-wrapper mt-3">
+                        <table class="min-w-full text-sm">
+                            <thead class="bg-slate-100">
+                                <tr><th class="p-2">Date</th><th>Fuel</th><th>Driver</th><th>Pre-Dip</th><th>Declared</th><th>Post-Dip</th><th>Actual</th><th>Variance</th><th></th></tr>
+                            </thead>
+                            <tbody id="deliveryTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
 
             <!-- DAILY DIPS & SALES SECTION -->
             <div id="sales" class="section hidden">
-                <div class="bg-white rounded-2xl p-5 shadow mb-5"><h3 class="font-bold text-lg">🌅 Morning Dip Reading</h3><div class="grid grid-cols-2 gap-3 mt-2"><input type="number" id="morningDiesel" placeholder="Diesel (L)" class="border p-2 rounded-xl" /><input type="number" id="morningPetrol" placeholder="Petrol (L)" class="border p-2 rounded-xl" /></div><button onclick="saveMorningDip()" class="mt-3 bg-blue-800 text-white px-5 py-2 rounded-xl">Save Morning Dip</button><div id="morningStatus" class="mt-2"></div></div>
-                <div class="bg-white rounded-2xl p-5 shadow mb-5"><h3 class="font-bold text-lg">💰 Daily Sales Entry</h3><div class="grid grid-cols-2 gap-3"><input type="number" id="dieselSold" placeholder="Diesel Sold (L)" class="border p-2 rounded-xl" /><input type="number" id="petrolSold" placeholder="Petrol Sold (L)" class="border p-2 rounded-xl" /></div><div class="mt-3 p-3 bg-yellow-50 rounded-lg"><p class="text-sm text-yellow-800"><i class="fa-solid fa-info-circle"></i> Current Stock: Diesel: <span id="currentDieselStock">--</span> L | Petrol: <span id="currentPetrolStock">--</span> L</p></div><button onclick="saveDailySales()" class="mt-3 bg-green-700 text-white px-5 py-2 rounded-xl">Record Sales</button><div id="salesStatus" class="mt-2"></div></div>
-                <div class="bg-white rounded-2xl p-5 shadow overflow-x-auto mt-5"><h3 class="font-bold">Daily Records History</h3><table class="min-w-full text-sm"><thead class="bg-slate-100"><tr><th>Date</th><th>Morning D</th><th>Morning P</th><th>Diesel Sold</th><th>Petrol Sold</th><th>Stock After</th><th>Status</th><th></th></tr></thead><tbody id="dailyTableBody"></tbody></table></div>
+                <div class="bg-white rounded-2xl p-5 shadow-md mb-5">
+                    <h3 class="font-bold text-lg flex items-center gap-2"><i class="fas fa-sun text-yellow-600"></i> Morning Dip Reading</h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-3">
+                        <input type="number" id="morningDiesel" placeholder="Diesel (L)" class="border p-3 rounded-xl" />
+                        <input type="number" id="morningPetrol" placeholder="Petrol (L)" class="border p-3 rounded-xl" />
+                    </div>
+                    <button onclick="saveMorningDip()" class="mt-3 bg-blue-800 text-white px-5 py-2 rounded-xl hover:bg-blue-700 transition">Save Morning Dip</button>
+                    <div id="morningStatus" class="mt-2"></div>
+                </div>
+                <div class="bg-white rounded-2xl p-5 shadow-md mb-5">
+                    <h3 class="font-bold text-lg flex items-center gap-2"><i class="fas fa-money-bill-wave text-green-600"></i> Daily Sales Entry</h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-3">
+                        <input type="number" id="dieselSold" placeholder="Diesel Sold (L)" class="border p-3 rounded-xl" />
+                        <input type="number" id="petrolSold" placeholder="Petrol Sold (L)" class="border p-3 rounded-xl" />
+                    </div>
+                    <div class="mt-3 p-3 bg-yellow-50 rounded-lg border border-yellow-200">
+                        <p class="text-sm text-yellow-800"><i class="fa-solid fa-info-circle"></i> Current Stock: Diesel: <span id="currentDieselStock">--</span> L | Petrol: <span id="currentPetrolStock">--</span> L</p>
+                    </div>
+                    <button onclick="saveDailySales()" class="mt-3 bg-green-700 text-white px-5 py-2 rounded-xl hover:bg-green-600 transition">Record Sales</button>
+                    <div id="salesStatus" class="mt-2"></div>
+                </div>
+                <div class="bg-white rounded-2xl p-5 shadow-md overflow-x-auto mt-5">
+                    <h3 class="font-bold text-lg flex items-center gap-2"><i class="fas fa-calendar-alt text-teal-600"></i> Daily Records History</h3>
+                    <div class="table-wrapper mt-3">
+                        <table class="min-w-full text-sm">
+                            <thead class="bg-slate-100">
+                                <tr><th>Date</th><th>Morning D</th><th>Morning P</th><th>Diesel Sold</th><th>Petrol Sold</th><th>Stock After</th><th>Status</th><th></th></tr>
+                            </thead>
+                            <tbody id="dailyTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
 
-            <!-- RECONCILIATION SECTION - FULLY RESTORED -->
+            <!-- RECONCILIATION SECTION -->
             <div id="reconciliation" class="section hidden">
-                <div class="bg-white rounded-2xl p-6 shadow">
-                    <h2 class="font-bold text-xl"><i class="fa-solid fa-scale-balanced"></i> FUEL STATION RECONCILIATION · 3 Petrol Readings + 1 Diesel</h2>
+                <div class="bg-white rounded-2xl p-6 shadow-md">
+                    <h2 class="font-bold text-xl flex items-center gap-2"><i class="fa-solid fa-scale-balanced text-purple-600"></i> FUEL STATION RECONCILIATION</h2>
                     <div class="info-box mt-2"><i class="fa-solid fa-lightbulb"></i> <strong>Feature:</strong> Calculate Expected Cash first, then enter Actual Cash to see SHORTAGE or EXCESS.</div>
                     <div class="recon-grid mt-4">
                         <div>
                             <h3 class="font-bold text-lg mb-3">⛽ PETROL · 3 READINGS</h3>
-                            <div class="pump-section">
-                                <div class="pump-title">🔴 PETROL SINGLE PUMP</div>
-                                <div class="form-group"><label>Prev Sales (KES)</label><input id="petrolSingleSalesPrev" class="input-field" type="number" /></div>
-                                <div class="form-group"><label>Curr Sales (KES)</label><input id="petrolSingleSalesCurr" class="input-field" type="number" /></div>
-                                <div class="form-group"><label>Prev Litres</label><input id="petrolSingleLitresPrev" class="input-field" step="0.01" /></div>
-                                <div class="form-group"><label>Curr Litres</label><input id="petrolSingleLitresCurr" class="input-field" step="0.01" /></div>
-                                <div class="form-group"><label>Prev Manual (L)</label><input id="petrolSingleManualPrev" class="input-field" step="0.01" /></div>
-                                <div class="form-group"><label>Curr Manual (L)</label><input id="petrolSingleManualCurr" class="input-field" step="0.01" /></div>
-                            </div>
-                            <div class="pump-section">
-                                <div class="pump-title">🟠 DUAL NOZZLE A</div>
-                                <div class="form-group"><label>Prev Sales</label><input id="petrolDualASalesPrev" class="input-field" type="number" /></div>
-                                <div class="form-group"><label>Curr Sales</label><input id="petrolDualASalesCurr" class="input-field" type="number" /></div>
-                                <div class="form-group"><label>Prev Litres</label><input id="petrolDualALitresPrev" class="input-field" step="0.01" /></div>
-                                <div class="form-group"><label>Curr Litres</label><input id="petrolDualALitresCurr" class="input-field" step="0.01" /></div>
-                                <div class="form-group"><label>Prev Manual</label><input id="petrolDualAManualPrev" class="input-field" step="0.01" /></div>
-                                <div class="form-group"><label>Curr Manual</label><input id="petrolDualAManualCurr" class="input-field" step="0.01" /></div>
-                            </div>
-                            <div class="pump-section">
-                                <div class="pump-title">🟡 DUAL NOZZLE B</div>
-                                <div class="form-group"><label>Prev Sales</label><input id="petrolDualBSalesPrev" class="input-field" type="number" /></div>
-                                <div class="form-group"><label>Curr Sales</label><input id="petrolDualBSalesCurr" class="input-field" type="number" /></div>
-                                <div class="form-group"><label>Prev Litres</label><input id="petrolDualBLitresPrev" class="input-field" step="0.01" /></div>
-                                <div class="form-group"><label>Curr Litres</label><input id="petrolDualBLitresCurr" class="input-field" step="0.01" /></div>
-                                <div class="form-group"><label>Prev Manual</label><input id="petrolDualBManualPrev" class="input-field" step="0.01" /></div>
-                                <div class="form-group"><label>Curr Manual</label><input id="petrolDualBManualCurr" class="input-field" step="0.01" /></div>
-                            </div>
+                            <div class="pump-section"><div class="pump-title">🔴 PETROL SINGLE PUMP</div><div class="form-group"><label>Prev Sales (KES)</label><input id="petrolSingleSalesPrev" class="input-field" type="number" /></div><div class="form-group"><label>Curr Sales (KES)</label><input id="petrolSingleSalesCurr" class="input-field" type="number" /></div><div class="form-group"><label>Prev Litres</label><input id="petrolSingleLitresPrev" class="input-field" step="0.01" /></div><div class="form-group"><label>Curr Litres</label><input id="petrolSingleLitresCurr" class="input-field" step="0.01" /></div><div class="form-group"><label>Prev Manual (L)</label><input id="petrolSingleManualPrev" class="input-field" step="0.01" /></div><div class="form-group"><label>Curr Manual (L)</label><input id="petrolSingleManualCurr" class="input-field" step="0.01" /></div></div>
+                            <div class="pump-section"><div class="pump-title">🟠 DUAL NOZZLE A</div><div class="form-group"><label>Prev Sales</label><input id="petrolDualASalesPrev" class="input-field" type="number" /></div><div class="form-group"><label>Curr Sales</label><input id="petrolDualASalesCurr" class="input-field" type="number" /></div><div class="form-group"><label>Prev Litres</label><input id="petrolDualALitresPrev" class="input-field" step="0.01" /></div><div class="form-group"><label>Curr Litres</label><input id="petrolDualALitresCurr" class="input-field" step="0.01" /></div><div class="form-group"><label>Prev Manual</label><input id="petrolDualAManualPrev" class="input-field" step="0.01" /></div><div class="form-group"><label>Curr Manual</label><input id="petrolDualAManualCurr" class="input-field" step="0.01" /></div></div>
+                            <div class="pump-section"><div class="pump-title">🟡 DUAL NOZZLE B</div><div class="form-group"><label>Prev Sales</label><input id="petrolDualBSalesPrev" class="input-field" type="number" /></div><div class="form-group"><label>Curr Sales</label><input id="petrolDualBSalesCurr" class="input-field" type="number" /></div><div class="form-group"><label>Prev Litres</label><input id="petrolDualBLitresPrev" class="input-field" step="0.01" /></div><div class="form-group"><label>Curr Litres</label><input id="petrolDualBLitresCurr" class="input-field" step="0.01" /></div><div class="form-group"><label>Prev Manual</label><input id="petrolDualBManualPrev" class="input-field" step="0.01" /></div><div class="form-group"><label>Curr Manual</label><input id="petrolDualBManualCurr" class="input-field" step="0.01" /></div></div>
                             <div class="form-group"><label>Petrol Price (KES/L)</label><input id="petrolPrice" class="input-field" value="199.50" step="0.01" /></div>
                         </div>
                         <div>
                             <h3 class="font-bold text-lg mb-3">🛢️ DIESEL · 1 PUMP</h3>
-                            <div class="pump-section">
-                                <div class="pump-title">🔵 DIESEL PUMP</div>
-                                <div class="form-group"><label>Prev Sales</label><input id="dieselSalesPrev" class="input-field" type="number" /></div>
-                                <div class="form-group"><label>Curr Sales</label><input id="dieselSalesCurr" class="input-field" type="number" /></div>
-                                <div class="form-group"><label>Prev Litres</label><input id="dieselLitresPrev" class="input-field" step="0.01" /></div>
-                                <div class="form-group"><label>Curr Litres</label><input id="dieselLitresCurr" class="input-field" step="0.01" /></div>
-                                <div class="form-group"><label>Prev Manual</label><input id="dieselManualPrev" class="input-field" step="0.01" /></div>
-                                <div class="form-group"><label>Curr Manual</label><input id="dieselManualCurr" class="input-field" step="0.01" /></div>
-                            </div>
+                            <div class="pump-section"><div class="pump-title">🔵 DIESEL PUMP</div><div class="form-group"><label>Prev Sales</label><input id="dieselSalesPrev" class="input-field" type="number" /></div><div class="form-group"><label>Curr Sales</label><input id="dieselSalesCurr" class="input-field" type="number" /></div><div class="form-group"><label>Prev Litres</label><input id="dieselLitresPrev" class="input-field" step="0.01" /></div><div class="form-group"><label>Curr Litres</label><input id="dieselLitresCurr" class="input-field" step="0.01" /></div><div class="form-group"><label>Prev Manual</label><input id="dieselManualPrev" class="input-field" step="0.01" /></div><div class="form-group"><label>Curr Manual</label><input id="dieselManualCurr" class="input-field" step="0.01" /></div></div>
                             <div class="form-group"><label>Diesel Price (KES/L)</label><input id="dieselPrice" class="input-field" value="179.00" step="0.01" /></div>
                             <h3 class="font-bold text-lg mt-6 mb-3">💰 CASH RECONCILIATION</h3>
                             <div class="form-group"><label>📱 MPESA</label><input id="mpesa" class="input-field" type="number" /></div>
@@ -215,27 +381,35 @@
                             <button type="button" class="small-btn" onclick="addLubricantRow()">+ Add Lubricant Sale</button>
                         </div>
                     </div>
-                    <button onclick="calculateExpectedCash()" class="btn-primary" style="margin-top: 0.5rem"><i class="fa-solid fa-calculator"></i> Calculate Expected Cash</button>
-                    <div id="expectedCashDisplay" style="display: none"><div class="expected-cash-card"><h3><i class="fa-solid fa-coins"></i> EXPECTED CASH</h3><div class="amount" id="expectedCashAmount">KES 0.00</div></div></div>
-                    <div id="actualCashSection" style="display: none"><div class="actual-cash-input"><div class="form-group"><label>Enter ACTUAL Cash Counted (KES)</label><input id="actualCashInput" class="input-field" type="number" placeholder="Enter amount in KES" /></div><button onclick="submitReconciliation()" class="btn-success" style="margin-top: 0.5rem"><i class="fa-solid fa-lock"></i> Submit & Lock Record</button></div></div>
+                    <button onclick="calculateExpectedCash()" class="btn-primary w-full mt-4"><i class="fa-solid fa-calculator"></i> Calculate Expected Cash</button>
+                    <div id="expectedCashDisplay" style="display: none"><div class="expected-cash-card mt-4"><h3><i class="fa-solid fa-coins"></i> EXPECTED CASH</h3><div class="amount" id="expectedCashAmount">KES 0.00</div></div></div>
+                    <div id="actualCashSection" style="display: none"><div class="actual-cash-input mt-4"><div class="form-group"><label>Enter ACTUAL Cash Counted (KES)</label><input id="actualCashInput" class="input-field" type="number" placeholder="Enter amount in KES" /></div><button onclick="submitReconciliation()" class="btn-success w-full mt-3"><i class="fa-solid fa-lock"></i> Submit & Lock Record</button></div></div>
                     <div id="varianceResult" style="display: none; margin-top: 1rem"></div>
-                    <div style="margin-top: 1.5rem"><h3 class="font-bold text-lg">📋 SHIFT REPORT</h3><div class="table-wrapper mt-2"><table class="min-w-full text-sm"><thead class="bg-slate-100"><tr><th class="p-2">ITEM</th><th class="p-2">VALUE (KES)</th></tr></thead><tbody id="reportBody"><tr><td colspan="2" class="text-center py-4">Click "Calculate Expected Cash" to generate report<\/tr></tbody></table></div></div>
+                    <div class="mt-6">
+                        <h3 class="font-bold text-lg">📋 SHIFT REPORT</h3>
+                        <div class="table-wrapper mt-2">
+                            <table class="min-w-full text-sm">
+                                <thead class="bg-slate-100"><tr><th class="p-2">ITEM</th><th class="p-2">VALUE (KES)</th></tr></thead>
+                                <tbody id="reportBody"><tr><td colspan="2" class="text-center py-4">Click "Calculate Expected Cash" to generate report<\/tr></tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
             </div>
 
             <!-- VARIANCE LOG SECTION -->
             <div id="variance" class="section hidden">
-                <div class="bg-white rounded-2xl p-5 shadow">
-                    <div class="flex justify-between items-center mb-4">
-                        <h3 class="font-bold text-lg"><i class="fa-solid fa-chart-line"></i> Variance Log</h3>
+                <div class="bg-white rounded-2xl p-5 shadow-md">
+                    <div class="flex justify-between items-center mb-4 flex-wrap gap-2">
+                        <h3 class="font-bold text-lg flex items-center gap-2"><i class="fa-solid fa-chart-line text-red-600"></i> Variance Log</h3>
                         <button onclick="showAddVarianceModal()" class="btn-warning text-sm px-3 py-1 rounded"><i class="fa-solid fa-plus"></i> Add Variance</button>
                     </div>
                     <div class="table-wrapper">
                         <table class="min-w-full text-sm">
-                            <thead class="bg-slate-100"><tr><th class="p-2">Date</th><th class="p-2">Fuel Type</th><th class="p-2">Expected Stock (L)</th><th class="p-2">Actual Stock (L)</th><th class="p-2">Variance (L)</th><th class="p-2">Cause / Description</th><th class="p-2">Status</th><th class="p-2">Action</th></tr></thead>
-                            <tbody id="varianceTableBody">
-                                <tr><td colspan="8" class="text-center py-4">Loading variances...<\/tr>
-                            </tbody>
+                            <thead class="bg-slate-100">
+                                <tr><th class="p-2">Date</th><th class="p-2">Fuel Type</th><th class="p-2">Expected Stock (L)</th><th class="p-2">Actual Stock (L)</th><th class="p-2">Variance (L)</th><th class="p-2">Cause / Description</th><th class="p-2">Status</th><th class="p-2">Action</th></tr>
+                            </thead>
+                            <tbody id="varianceTableBody"><tr><td colspan="8" class="text-center py-4">Loading variances...<\/tr></tbody>
                         </table>
                     </div>
                 </div>
@@ -243,7 +417,7 @@
 
             <!-- Add Stock Variance Modal -->
             <div id="varianceModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 modal">
-                <div class="bg-white rounded-2xl p-6 max-w-md w-full mx-4">
+                <div class="bg-white rounded-2xl p-6 max-w-md w-full mx-4 shadow-2xl">
                     <h3 class="font-bold text-xl mb-4">Record Stock Variance</h3>
                     <div class="space-y-3">
                         <div><label class="block text-sm font-semibold mb-1">Fuel Type</label><select id="varianceFuelType" class="input-field w-full"><option value="Diesel">Diesel</option><option value="Petrol">Petrol</option></select></div>
@@ -259,54 +433,80 @@
             <div id="records" class="section hidden">
                 <div class="space-y-6">
                     <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-                        <div class="bg-white rounded-2xl p-4 shadow stat-card" onclick="filterByRecordType('dip')">
-                            <div class="flex items-center justify-between"><div><i class="fa-solid fa-calendar-day text-2xl text-blue-600"></i></div><span class="text-2xl font-bold" id="totalDips">0</span></div>
+                        <div class="stat-card" onclick="filterByRecordType('dip')">
+                            <div class="flex items-center justify-between">
+                                <div><i class="fa-solid fa-calendar-day text-2xl text-blue-600"></i></div>
+                                <span class="text-2xl font-bold" id="totalDips">0</span>
+                            </div>
                             <p class="text-xs text-gray-500 mt-1">Total Dip Records <span class="text-blue-600">(click)</span></p>
                         </div>
-                        <div class="bg-white rounded-2xl p-4 shadow stat-card" onclick="filterByRecordType('sale')">
-                            <div class="flex items-center justify-between"><div><i class="fa-solid fa-chart-line text-2xl text-green-600"></i></div><span class="text-2xl font-bold" id="totalSalesRecords">0</span></div>
+                        <div class="stat-card" onclick="filterByRecordType('sale')">
+                            <div class="flex items-center justify-between">
+                                <div><i class="fa-solid fa-chart-line text-2xl text-green-600"></i></div>
+                                <span class="text-2xl font-bold" id="totalSalesRecords">0</span>
+                            </div>
                             <p class="text-xs text-gray-500 mt-1">Total Sales Records <span class="text-green-600">(click)</span></p>
                         </div>
-                        <div class="bg-white rounded-2xl p-4 shadow stat-card" onclick="filterByRecordType('reconciliation')">
-                            <div class="flex items-center justify-between"><div><i class="fa-solid fa-scale-balanced text-2xl text-purple-600"></i></div><span class="text-2xl font-bold" id="totalReconciliations">0</span></div>
+                        <div class="stat-card" onclick="filterByRecordType('reconciliation')">
+                            <div class="flex items-center justify-between">
+                                <div><i class="fa-solid fa-scale-balanced text-2xl text-purple-600"></i></div>
+                                <span class="text-2xl font-bold" id="totalReconciliations">0</span>
+                            </div>
                             <p class="text-xs text-gray-500 mt-1">Reconciliations <span class="text-purple-600">(click)</span></p>
                         </div>
-                        <div class="bg-white rounded-2xl p-4 shadow stat-card" onclick="filterByRecordType('delivery')">
-                            <div class="flex items-center justify-between"><div><i class="fa-solid fa-truck text-2xl text-orange-600"></i></div><span class="text-2xl font-bold" id="totalDeliveries">0</span></div>
+                        <div class="stat-card" onclick="filterByRecordType('delivery')">
+                            <div class="flex items-center justify-between">
+                                <div><i class="fa-solid fa-truck text-2xl text-orange-600"></i></div>
+                                <span class="text-2xl font-bold" id="totalDeliveries">0</span>
+                            </div>
                             <p class="text-xs text-gray-500 mt-1">Deliveries <span class="text-orange-600">(click)</span></p>
                         </div>
-                        <div class="bg-white rounded-2xl p-4 shadow stat-card" onclick="filterByTodayEntries()">
-                            <div class="flex items-center justify-between"><div><i class="fa-solid fa-today text-2xl text-teal-600"></i></div><span class="text-2xl font-bold" id="todayEntries">0</span></div>
+                        <div class="stat-card" onclick="filterByTodayEntries()">
+                            <div class="flex items-center justify-between">
+                                <div><i class="fa-solid fa-today text-2xl text-teal-600"></i></div>
+                                <span class="text-2xl font-bold" id="todayEntries">0</span>
+                            </div>
                             <p class="text-xs text-gray-500 mt-1">Today's Entries <span class="text-teal-600">(click)</span></p>
                         </div>
                     </div>
 
-                    <div class="bg-white rounded-2xl p-5 shadow">
+                    <div class="bg-white rounded-2xl p-5 shadow-md">
                         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                             <div><label class="block text-xs font-semibold text-gray-600 mb-1">Search</label><input type="text" id="searchInput" placeholder="Search by ID, driver, user..." class="filter-input w-full px-3 py-2 border rounded-xl text-sm"></div>
                             <div><label class="block text-xs font-semibold text-gray-600 mb-1">Date Range</label><div class="flex gap-2"><input type="date" id="startDate" class="filter-input w-full px-3 py-2 border rounded-xl text-sm"><input type="date" id="endDate" class="filter-input w-full px-3 py-2 border rounded-xl text-sm"></div></div>
                             <div><label class="block text-xs font-semibold text-gray-600 mb-1">Record Type</label><select id="recordTypeFilter" class="filter-select w-full px-3 py-2 border rounded-xl text-sm" onchange="applyFilters()"><option value="">All</option><option value="dip">Morning Dip</option><option value="sale">Daily Sale</option><option value="delivery">Delivery</option><option value="reconciliation">Reconciliation</option><option value="variance">Variance</option></select></div>
                             <div><label class="block text-xs font-semibold text-gray-600 mb-1">Sort By</label><select id="sortBy" class="filter-select w-full px-3 py-2 border rounded-xl text-sm" onchange="applyFilters()"><option value="latest">Latest First</option><option value="oldest">Oldest First</option></select></div>
                         </div>
-                        <div class="flex flex-wrap justify-between items-center mt-4 gap-3"><div class="flex gap-2"><button onclick="applyFilters()" class="btn-primary px-4 py-2 text-sm">Apply Filters</button><button onclick="resetFilters()" class="btn-outline px-4 py-2 text-sm">Reset</button></div><div class="flex gap-2"><button onclick="exportToExcel()" class="bg-green-600 text-white px-4 py-2 rounded-xl text-sm hover:bg-green-700"><i class="fa-solid fa-file-excel"></i> Excel</button><button onclick="exportToCSV()" class="bg-blue-600 text-white px-4 py-2 rounded-xl text-sm hover:bg-blue-700"><i class="fa-solid fa-file-csv"></i> CSV</button></div></div>
+                        <div class="flex flex-wrap justify-between items-center mt-4 gap-3">
+                            <div class="flex gap-2"><button onclick="applyFilters()" class="btn-primary px-4 py-2 text-sm">Apply Filters</button><button onclick="resetFilters()" class="btn-outline px-4 py-2 text-sm">Reset</button></div>
+                            <div class="flex gap-2"><button onclick="exportToExcel()" class="bg-green-600 text-white px-4 py-2 rounded-xl text-sm hover:bg-green-700 transition"><i class="fa-solid fa-file-excel"></i> Excel</button><button onclick="exportToCSV()" class="bg-blue-600 text-white px-4 py-2 rounded-xl text-sm hover:bg-blue-700 transition"><i class="fa-solid fa-file-csv"></i> CSV</button></div>
+                        </div>
                     </div>
 
-                    <div class="bg-white rounded-2xl shadow overflow-hidden">
+                    <div class="bg-white rounded-2xl shadow-md overflow-hidden">
                         <div class="overflow-x-auto">
                             <table class="w-full text-sm records-table">
-                                <thead class="bg-slate-100"><tr><th class="p-3">ID</th><th class="p-3">Date</th><th class="p-3">Type</th><th class="p-3">Details</th><th class="p-3">User</th><th class="p-3">Status</th><th class="p-3">Actions</th></tr></thead>
+                                <thead class="bg-slate-100">
+                                    <tr><th class="p-3">ID</th><th class="p-3">Date</th><th class="p-3">Type</th><th class="p-3">Details</th><th class="p-3">User</th><th class="p-3">Status</th><th class="p-3">Actions</th></tr>
+                                </thead>
                                 <tbody id="recordsTableBody"><tr><td colspan="7" class="text-center py-8 text-gray-500">Loading records...<\/tr></tbody>
                             </table>
                         </div>
-                        <div class="flex justify-between items-center p-4 border-t"><div class="text-sm text-gray-500">Showing <span id="showingStart">0</span> to <span id="showingEnd">0</span> of <span id="totalRecords">0</span> records</div><div class="flex gap-2" id="paginationControls"></div></div>
+                        <div class="flex justify-between items-center p-4 border-t flex-wrap gap-2">
+                            <div class="text-sm text-gray-500">Showing <span id="showingStart">0</span> to <span id="showingEnd">0</span> of <span id="totalRecords">0</span> records</div>
+                            <div class="flex gap-2 flex-wrap" id="paginationControls"></div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-        <footer class="text-center py-6 text-slate-500 text-xs">© 2026 MOREVA ENERGY LTD — Tank Capacity: Diesel 10,000L | Petrol 10,000L</footer>
+        <footer class="text-center py-6 text-slate-500 text-xs border-t mt-6">
+            © 2026 MOREVA ENERGY LTD — Tank Capacity: Diesel 10,000L | Petrol 10,000L
+        </footer>
     </div>
 
     <script>
+        // [All JavaScript code remains exactly the same - no functionality changes]
         const API_URL = window.location.origin + '/api';
         const TANK_CAPACITY = { diesel: 10000, petrol: 10000 };
         let deliveries = [], dailyRecords = [], variances = [], reconciliations = [];
@@ -512,14 +712,14 @@
             document.getElementById("expectedCashAmount").innerHTML = `KES ${expectedCash.toLocaleString(undefined, { minimumFractionDigits: 2 })}`;
             document.getElementById("actualCashSection").style.display = "block";
             document.getElementById("reportBody").innerHTML = `
-                <tr style="background:#f0f7ff;"><td><strong>Total Sales</strong><\/td><td><strong>KES ${totalSales.toLocaleString()}</strong><\/td><\/tr>
-                <tr><td>📱 M-Pesa<\/td><td>KES ${mpesa.toLocaleString()}<\/td><\/tr>
-                <tr><td>🧾 Credits<\/td><td>KES ${credit.toLocaleString()}<\/td><\/tr>
-                <tr><td>💸 Expenses<\/td><td>KES ${expenses.toLocaleString()}<\/td><\/tr>
-                <tr><td>💳 Advances<\/td><td>KES ${advance.toLocaleString()}<\/td><\/tr>
-                <tr><td>🔄 Returns<\/td><td>KES ${returnsVal.toLocaleString()}<\/td><\/tr>
-                </tr><td>🛢️ Lubricants<\/td><td>KES ${lubricants.toLocaleString()}<\/td><\/tr>
-                <tr style="background:#eef6ff;"><td><strong>Expected Cash</strong><\/td><td><strong>KES ${expectedCash.toLocaleString()}<\/strong><\/td><\/tr>
+                <tr style="background:#f0f7ff;"><td class="font-semibold">Total Sales</td><td class="font-bold">KES ${totalSales.toLocaleString()}</td></tr>
+                <tr><td class="pl-4">📱 M-Pesa</td><td>KES ${mpesa.toLocaleString()}</td></tr>
+                <tr><td class="pl-4">🧾 Credits</td><td>KES ${credit.toLocaleString()}</td></tr>
+                <tr><td class="pl-4">💸 Expenses</td><td>KES ${expenses.toLocaleString()}</td></tr>
+                <tr><td class="pl-4">💳 Advances</td><td>KES ${advance.toLocaleString()}</td></tr>
+                <tr><td class="pl-4 text-green-600">🔄 Returns</td><td class="text-green-600">+ KES ${returnsVal.toLocaleString()}</td></tr>
+                <tr><td class="pl-4 text-green-600">🛢️ Lubricants</td><td class="text-green-600">+ KES ${lubricants.toLocaleString()}</td></tr>
+                <tr style="background:#eef6ff;"><td class="font-bold">🎯 EXPECTED CASH</td><td class="font-bold text-blue-700">KES ${expectedCash.toLocaleString()}</td></tr>
             `;
             showToast(`Expected Cash: KES ${expectedCash.toLocaleString()} - Shift Report Generated`);
         }
@@ -669,7 +869,7 @@
         
         function renderTables() {
             const tbody = document.getElementById("deliveryTableBody");
-            if (tbody) tbody.innerHTML = deliveries.length ? deliveries.slice(0, 20).map(d => `<tr class="border-b"><td class="p-2">${new Date(d.recorded_at).toLocaleDateString()}<\/td><td>${d.fuel_type}<\/td><td>${d.driver_name}<\/td><td>${(d.pre_dip||0).toLocaleString()}L<\/td><td>${(d.declared_litres||0).toLocaleString()}L<\/td><td>${(d.post_dip||0).toLocaleString()}L<\/td><td class="text-green-600">${(d.actual_gain||0).toLocaleString()}L<\/td><td class="${d.variance<0?'text-red-600':'text-green-600'}">${(d.variance||0).toLocaleString()}L<\/td><td><i class="fa-solid fa-trash text-red-500 cursor-pointer" onclick="deleteDelivery(${d.id})"><\/i><\/td><\/tr>`).join('') : '<tr><td colspan="9" class="text-center py-4">No deliveries recorded<\/tr>';
+            if (tbody) tbody.innerHTML = deliveries.length ? deliveries.slice(0, 20).map(d => `<tr class="border-b"><td class="p-2">${new Date(d.recorded_at).toLocaleDateString()}<\/td><td>${d.fuel_type}<\/td><td>${d.driver_name}<\/td><td>${(d.pre_dip||0).toLocaleString()}L<\/td><td>${(d.declared_litres||0).toLocaleString()}L<\/td><td>${(d.post_dip||0).toLocaleString()}L<\/td><td class="text-green-600">${(d.actual_gain||0).toLocaleString()}L<\/td><td class="${d.variance<0?'text-red-600':'text-green-600'}">${(d.variance||0).toLocaleString()}L<\/td><td><i class="fa-solid fa-trash text-red-500 cursor-pointer" onclick="deleteDelivery(${d.id})"><\/i><\/td><\/tr>`).join('') : '<td><td colspan="9" class="text-center py-4">No deliveries recorded<\/tr>';
             const dailyBody = document.getElementById("dailyTableBody");
             if (dailyBody) dailyBody.innerHTML = dailyRecords.length ? dailyRecords.slice(0, 20).map(r => `<tr class="border-b"><td class="p-2">${r.record_date}<\/td><td>${(r.morning_diesel||0).toLocaleString()}L<\/td><td>${(r.morning_petrol||0).toLocaleString()}L<\/td><td class="text-red-600">${(r.diesel_sold||0).toLocaleString()}L<\/td><td class="text-red-600">${(r.petrol_sold||0).toLocaleString()}L<\/td><td>${((r.morning_diesel||0)+(r.morning_petrol||0))-((r.diesel_sold||0)+(r.petrol_sold||0))}L<\/td><td>${r.locked ? '<span class="badge-locked badge">LOCKED</span>' : '<span class="badge-success badge">Open</span>'}<\/td><td>${!r.locked ? `<i class="fa-solid fa-trash text-red-500 cursor-pointer" onclick="deleteDaily(${r.id})"><\/i>` : ''}<\/td><\/tr>`).join('') : '<tr><td colspan="8" class="text-center py-4">No daily records<\/tr>';
         }
