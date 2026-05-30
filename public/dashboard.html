@@ -152,107 +152,74 @@
                 <div class="bg-white rounded-2xl p-5 shadow overflow-x-auto mt-5"><h3 class="font-bold">Daily Records History</h3><table class="min-w-full text-sm"><thead class="bg-slate-100"><tr><th>Date</th><th>Morning D</th><th>Morning P</th><th>Diesel Sold</th><th>Petrol Sold</th><th>Stock After</th><th>Status</th><th></th></tr></thead><tbody id="dailyTableBody"></tbody></table></div>
             </div>
 
-            <!-- RECONCILIATION SECTION - FIXED -->
+            <!-- RECONCILIATION SECTION - FULLY RESTORED -->
             <div id="reconciliation" class="section hidden">
                 <div class="bg-white rounded-2xl p-6 shadow">
-                    <h2 class="font-bold text-xl"><i class="fa-solid fa-scale-balanced"></i> FUEL STATION RECONCILIATION</h2>
-                    <div class="info-box mt-2"><i class="fa-solid fa-lightbulb"></i> <strong>How to use:</strong> Enter the previous and current meter readings for each pump, then click "Calculate Expected Cash" to see the expected cash amount. Then enter the actual cash counted and click "Submit & Lock Record".</div>
-                    
+                    <h2 class="font-bold text-xl"><i class="fa-solid fa-scale-balanced"></i> FUEL STATION RECONCILIATION · 3 Petrol Readings + 1 Diesel</h2>
+                    <div class="info-box mt-2"><i class="fa-solid fa-lightbulb"></i> <strong>Feature:</strong> Calculate Expected Cash first, then enter Actual Cash to see SHORTAGE or EXCESS.</div>
                     <div class="recon-grid mt-4">
-                        <!-- PETROL SECTION -->
                         <div>
                             <h3 class="font-bold text-lg mb-3">⛽ PETROL · 3 READINGS</h3>
                             <div class="pump-section">
                                 <div class="pump-title">🔴 PETROL SINGLE PUMP</div>
-                                <div class="grid grid-cols-2 gap-3">
-                                    <div><label class="block text-xs font-semibold mb-1">Prev Sales (KES)</label><input id="petrolSingleSalesPrev" class="input-field" type="number" placeholder="0" value="0"></div>
-                                    <div><label class="block text-xs font-semibold mb-1">Curr Sales (KES)</label><input id="petrolSingleSalesCurr" class="input-field" type="number" placeholder="0" value="0"></div>
-                                    <div><label class="block text-xs font-semibold mb-1">Prev Litres</label><input id="petrolSingleLitresPrev" class="input-field" step="0.01" type="number" placeholder="0" value="0"></div>
-                                    <div><label class="block text-xs font-semibold mb-1">Curr Litres</label><input id="petrolSingleLitresCurr" class="input-field" step="0.01" type="number" placeholder="0" value="0"></div>
-                                </div>
+                                <div class="form-group"><label>Prev Sales (KES)</label><input id="petrolSingleSalesPrev" class="input-field" type="number" /></div>
+                                <div class="form-group"><label>Curr Sales (KES)</label><input id="petrolSingleSalesCurr" class="input-field" type="number" /></div>
+                                <div class="form-group"><label>Prev Litres</label><input id="petrolSingleLitresPrev" class="input-field" step="0.01" /></div>
+                                <div class="form-group"><label>Curr Litres</label><input id="petrolSingleLitresCurr" class="input-field" step="0.01" /></div>
+                                <div class="form-group"><label>Prev Manual (L)</label><input id="petrolSingleManualPrev" class="input-field" step="0.01" /></div>
+                                <div class="form-group"><label>Curr Manual (L)</label><input id="petrolSingleManualCurr" class="input-field" step="0.01" /></div>
                             </div>
                             <div class="pump-section">
                                 <div class="pump-title">🟠 DUAL NOZZLE A</div>
-                                <div class="grid grid-cols-2 gap-3">
-                                    <div><label class="block text-xs font-semibold mb-1">Prev Sales (KES)</label><input id="petrolDualASalesPrev" class="input-field" type="number" placeholder="0" value="0"></div>
-                                    <div><label class="block text-xs font-semibold mb-1">Curr Sales (KES)</label><input id="petrolDualASalesCurr" class="input-field" type="number" placeholder="0" value="0"></div>
-                                    <div><label class="block text-xs font-semibold mb-1">Prev Litres</label><input id="petrolDualALitresPrev" class="input-field" step="0.01" type="number" placeholder="0" value="0"></div>
-                                    <div><label class="block text-xs font-semibold mb-1">Curr Litres</label><input id="petrolDualALitresCurr" class="input-field" step="0.01" type="number" placeholder="0" value="0"></div>
-                                </div>
+                                <div class="form-group"><label>Prev Sales</label><input id="petrolDualASalesPrev" class="input-field" type="number" /></div>
+                                <div class="form-group"><label>Curr Sales</label><input id="petrolDualASalesCurr" class="input-field" type="number" /></div>
+                                <div class="form-group"><label>Prev Litres</label><input id="petrolDualALitresPrev" class="input-field" step="0.01" /></div>
+                                <div class="form-group"><label>Curr Litres</label><input id="petrolDualALitresCurr" class="input-field" step="0.01" /></div>
+                                <div class="form-group"><label>Prev Manual</label><input id="petrolDualAManualPrev" class="input-field" step="0.01" /></div>
+                                <div class="form-group"><label>Curr Manual</label><input id="petrolDualAManualCurr" class="input-field" step="0.01" /></div>
                             </div>
                             <div class="pump-section">
                                 <div class="pump-title">🟡 DUAL NOZZLE B</div>
-                                <div class="grid grid-cols-2 gap-3">
-                                    <div><label class="block text-xs font-semibold mb-1">Prev Sales (KES)</label><input id="petrolDualBSalesPrev" class="input-field" type="number" placeholder="0" value="0"></div>
-                                    <div><label class="block text-xs font-semibold mb-1">Curr Sales (KES)</label><input id="petrolDualBSalesCurr" class="input-field" type="number" placeholder="0" value="0"></div>
-                                    <div><label class="block text-xs font-semibold mb-1">Prev Litres</label><input id="petrolDualBLitresPrev" class="input-field" step="0.01" type="number" placeholder="0" value="0"></div>
-                                    <div><label class="block text-xs font-semibold mb-1">Curr Litres</label><input id="petrolDualBLitresCurr" class="input-field" step="0.01" type="number" placeholder="0" value="0"></div>
-                                </div>
+                                <div class="form-group"><label>Prev Sales</label><input id="petrolDualBSalesPrev" class="input-field" type="number" /></div>
+                                <div class="form-group"><label>Curr Sales</label><input id="petrolDualBSalesCurr" class="input-field" type="number" /></div>
+                                <div class="form-group"><label>Prev Litres</label><input id="petrolDualBLitresPrev" class="input-field" step="0.01" /></div>
+                                <div class="form-group"><label>Curr Litres</label><input id="petrolDualBLitresCurr" class="input-field" step="0.01" /></div>
+                                <div class="form-group"><label>Prev Manual</label><input id="petrolDualBManualPrev" class="input-field" step="0.01" /></div>
+                                <div class="form-group"><label>Curr Manual</label><input id="petrolDualBManualCurr" class="input-field" step="0.01" /></div>
                             </div>
-                            <div><label class="block text-sm font-semibold mb-1">Petrol Price (KES/L)</label><input id="petrolPrice" class="input-field" value="199.50" step="0.01" type="number"></div>
+                            <div class="form-group"><label>Petrol Price (KES/L)</label><input id="petrolPrice" class="input-field" value="199.50" step="0.01" /></div>
                         </div>
-                        
-                        <!-- DIESEL SECTION -->
                         <div>
                             <h3 class="font-bold text-lg mb-3">🛢️ DIESEL · 1 PUMP</h3>
                             <div class="pump-section">
                                 <div class="pump-title">🔵 DIESEL PUMP</div>
-                                <div class="grid grid-cols-2 gap-3">
-                                    <div><label class="block text-xs font-semibold mb-1">Prev Sales (KES)</label><input id="dieselSalesPrev" class="input-field" type="number" placeholder="0" value="0"></div>
-                                    <div><label class="block text-xs font-semibold mb-1">Curr Sales (KES)</label><input id="dieselSalesCurr" class="input-field" type="number" placeholder="0" value="0"></div>
-                                    <div><label class="block text-xs font-semibold mb-1">Prev Litres</label><input id="dieselLitresPrev" class="input-field" step="0.01" type="number" placeholder="0" value="0"></div>
-                                    <div><label class="block text-xs font-semibold mb-1">Curr Litres</label><input id="dieselLitresCurr" class="input-field" step="0.01" type="number" placeholder="0" value="0"></div>
-                                </div>
+                                <div class="form-group"><label>Prev Sales</label><input id="dieselSalesPrev" class="input-field" type="number" /></div>
+                                <div class="form-group"><label>Curr Sales</label><input id="dieselSalesCurr" class="input-field" type="number" /></div>
+                                <div class="form-group"><label>Prev Litres</label><input id="dieselLitresPrev" class="input-field" step="0.01" /></div>
+                                <div class="form-group"><label>Curr Litres</label><input id="dieselLitresCurr" class="input-field" step="0.01" /></div>
+                                <div class="form-group"><label>Prev Manual</label><input id="dieselManualPrev" class="input-field" step="0.01" /></div>
+                                <div class="form-group"><label>Curr Manual</label><input id="dieselManualCurr" class="input-field" step="0.01" /></div>
                             </div>
-                            <div><label class="block text-sm font-semibold mb-1">Diesel Price (KES/L)</label><input id="dieselPrice" class="input-field" value="179.00" step="0.01" type="number"></div>
-                            
+                            <div class="form-group"><label>Diesel Price (KES/L)</label><input id="dieselPrice" class="input-field" value="179.00" step="0.01" /></div>
                             <h3 class="font-bold text-lg mt-6 mb-3">💰 CASH RECONCILIATION</h3>
-                            <div class="form-group mb-3"><label class="block text-sm font-semibold mb-1">📱 MPESA</label><input id="mpesa" class="input-field" type="number" placeholder="0" value="0"></div>
+                            <div class="form-group"><label>📱 MPESA</label><input id="mpesa" class="input-field" type="number" /></div>
                             <div id="creditContainer"></div>
-                            <button type="button" class="small-btn mb-2" onclick="addCreditRow()">+ Add Credit</button>
+                            <button type="button" class="small-btn" onclick="addCreditRow()">+ Add Credit</button>
                             <div id="expenseContainer"></div>
-                            <button type="button" class="small-btn mb-2" onclick="addExpenseRow()">+ Add Expense</button>
+                            <button type="button" class="small-btn" onclick="addExpenseRow()">+ Add Expense</button>
                             <div id="advanceContainer"></div>
-                            <button type="button" class="small-btn mb-2" onclick="addAdvanceRow()">+ Add Advance Payment</button>
+                            <button type="button" class="small-btn" onclick="addAdvanceRow()">+ Add Advance Payment</button>
                             <div id="returnsContainer"></div>
-                            <button type="button" class="small-btn mb-2" onclick="addReturnRow()">+ Add Return</button>
+                            <button type="button" class="small-btn" onclick="addReturnRow()">+ Add Return</button>
                             <div id="lubricantContainer"></div>
-                            <button type="button" class="small-btn mb-2" onclick="addLubricantRow()">+ Add Lubricant Sale</button>
+                            <button type="button" class="small-btn" onclick="addLubricantRow()">+ Add Lubricant Sale</button>
                         </div>
                     </div>
-                    
-                    <button onclick="calculateExpectedCash()" class="btn-primary w-full mt-4"><i class="fa-solid fa-calculator"></i> Calculate Expected Cash</button>
-                    
-                    <div id="expectedCashDisplay" style="display: none">
-                        <div class="expected-cash-card mt-4">
-                            <h3><i class="fa-solid fa-coins"></i> EXPECTED CASH</h3>
-                            <div class="amount" id="expectedCashAmount">KES 0.00</div>
-                        </div>
-                    </div>
-                    
-                    <div id="actualCashSection" style="display: none">
-                        <div class="actual-cash-input mt-4">
-                            <label class="block text-sm font-semibold mb-1">Enter ACTUAL Cash Counted (KES)</label>
-                            <input id="actualCashInput" class="input-field" type="number" placeholder="Enter amount in KES">
-                            <button onclick="submitReconciliation()" class="btn-success w-full mt-3"><i class="fa-solid fa-lock"></i> Submit & Lock Record</button>
-                        </div>
-                    </div>
-                    
+                    <button onclick="calculateExpectedCash()" class="btn-primary" style="margin-top: 0.5rem"><i class="fa-solid fa-calculator"></i> Calculate Expected Cash</button>
+                    <div id="expectedCashDisplay" style="display: none"><div class="expected-cash-card"><h3><i class="fa-solid fa-coins"></i> EXPECTED CASH</h3><div class="amount" id="expectedCashAmount">KES 0.00</div></div></div>
+                    <div id="actualCashSection" style="display: none"><div class="actual-cash-input"><div class="form-group"><label>Enter ACTUAL Cash Counted (KES)</label><input id="actualCashInput" class="input-field" type="number" placeholder="Enter amount in KES" /></div><button onclick="submitReconciliation()" class="btn-success" style="margin-top: 0.5rem"><i class="fa-solid fa-lock"></i> Submit & Lock Record</button></div></div>
                     <div id="varianceResult" style="display: none; margin-top: 1rem"></div>
-                    
-                    <div class="mt-6">
-                        <h3 class="font-bold text-lg">📋 SHIFT REPORT</h3>
-                        <div class="table-wrapper mt-2">
-                            <table class="min-w-full text-sm">
-                                <thead class="bg-slate-100">
-                                    <tr><th class="p-2">ITEM</th><th class="p-2">VALUE (KES)</th></tr>
-                                </thead>
-                                <tbody id="reportBody">
-                                    <tr><td colspan="2" class="text-center py-4">Click "Calculate Expected Cash" to generate report</td></tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
+                    <div style="margin-top: 1.5rem"><h3 class="font-bold text-lg">📋 SHIFT REPORT</h3><div class="table-wrapper mt-2"><table class="min-w-full text-sm"><thead class="bg-slate-100"><tr><th class="p-2">ITEM</th><th class="p-2">VALUE (KES)</th></tr></thead><tbody id="reportBody"><tr><td colspan="2" class="text-center py-4">Click "Calculate Expected Cash" to generate report<\/tr></tbody></table></div></div>
                 </div>
             </div>
 
@@ -517,65 +484,44 @@
         function getValue(id) { return parseFloat(document.getElementById(id)?.value) || 0; }
         function calculateTotal(className) { let t = 0; document.querySelectorAll("."+className).forEach(inp => { let v = parseFloat(inp.value); if (!isNaN(v) && v > 0) t += v; }); return t; }
         
-        function addCreditRow() { let d = document.createElement("div"); d.className = "dynamic-row"; d.innerHTML = `<input placeholder="Customer Name" class="flex-1 border rounded-lg p-2 text-sm"><input class="creditAmount" type="number" placeholder="KES" class="flex-1 border rounded-lg p-2 text-sm"><button class="small-btn" onclick="this.parentElement.remove()">✖</button>`; document.getElementById("creditContainer").appendChild(d); }
-        function addExpenseRow() { let d = document.createElement("div"); d.className = "dynamic-row"; d.innerHTML = `<input placeholder="Expense Name" class="flex-1 border rounded-lg p-2 text-sm"><input class="expenseAmount" type="number" placeholder="KES" class="flex-1 border rounded-lg p-2 text-sm"><button class="small-btn" onclick="this.parentElement.remove()">✖</button>`; document.getElementById("expenseContainer").appendChild(d); }
-        function addAdvanceRow() { let d = document.createElement("div"); d.className = "dynamic-row"; d.innerHTML = `<input placeholder="Customer Name" class="flex-1 border rounded-lg p-2 text-sm"><input class="advanceAmount" type="number" placeholder="KES" class="flex-1 border rounded-lg p-2 text-sm"><button class="small-btn" onclick="this.parentElement.remove()">✖</button>`; document.getElementById("advanceContainer").appendChild(d); }
-        function addReturnRow() { let d = document.createElement("div"); d.className = "dynamic-row"; d.innerHTML = `<input placeholder="Return Reason" class="flex-1 border rounded-lg p-2 text-sm"><input class="returnAmount" type="number" placeholder="KES" class="flex-1 border rounded-lg p-2 text-sm"><button class="small-btn" onclick="this.parentElement.remove()">✖</button>`; document.getElementById("returnsContainer").appendChild(d); }
-        function addLubricantRow() { let d = document.createElement("div"); d.className = "dynamic-row"; d.innerHTML = `<input placeholder="Product Name" class="flex-1 border rounded-lg p-2 text-sm"><input class="lubricantAmount" type="number" placeholder="KES" class="flex-1 border rounded-lg p-2 text-sm"><button class="small-btn" onclick="this.parentElement.remove()">✖</button>`; document.getElementById("lubricantContainer").appendChild(d); }
+        function addCreditRow() { let d = document.createElement("div"); d.className = "dynamic-row"; d.innerHTML = `<input placeholder="Customer"><input class="creditAmount" type="number" placeholder="KES"><button class="small-btn" onclick="this.parentElement.remove()">✖</button>`; document.getElementById("creditContainer").appendChild(d); }
+        function addExpenseRow() { let d = document.createElement("div"); d.className = "dynamic-row"; d.innerHTML = `<input placeholder="Expense"><input class="expenseAmount" type="number" placeholder="KES"><button class="small-btn" onclick="this.parentElement.remove()">✖</button>`; document.getElementById("expenseContainer").appendChild(d); }
+        function addAdvanceRow() { let d = document.createElement("div"); d.className = "dynamic-row"; d.innerHTML = `<input placeholder="Advance"><input class="advanceAmount" type="number" placeholder="KES"><button class="small-btn" onclick="this.parentElement.remove()">✖</button>`; document.getElementById("advanceContainer").appendChild(d); }
+        function addReturnRow() { let d = document.createElement("div"); d.className = "dynamic-row"; d.innerHTML = `<input placeholder="Return"><input class="returnAmount" type="number" placeholder="KES"><button class="small-btn" onclick="this.parentElement.remove()">✖</button>`; document.getElementById("returnsContainer").appendChild(d); }
+        function addLubricantRow() { let d = document.createElement("div"); d.className = "dynamic-row"; d.innerHTML = `<input placeholder="Lubricant"><input class="lubricantAmount" type="number" placeholder="KES"><button class="small-btn" onclick="this.parentElement.remove()">✖</button>`; document.getElementById("lubricantContainer").appendChild(d); }
 
         function calculateExpectedCash() {
-            // Calculate petrol sales from 3 pumps
-            let petrolSingleSales = getValue("petrolSingleSalesCurr") - getValue("petrolSingleSalesPrev");
-            let petrolDualASales = getValue("petrolDualASalesCurr") - getValue("petrolDualASalesPrev");
-            let petrolDualBSales = getValue("petrolDualBSalesCurr") - getValue("petrolDualBSalesPrev");
-            let totalPetrolSales = petrolSingleSales + petrolDualASales + petrolDualBSales;
-            
-            // Calculate diesel sales
+            let pSingleS = getValue("petrolSingleSalesCurr") - getValue("petrolSingleSalesPrev");
+            let pDualAS = getValue("petrolDualASalesCurr") - getValue("petrolDualASalesPrev");
+            let pDualBS = getValue("petrolDualBSalesCurr") - getValue("petrolDualBSalesPrev");
+            let totalPetrolSales = pSingleS + pDualAS + pDualBS;
             let dieselSales = getValue("dieselSalesCurr") - getValue("dieselSalesPrev");
-            
-            // Total sales from pumps
             let totalSales = totalPetrolSales + dieselSales;
-            
-            // Get cash reconciliation values
             let mpesa = getValue("mpesa");
             let credit = calculateTotal("creditAmount");
             let expenses = calculateTotal("expenseAmount");
             let advance = calculateTotal("advanceAmount");
             let returnsVal = calculateTotal("returnAmount");
             let lubricants = calculateTotal("lubricantAmount");
-            
-            // Calculate expected cash
             let expectedCash = totalSales - mpesa - credit - expenses - advance + returnsVal + lubricants;
             
             currentExpectedCash = expectedCash;
-            currentReconciliationData = { 
-                total_sales: totalSales, 
-                mpesa: mpesa, 
-                credits: credit, 
-                expenses: expenses, 
-                advances: advance, 
-                returns_val: returnsVal, 
-                lubricants: lubricants, 
-                expected_cash: expectedCash 
-            };
+            currentReconciliationData = { total_sales: totalSales, mpesa: mpesa, credits: credit, expenses: expenses, advances: advance, returns_val: returnsVal, lubricants: lubricants, expected_cash: expectedCash };
             
             document.getElementById("expectedCashDisplay").style.display = "block";
             document.getElementById("expectedCashAmount").innerHTML = `KES ${expectedCash.toLocaleString(undefined, { minimumFractionDigits: 2 })}`;
             document.getElementById("actualCashSection").style.display = "block";
-            
             document.getElementById("reportBody").innerHTML = `
-                <tr style="background:#f0f7ff;"><td class="font-semibold">💰 Total Pump Sales</td><td class="font-bold">KES ${totalSales.toLocaleString()}</td></tr>
-                <tr><td class="pl-4 text-sm">⛽ Petrol Sales (3 pumps)</td><td>KES ${totalPetrolSales.toLocaleString()}</td></tr>
-                <tr><td class="pl-4 text-sm">⛽ Diesel Sales (1 pump)</td><td>KES ${dieselSales.toLocaleString()}</td></tr>
-                <tr class="bg-gray-50"><td class="font-semibold">📱 M-Pesa</td><td>KES ${mpesa.toLocaleString()}</td></tr>
-                <tr class="bg-gray-50"><td class="font-semibold">🧾 Credits</td><td>KES ${credit.toLocaleString()}</td></tr>
-                <tr class="bg-gray-50"><td class="font-semibold">💸 Expenses</td><td>KES ${expenses.toLocaleString()}</td></tr>
-                <tr class="bg-gray-50"><td class="font-semibold">💳 Advances</td><td>KES ${advance.toLocaleString()}</td></tr>
-                <tr class="bg-gray-50"><td class="font-semibold">🔄 Returns</td><td class="text-green-600">+ KES ${returnsVal.toLocaleString()}</td></tr>
-                <tr class="bg-gray-50"><td class="font-semibold">🛢️ Lubricants</td><td class="text-green-600">+ KES ${lubricants.toLocaleString()}</td></tr>
-                <tr style="background:#eef6ff;"><td class="font-bold">🎯 EXPECTED CASH</td><td class="font-bold text-blue-700">KES ${expectedCash.toLocaleString()}</td></tr>
+                <tr style="background:#f0f7ff;"><td><strong>Total Sales</strong><\/td><td><strong>KES ${totalSales.toLocaleString()}</strong><\/td><\/tr>
+                <tr><td>📱 M-Pesa<\/td><td>KES ${mpesa.toLocaleString()}<\/td><\/tr>
+                <tr><td>🧾 Credits<\/td><td>KES ${credit.toLocaleString()}<\/td><\/tr>
+                <tr><td>💸 Expenses<\/td><td>KES ${expenses.toLocaleString()}<\/td><\/tr>
+                <tr><td>💳 Advances<\/td><td>KES ${advance.toLocaleString()}<\/td><\/tr>
+                <tr><td>🔄 Returns<\/td><td>KES ${returnsVal.toLocaleString()}<\/td><\/tr>
+                </tr><td>🛢️ Lubricants<\/td><td>KES ${lubricants.toLocaleString()}<\/td><\/tr>
+                <tr style="background:#eef6ff;"><td><strong>Expected Cash</strong><\/td><td><strong>KES ${expectedCash.toLocaleString()}<\/strong><\/td><\/tr>
             `;
-            showToast(`Expected Cash: KES ${expectedCash.toLocaleString()}`, "info");
+            showToast(`Expected Cash: KES ${expectedCash.toLocaleString()} - Shift Report Generated`);
         }
 
         async function saveReconciliationToDatabase(reconciliationData) {
@@ -612,10 +558,9 @@
             }
             document.getElementById("varianceResult").style.display = "block";
             document.getElementById("varianceResult").innerHTML = `<div class="${diff > 0 ? "warning-box" : diff < 0 ? "error-box" : "success-box"}">
-                <h3 class="font-bold">${status}</h3>
-                <p>Expected: KES ${expectedCash.toLocaleString()}<br>Actual: KES ${actualCash.toLocaleString()}<br>Difference: KES ${Math.abs(diff).toLocaleString()}</p>
-                ${Math.abs(diff) > 0 ? '<p class="mt-2 text-sm"><i class="fa-solid fa-exclamation-triangle"></i> A variance has been created for this discrepancy.</p>' : ''}
-                <p class="text-xs mt-2"><i class="fa-solid fa-lock"></i> Record LOCKED</p></div>`;
+                <h3>${status}</h3><p>Expected: KES ${expectedCash.toLocaleString()}<br>Actual: KES ${actualCash.toLocaleString()}<br>Difference: KES ${Math.abs(diff).toLocaleString()}</p>
+                ${Math.abs(diff) > 0 ? '<p class="mt-2"><i class="fa-solid fa-exclamation-triangle"></i> A variance has been created for this discrepancy.</p>' : ''}
+                <p><i class="fa-solid fa-lock"></i> Record LOCKED</p></div>`;
             showToast(`Reconciliation ${status}: ${Math.abs(diff).toLocaleString()} KES`);
             document.getElementById("actualCashInput").value = "";
             loadVariances(); loadAllData();

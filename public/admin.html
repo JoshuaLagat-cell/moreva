@@ -11,21 +11,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
     <style>
         * { font-family: 'Inter', sans-serif; }
-        .toast-notif {
-            position: fixed;
-            bottom: 24px;
-            right: 24px;
-            z-index: 9999;
-            background: #1e293b;
-            color: white;
-            padding: 12px 20px;
-            border-radius: 40px;
-            font-size: 0.85rem;
-            font-weight: 500;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-            animation: slideUp 0.2s ease;
-            z-index: 10000;
-        }
+        .toast-notif { position: fixed; bottom: 24px; right: 24px; z-index: 9999; background: #1e293b; color: white; padding: 12px 20px; border-radius: 40px; font-size: 0.85rem; font-weight: 500; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); animation: slideUp 0.2s ease; z-index: 10000; }
         @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
         .badge { background: #e0f2e9; color: #0b5e42; padding: 0.2rem 0.6rem; border-radius: 2rem; font-size: 0.7rem; font-weight: 700; display: inline-block; }
         .badge-warning { background: #fef3c7; color: #b45309; }
@@ -33,21 +19,19 @@
         .badge-info { background: #dbeafe; color: #1e40af; }
         .badge-success { background: #d1fae5; color: #065f46; }
         .badge-pending { background: #fed7aa; color: #9b4a00; }
-        .card { background: white; border-radius: 1.5rem; padding: 1.5rem; box-shadow: 0 10px 25px -5px rgb(0 0 0 / 0.08); }
         .btn-primary { background: linear-gradient(95deg, #1e3a8a, #dc2626); color: white; font-weight: 700; padding: 0.8rem; border-radius: 2rem; border: none; cursor: pointer; transition: transform 0.1s; }
         .btn-primary:hover { transform: scale(1.01); }
         .btn-success { background: #10b981; color: white; font-weight: 700; padding: 0.5rem 1rem; border-radius: 2rem; border: none; cursor: pointer; }
         .btn-danger { background: #dc2626; color: white; font-weight: 700; padding: 0.5rem 1rem; border-radius: 2rem; border: none; cursor: pointer; }
-        .btn-warning { background: #f59e0b; color: white; font-weight: 700; padding: 0.5rem 1rem; border-radius: 2rem; border: none; cursor: pointer; }
         .input-field { width: 100%; padding: 0.8rem 1rem; border-radius: 1rem; border: 1.5px solid #e2e8f0; font-size: 0.95rem; transition: all 0.2s; }
-        .input-field:focus { outline: none; border-color: #1e3a8a; box-shadow: 0 0 0 3px rgba(30, 58, 138, 0.1); }
+        .input-field:focus { outline: none; border-color: #1e3a8a; box-shadow: 0 0 0 3px rgba(30,58,138,0.1); }
         .table-wrapper { overflow-x: auto; border-radius: 1rem; max-height: 500px; overflow-y: auto; }
         table { width: 100%; border-collapse: collapse; }
         th { background: #f8fafc; padding: 0.8rem; text-align: left; font-weight: 600; font-size: 0.85rem; position: sticky; top: 0; z-index: 10; }
         td { padding: 0.8rem; border-bottom: 1px solid #eef2f6; font-size: 0.85rem; }
         .modal { transition: all 0.3s ease; }
         .stat-card { transition: all 0.3s ease; cursor: pointer; }
-        .stat-card:hover { transform: translateY(-2px); box-shadow: 0 20px 25px -12px rgba(0, 0, 0, 0.15); }
+        .stat-card:hover { transform: translateY(-2px); box-shadow: 0 20px 25px -12px rgba(0,0,0,0.15); }
         .sidebar { background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); }
         .section { display: none; }
         .section.active { display: block; animation: fade 0.2s ease; }
@@ -57,13 +41,9 @@
         .refresh-btn { background: rgba(255,255,255,0.1); padding: 0.25rem 0.75rem; border-radius: 1rem; font-size: 0.7rem; cursor: pointer; }
         .refresh-btn:hover { background: rgba(255,255,255,0.2); }
         .action-btn { padding: 0.25rem 0.5rem; border-radius: 0.5rem; font-size: 0.7rem; margin: 0 0.2rem; cursor: pointer; }
-        .action-btn.edit { background: #3b82f6; color: white; }
-        .action-btn.delete { background: #ef4444; color: white; }
         .action-btn.approve { background: #10b981; color: white; }
+        .action-btn.delete { background: #ef4444; color: white; }
         .pending-requests-badge { background: #f59e0b; color: white; border-radius: 9999px; padding: 0.15rem 0.5rem; font-size: 0.7rem; margin-left: 0.5rem; }
-        .tabs-container { display: flex; gap: 1rem; margin-bottom: 1.5rem; border-bottom: 1px solid #e2e8f0; }
-        .user-tab { padding: 0.5rem 1rem; cursor: pointer; border-bottom: 2px solid transparent; font-weight: 600; }
-        .user-tab.active-tab { border-bottom-color: #1e3a8a; color: #1e3a8a; }
     </style>
 </head>
 <body class="bg-slate-100">
@@ -117,7 +97,7 @@
         <div class="flex-1 overflow-auto">
             <div class="bg-white shadow-sm p-4 sticky top-0 z-10 flex justify-between items-center">
                 <h2 id="pageTitle" class="text-xl font-bold">Overview</h2>
-                <button onclick="refreshCurrentSection()" class="refresh-btn"><i class="fas fa-sync-alt mr-1"></i> Refresh</button>
+                <button onclick="refreshAllData()" class="refresh-btn"><i class="fas fa-sync-alt mr-1"></i> Refresh</button>
             </div>
 
             <div class="p-6">
@@ -125,37 +105,25 @@
                 <div id="overviewSection" class="section active">
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
                         <div class="bg-white rounded-xl p-6 shadow stat-card" onclick="showSection('users')">
-                            <div class="flex items-center justify-between">
-                                <div><p class="text-gray-500 text-sm">Total Users</p><h3 id="totalUsers" class="text-2xl font-bold mt-1">0</h3></div>
-                                <div class="bg-blue-100 p-3 rounded-lg"><i class="fas fa-users text-blue-600 text-xl"></i></div>
-                            </div>
+                            <div><p class="text-gray-500 text-sm">Total Users</p><h3 id="totalUsers" class="text-2xl font-bold mt-1">0</h3></div>
                         </div>
                         <div class="bg-white rounded-xl p-6 shadow stat-card" onclick="showSection('users')">
-                            <div class="flex items-center justify-between">
-                                <div><p class="text-gray-500 text-sm">Pending Approvals</p><h3 id="pendingUsers" class="text-2xl font-bold mt-1 text-amber-600">0</h3></div>
-                                <div class="bg-amber-100 p-3 rounded-lg"><i class="fas fa-clock text-amber-600 text-xl"></i></div>
-                            </div>
+                            <div><p class="text-gray-500 text-sm">Pending Approvals</p><h3 id="pendingUsers" class="text-2xl font-bold mt-1 text-amber-600">0</h3></div>
                         </div>
                         <div class="bg-white rounded-xl p-6 shadow stat-card" onclick="showSection('deliveries')">
-                            <div class="flex items-center justify-between">
-                                <div><p class="text-gray-500 text-sm">Total Deliveries</p><h3 id="totalDeliveries" class="text-2xl font-bold mt-1">0</h3></div>
-                                <div class="bg-green-100 p-3 rounded-lg"><i class="fas fa-truck text-green-600 text-xl"></i></div>
-                            </div>
+                            <div><p class="text-gray-500 text-sm">Total Deliveries</p><h3 id="totalDeliveries" class="text-2xl font-bold mt-1">0</h3></div>
                         </div>
                         <div class="bg-white rounded-xl p-6 shadow stat-card" onclick="showSection('variances')">
-                            <div class="flex items-center justify-between">
-                                <div><p class="text-gray-500 text-sm">Pending Variances</p><h3 id="pendingVariances" class="text-2xl font-bold mt-1 text-amber-600">0</h3></div>
-                                <div class="bg-amber-100 p-3 rounded-lg"><i class="fas fa-exclamation-triangle text-amber-600 text-xl"></i></div>
-                            </div>
+                            <div><p class="text-gray-500 text-sm">Pending Variances</p><h3 id="pendingVariances" class="text-2xl font-bold mt-1 text-amber-600">0</h3></div>
                         </div>
                     </div>
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                         <div class="bg-white rounded-xl shadow p-6">
-                            <h3 class="font-bold text-lg mb-4">Pending User Requests <span class="text-xs text-gray-500">(Awaiting Approval)</span></h3>
-                            <div class="table-wrapper"><table class="w-full text-sm"><thead class="bg-slate-100"><tr><th>Name</th><th>Username</th><th>Email</th><th>Registered</th><th>Actions</th></tr></thead><tbody id="pendingUsersTable"><tr><td colspan="5" class="text-center py-4">Loading...<\/tr><tr></tbody></table></div>
+                            <h3 class="font-bold text-lg mb-4">Pending User Requests</h3>
+                            <div class="table-wrapper"><table class="w-full text-sm"><thead class="bg-slate-100"><tr><th>Name</th><th>Username</th><th>Email</th><th>Registered</th><th>Actions</th></tr></thead><tbody id="pendingUsersTable"><tr><td colspan="5" class="text-center py-4">Loading...<\/tr></td></tbody></table></div>
                         </div>
                         <div class="bg-white rounded-xl shadow p-6">
-                            <h3 class="font-bold text-lg mb-4">Recent Variances <span class="text-xs text-gray-500">(Last 5)</span></h3>
+                            <h3 class="font-bold text-lg mb-4">Recent Variances</h3>
                             <div class="table-wrapper"><table class="w-full text-sm"><thead class="bg-slate-100"><tr><th>Date</th><th>Fuel</th><th>Variance</th><th>Status</th></tr></thead><tbody id="recentVariances"><tr><td colspan="4" class="text-center py-4">Loading...<\/tr></tr></tbody></table></div>
                         </div>
                     </div>
@@ -164,56 +132,30 @@
                 <!-- User Management Section -->
                 <div id="usersSection" class="section hidden">
                     <div class="bg-white rounded-xl shadow p-6">
-                        <div class="tabs-container">
-                            <div class="user-tab active-tab" data-tab="all" onclick="switchUserTab('all')">All Users</div>
-                            <div class="user-tab" data-tab="pending" onclick="switchUserTab('pending')">
-                                Pending Approval 
-                                <span id="pendingCountBadge" class="bg-amber-500 text-white text-xs rounded-full px-2 py-0.5 ml-1">0</span>
-                            </div>
-                            <div class="user-tab" data-tab="active" onclick="switchUserTab('active')">Active Users</div>
-                        </div>
-                        <div class="flex justify-between items-center mb-4 flex-wrap gap-2">
+                        <div class="flex justify-between items-center mb-4">
                             <h3 class="font-bold text-lg">System Users</h3>
                             <div class="flex gap-2">
-                                <input type="text" id="userSearch" placeholder="Search users..." class="filter-input" onkeyup="filterUsers()">
-                                <button onclick="showAddUserModal()" class="btn-success"><i class="fas fa-plus mr-2"></i> Add User</button>
+                                <input type="text" id="userSearch" placeholder="Search..." class="border rounded-lg px-3 py-1 text-sm" onkeyup="filterUsers()">
+                                <button onclick="showAddUserModal()" class="btn-success text-sm px-3 py-1"><i class="fas fa-plus mr-1"></i> Add User</button>
                             </div>
                         </div>
-                        <div class="table-wrapper"><table class="w-full text-sm"><thead class="bg-slate-100"><tr><th>ID</th><th>Username</th><th>Full Name</th><th>Email</th><th>Role</th><th>Status</th><th>Last Login</th><th>Actions</th></tr></thead><tbody id="usersTable"><tr><td colspan="8" class="text-center py-4">Loading...<\/tr></tr></tbody></table></div>
+                        <div class="table-wrapper"><table class="w-full text-sm"><thead class="bg-slate-100"><tr><th>ID</th><th>Username</th><th>Full Name</th><th>Email</th><th>Role</th><th>Status</th><th>Actions</th></tr></thead><tbody id="usersTable"><tr><td colspan="7" class="text-center py-4">Loading...<\/tr></tr></tbody></table></div>
                     </div>
                 </div>
 
                 <!-- Deliveries Section -->
                 <div id="deliveriesSection" class="section hidden">
                     <div class="bg-white rounded-xl shadow p-6">
-                        <div class="flex justify-between items-center mb-4 flex-wrap gap-2">
-                            <h3 class="font-bold text-lg">All Deliveries</h3>
-                            <div class="flex gap-2">
-                                <input type="text" id="deliverySearch" placeholder="Search by driver..." class="filter-input" onkeyup="filterDeliveries()">
-                                <select id="deliveryFuelFilter" class="filter-input" onchange="filterDeliveries()">
-                                    <option value="">All Fuels</option>
-                                    <option value="Diesel">Diesel</option>
-                                    <option value="Petrol">Petrol</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="table-wrapper"><table class="w-full text-sm"><thead class="bg-slate-100"><tr><th>ID</th><th>Date</th><th>Fuel</th><th>Driver</th><th>Pre-Dip</th><th>Declared</th><th>Post-Dip</th><th>Actual</th><th>Variance</th><th>Status</th></tr></thead><tbody id="allDeliveriesTable"><tr><td colspan="10" class="text-center py-4">Loading...<\/tr></tr></tbody></table></div>
-                        <div id="deliveriesPagination" class="pagination"></div>
+                        <h3 class="font-bold text-lg mb-4">All Deliveries</h3>
+                        <div class="table-wrapper"><table class="w-full text-sm"><thead class="bg-slate-100"><tr><th>ID</th><th>Date</th><th>Fuel</th><th>Driver</th><th>Declared</th><th>Actual</th><th>Variance</th><th>Status</th></tr></thead><tbody id="allDeliveriesTable"><tr><td colspan="8" class="text-center py-4">Loading...<\/tr></tr></tbody></table></div>
                     </div>
                 </div>
 
                 <!-- Variances Section -->
                 <div id="variancesSection" class="section hidden">
                     <div class="bg-white rounded-xl shadow p-6">
-                        <div class="flex justify-between items-center mb-4 flex-wrap gap-2">
-                            <h3 class="font-bold text-lg">All Variances</h3>
-                            <select id="varianceStatusFilter" class="filter-input" onchange="filterVariances()">
-                                <option value="">All Status</option>
-                                <option value="Pending">Pending</option>
-                                <option value="Resolved">Resolved</option>
-                            </select>
-                        </div>
-                        <div class="table-wrapper"><table class="w-full text-sm"><thead class="bg-slate-100"><tr><th>ID</th><th>Date</th><th>Fuel Type</th><th>Expected</th><th>Actual</th><th>Variance</th><th>Cause</th><th>Status</th><th>Actions</th></tr></thead><tbody id="allVariancesTable"><tr><td colspan="9" class="text-center py-4">Loading...<\/tr></tr></tbody></table></div>
+                        <h3 class="font-bold text-lg mb-4">All Variances</h3>
+                        <div class="table-wrapper"><table class="w-full text-sm"><thead class="bg-slate-100"><tr><th>ID</th><th>Date</th><th>Fuel</th><th>Variance</th><th>Status</th></tr></thead><tbody id="allVariancesTable"><tr><td colspan="5" class="text-center py-4">Loading...<\/tr></table></tbody></table></div>
                     </div>
                 </div>
 
@@ -221,7 +163,7 @@
                 <div id="reconciliationsSection" class="section hidden">
                     <div class="bg-white rounded-xl shadow p-6">
                         <h3 class="font-bold text-lg mb-4">Reconciliation History</h3>
-                        <div class="table-wrapper"><table class="w-full text-sm"><thead class="bg-slate-100"><tr><th>ID</th><th>Date</th><th>Expected Cash</th><th>Actual Cash</th><th>Variance</th><th>Status</th><th>Recorded By</th></tr></thead><tbody id="reconciliationsTable"><tr><td colspan="7" class="text-center py-4">Loading...<\/tr></tr></tbody></table></div>
+                        <div class="table-wrapper"><table class="w-full text-sm"><thead class="bg-slate-100"><tr><th>ID</th><th>Date</th><th>Expected Cash</th><th>Actual Cash</th><th>Variance</th></tr></thead><tbody id="reconciliationsTable"><tr><td colspan="5" class="text-center py-4">Loading...<\/tr></td></tbody></tr></div>
                     </div>
                 </div>
 
@@ -229,14 +171,10 @@
                 <div id="reportsSection" class="section hidden">
                     <div class="bg-white rounded-xl shadow p-6">
                         <h3 class="font-bold text-lg mb-4">Generate Reports</h3>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                            <div><label class="block text-sm font-semibold mb-1">Start Date</label><input type="date" id="reportStartDate" class="input-field"></div>
-                            <div><label class="block text-sm font-semibold mb-1">End Date</label><input type="date" id="reportEndDate" class="input-field"></div>
-                        </div>
-                        <div class="flex flex-wrap gap-3">
-                            <button onclick="generateReport('deliveries')" class="btn-primary"><i class="fas fa-truck mr-2"></i> Deliveries Report</button>
-                            <button onclick="generateReport('variances')" class="btn-warning"><i class="fas fa-chart-line mr-2"></i> Variances Report</button>
-                            <button onclick="exportToExcelReport()" class="btn-success"><i class="fas fa-file-excel mr-2"></i> Export to Excel</button>
+                        <div class="flex gap-3">
+                            <button onclick="exportDeliveries()" class="btn-primary text-sm">📊 Deliveries Report</button>
+                            <button onclick="exportVariances()" class="btn-warning text-sm">⚠️ Variances Report</button>
+                            <button onclick="exportReconciliations()" class="btn-success text-sm">💰 Reconciliations Report</button>
                         </div>
                     </div>
                 </div>
@@ -245,11 +183,11 @@
                 <div id="settingsSection" class="section hidden">
                     <div class="bg-white rounded-xl shadow p-6">
                         <h3 class="font-bold text-lg mb-4">System Settings</h3>
-                        <div class="space-y-4">
-                            <div><label class="block text-sm font-semibold mb-1">Diesel Tank Capacity (L)</label><input type="number" id="dieselCapacity" class="input-field" value="10000"></div>
-                            <div><label class="block text-sm font-semibold mb-1">Petrol Tank Capacity (L)</label><input type="number" id="petrolCapacity" class="input-field" value="10000"></div>
-                            <div><label class="block text-sm font-semibold mb-1">Diesel Price (KES/L)</label><input type="number" id="dieselPriceSetting" class="input-field" value="179.00" step="0.01"></div>
-                            <div><label class="block text-sm font-semibold mb-1">Petrol Price (KES/L)</label><input type="number" id="petrolPriceSetting" class="input-field" value="199.50" step="0.01"></div>
+                        <div class="space-y-3">
+                            <div><label class="block text-sm font-semibold">Diesel Tank Capacity (L)</label><input type="number" id="dieselCapacity" class="input-field" value="10000"></div>
+                            <div><label class="block text-sm font-semibold">Petrol Tank Capacity (L)</label><input type="number" id="petrolCapacity" class="input-field" value="10000"></div>
+                            <div><label class="block text-sm font-semibold">Diesel Price (KES/L)</label><input type="number" id="dieselPrice" class="input-field" value="179.00" step="0.01"></div>
+                            <div><label class="block text-sm font-semibold">Petrol Price (KES/L)</label><input type="number" id="petrolPrice" class="input-field" value="199.50" step="0.01"></div>
                             <button onclick="saveSettings()" class="btn-primary">Save Settings</button>
                         </div>
                     </div>
@@ -263,63 +201,45 @@
         <div class="bg-white rounded-2xl p-6 max-w-md w-full mx-4">
             <h3 class="font-bold text-xl mb-4">Add New User</h3>
             <div class="space-y-3">
-                <div><label class="block text-sm font-semibold mb-1">Username *</label><input type="text" id="newUsername" class="input-field w-full" placeholder="Username"></div>
-                <div><label class="block text-sm font-semibold mb-1">Full Name *</label><input type="text" id="newFullname" class="input-field w-full" placeholder="Full Name"></div>
-                <div><label class="block text-sm font-semibold mb-1">Email *</label><input type="email" id="newEmail" class="input-field w-full" placeholder="Email"></div>
-                <div><label class="block text-sm font-semibold mb-1">Password *</label><input type="password" id="newPassword" class="input-field w-full" placeholder="Password"></div>
-                <div><label class="block text-sm font-semibold mb-1">Role</label><select id="newRole" class="input-field w-full"><option value="staff">Staff</option><option value="manager">Manager</option><option value="admin">Admin</option><option value="super_admin">Super Admin</option></select></div>
-                <div><label class="block text-sm font-semibold mb-1">Status</label><select id="newStatus" class="input-field w-full"><option value="1">Active</option><option value="0">Inactive (Pending)</option></select></div>
+                <input type="text" id="newUsername" placeholder="Username" class="input-field w-full">
+                <input type="text" id="newFullname" placeholder="Full Name" class="input-field w-full">
+                <input type="email" id="newEmail" placeholder="Email" class="input-field w-full">
+                <input type="password" id="newPassword" placeholder="Password" class="input-field w-full">
+                <select id="newRole" class="input-field w-full"><option value="staff">Staff</option><option value="manager">Manager</option><option value="admin">Admin</option><option value="super_admin">Super Admin</option></select>
+                <select id="newStatus" class="input-field w-full"><option value="1">Active</option><option value="0">Pending</option></select>
             </div>
-            <div class="flex gap-3 mt-6"><button onclick="createUser()" class="btn-primary flex-1">Create User</button><button onclick="closeUserModal()" class="btn-danger flex-1">Cancel</button></div>
-        </div>
-    </div>
-
-    <!-- Resolve Variance Modal -->
-    <div id="resolveModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 modal">
-        <div class="bg-white rounded-2xl p-6 max-w-md w-full mx-4">
-            <h3 class="font-bold text-xl mb-4">Resolve Variance</h3>
-            <div><label class="block text-sm font-semibold mb-1">Resolution Notes</label><textarea id="resolutionNotes" rows="4" class="input-field w-full" placeholder="Describe how this variance was resolved..."></textarea></div>
-            <div class="flex gap-3 mt-6"><button onclick="submitResolution()" class="btn-primary flex-1">Resolve</button><button onclick="closeResolveModal()" class="btn-danger flex-1">Cancel</button></div>
+            <div class="flex gap-3 mt-6"><button onclick="createUser()" class="btn-primary flex-1">Create</button><button onclick="closeUserModal()" class="btn-danger flex-1">Cancel</button></div>
         </div>
     </div>
 
     <script>
-        const API_URL = window.location.origin + '/api';
+        const API_URL = 'http://localhost:5000/api';
         let deliveries = [], variances = [], reconciliations = [], users = [];
-        let currentVarianceId = null;
-        let filteredDeliveries = [], filteredVariances = [], filteredUsers = [];
-        let deliveryPage = 1, variancePage = 1;
-        let currentUserTab = 'all';
-        const itemsPerPage = 20;
 
         function getToken() { return localStorage.getItem('moreva_token'); }
         function getUser() { const u = localStorage.getItem('moreva_user'); return u ? JSON.parse(u) : null; }
 
-        function showToast(msg, type = "success") {
+        function showToast(msg, type) {
             const toast = document.createElement("div"); toast.className = "toast-notif";
-            toast.style.background = type === "error" ? "#dc2626" : type === "info" ? "#3b82f6" : "#10b981";
-            toast.innerHTML = `<i class="fa-solid ${type === "error" ? "fa-circle-exclamation" : "fa-circle-check"} mr-2"></i> ${msg}`;
+            toast.style.background = type === "error" ? "#dc2626" : "#10b981";
+            toast.innerHTML = msg;
             document.body.appendChild(toast); setTimeout(() => toast.remove(), 3000);
         }
 
-        function refreshCurrentSection() {
-            const activeSection = document.querySelector('.section.active').id.replace('Section', '');
-            if (activeSection === 'overview') loadDashboardStats();
-            if (activeSection === 'users') loadUsers();
-            if (activeSection === 'deliveries') loadAllDeliveries();
-            if (activeSection === 'variances') loadAllVariances();
-            if (activeSection === 'reconciliations') loadAllReconciliations();
-            showToast('Refreshed successfully', 'info');
+        function refreshAllData() {
+            loadDashboardStats();
+            if (document.getElementById('usersSection').classList.contains('active')) loadUsers();
+            if (document.getElementById('deliveriesSection').classList.contains('active')) loadAllDeliveries();
+            if (document.getElementById('variancesSection').classList.contains('active')) loadAllVariances();
+            if (document.getElementById('reconciliationsSection').classList.contains('active')) loadAllReconciliations();
+            showToast('Refreshed!', 'success');
         }
 
         function showSection(section) {
             document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
             document.getElementById(`${section}Section`).classList.add('active');
             document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
-            if (event && event.target) {
-                const btn = event.target.closest('.nav-btn');
-                if (btn) btn.classList.add('active');
-            }
+            if (event && event.target) event.target.closest('.nav-btn').classList.add('active');
             document.getElementById('pageTitle').innerText = section.charAt(0).toUpperCase() + section.slice(1);
             
             if (section === 'users') loadUsers();
@@ -338,101 +258,60 @@
                     fetch(`${API_URL}/variances`, { headers: { 'Authorization': `Bearer ${token}` } }),
                     fetch(`${API_URL}/users`, { headers: { 'Authorization': `Bearer ${token}` } })
                 ]);
-                if (deliveriesRes.ok) deliveries = await deliveriesRes.json();
-                if (variancesRes.ok) variances = await variancesRes.json();
-                if (usersRes.ok) users = await usersRes.json();
+                deliveries = await deliveriesRes.json();
+                variances = await variancesRes.json();
+                users = await usersRes.json();
                 
-                const pendingUsersCount = users.filter(u => !u.is_active).length;
+                const pendingCount = users.filter(u => !u.is_active).length;
                 document.getElementById('totalUsers').innerText = users.length;
-                document.getElementById('pendingUsers').innerText = pendingUsersCount;
+                document.getElementById('pendingUsers').innerText = pendingCount;
                 document.getElementById('totalDeliveries').innerText = deliveries.length;
                 document.getElementById('pendingVariances').innerText = variances.filter(v => v.status === 'Pending').length;
                 
-                const pendingBadge = document.getElementById('pendingBadge');
-                if (pendingUsersCount > 0) {
-                    pendingBadge.innerText = pendingUsersCount;
-                    pendingBadge.classList.remove('hidden');
-                } else {
-                    pendingBadge.classList.add('hidden');
-                }
+                const badge = document.getElementById('pendingBadge');
+                if (pendingCount > 0) { badge.innerText = pendingCount; badge.classList.remove('hidden'); }
+                else { badge.classList.add('hidden'); }
                 
-                const pendingForTable = users.filter(u => !u.is_active).slice(0, 5);
-                document.getElementById('pendingUsersTable').innerHTML = pendingForTable.length ? pendingForTable.map(u => `<tr class="border-b"><td class="p-2">${u.full_name || '-'}<\/td><td class="p-2">${u.username}<\/td><td class="p-2">${u.email || '-'}<\/td><td class="p-2">${u.created_at ? new Date(u.created_at).toLocaleDateString() : '-'}<\/td><td class="p-2"><button onclick="approveUser(${u.id})" class="action-btn approve"><i class="fas fa-check"></i> Approve</button> <button onclick="rejectUser(${u.id})" class="action-btn delete"><i class="fas fa-times"></i> Reject</button><\/td><\/tr>`).join('') : '<tr><td colspan="5" class="text-center py-4">No pending requests<\/tr>';
+                const pendingTable = users.filter(u => !u.is_active).slice(0, 5);
+                document.getElementById('pendingUsersTable').innerHTML = pendingTable.length ? pendingTable.map(u => `<tr><td class="p-2">${u.full_name || '-'}<\/td><td class="p-2">${u.username}<\/td><td class="p-2">${u.email || '-'}<\/td><td class="p-2">${new Date(u.created_at).toLocaleDateString()}<\/td><td class="p-2"><button onclick="approveUser(${u.id})" class="action-btn approve px-2 py-1 rounded text-xs"><i class="fas fa-check"></i> Approve</button> <button onclick="deleteUser(${u.id})" class="action-btn delete px-2 py-1 rounded text-xs"><i class="fas fa-trash"></i> Reject</button><\/td><\/tr>`).join('') : '<tr><td colspan="5" class="text-center py-4">No pending requests<\/tr>';
                 
-                const recentVariances = variances.slice(0, 5);
-                document.getElementById('recentVariances').innerHTML = recentVariances.length ? recentVariances.map(v => `<tr class="border-b"><td class="p-2">${v.date || '-'}<\/td><td class="p-2">${v.fuel_type || '-'}<\/td><td class="text-red-600">${v.amount}L<\/td><td class="p-2"><span class="${v.status === 'Resolved' ? 'badge-success' : 'badge-warning'} badge">${v.status || 'Pending'}<\/span><\/td><\/tr>`).join('') : '<tr><td colspan="4" class="text-center py-4">No variances<\/tr>';
-            } catch(e) { console.error('Dashboard stats error:', e); showToast('Error loading dashboard data', 'error'); }
+                const recentVars = variances.slice(0, 5);
+                document.getElementById('recentVariances').innerHTML = recentVars.length ? recentVars.map(v => `<tr><td class="p-2">${v.date || '-'}<\/td><td class="p-2">${v.fuel_type || '-'}<\/td><td class="text-red-600">${v.amount}L<\/td><td class="p-2"><span class="${v.status === 'Resolved' ? 'badge-success' : 'badge-warning'} badge">${v.status}<\/span><\/td><\/tr>`).join('') : '<tr><td colspan="4" class="text-center py-4">No variances<\/tr>';
+            } catch(e) { console.error(e); showToast('Error loading stats', 'error'); }
         }
 
         async function loadUsers() {
             const token = getToken();
             if (!token) return;
             try {
-                const response = await fetch(`${API_URL}/users`, { headers: { 'Authorization': `Bearer ${token}` } });
-                if (response.ok) users = await response.json();
-                const pendingCount = users.filter(u => !u.is_active).length;
-                document.getElementById('pendingCountBadge').innerText = pendingCount;
+                const res = await fetch(`${API_URL}/users`, { headers: { 'Authorization': `Bearer ${token}` } });
+                if (res.ok) users = await res.json();
                 filterUsers();
-            } catch(e) { console.error('Load users error:', e); showToast('Error loading users', 'error'); }
-        }
-
-        function switchUserTab(tab) {
-            currentUserTab = tab;
-            document.querySelectorAll('.user-tab').forEach(t => t.classList.remove('active-tab'));
-            document.querySelector(`.user-tab[data-tab="${tab}"]`).classList.add('active-tab');
-            filterUsers();
+            } catch(e) { console.error(e); showToast('Error loading users', 'error'); }
         }
 
         function filterUsers() {
-            const searchTerm = document.getElementById('userSearch')?.value.toLowerCase() || '';
-            filteredUsers = users.filter(u => {
-                const matchesSearch = u.username?.toLowerCase().includes(searchTerm) || 
-                    u.full_name?.toLowerCase().includes(searchTerm) ||
-                    u.email?.toLowerCase().includes(searchTerm);
-                if (currentUserTab === 'pending') return matchesSearch && !u.is_active;
-                if (currentUserTab === 'active') return matchesSearch && u.is_active;
-                return matchesSearch;
-            });
-            renderUsersTable();
+            const search = document.getElementById('userSearch')?.value.toLowerCase() || '';
+            const filtered = users.filter(u => u.username?.toLowerCase().includes(search) || u.full_name?.toLowerCase().includes(search) || u.email?.toLowerCase().includes(search));
+            document.getElementById('usersTable').innerHTML = filtered.length ? filtered.map(u => `<tr class="border-b"><td class="p-2">${u.id}<\/td><td class="p-2">${u.username}<\/td><td class="p-2">${u.full_name || '-'}<\/td><td class="p-2">${u.email || '-'}<\/td><td class="p-2"><span class="badge-info badge">${u.role}<\/span><\/td><td class="p-2">${u.is_active ? '<span class="badge-success badge">Active</span>' : '<span class="badge-pending badge">Pending</span>'}<\/td><td class="p-2">${!u.is_active ? `<button onclick="approveUser(${u.id})" class="action-btn approve px-2 py-1 rounded text-xs"><i class="fas fa-check"></i> Approve</button>` : ''}<button onclick="deleteUser(${u.id})" class="action-btn delete px-2 py-1 rounded text-xs"><i class="fas fa-trash"></i><\/button><\/td><\/tr>`).join('') : '<tr><td colspan="7" class="text-center py-4">No users found<\/tr>';
         }
 
-        function renderUsersTable() {
-            const tbody = document.getElementById('usersTable');
-            if (!tbody) return;
-            tbody.innerHTML = filteredUsers.length ? filteredUsers.map(u => `<tr class="border-b"><td class="p-2">${u.id}<\/td><td class="p-2">${u.username}<\/td><td class="p-2">${u.full_name || '-'}<\/td><td class="p-2">${u.email || '-'}<\/td><td class="p-2"><span class="badge-info badge">${u.role}<\/span><\/td><td class="p-2">${u.is_active ? '<span class="badge-success badge">Active</span>' : '<span class="badge-pending badge">Pending</span>'}<\/td><td class="p-2">${u.last_login ? new Date(u.last_login).toLocaleDateString() : '-'}<\/td><td class="p-2">${!u.is_active ? `<button onclick="approveUser(${u.id})" class="action-btn approve"><i class="fas fa-check"></i> Approve</button>` : ''}<button onclick="deleteUser(${u.id})" class="action-btn delete"><i class="fas fa-trash"></i></button><\/td><\/tr>`).join('') : '<tr><td colspan="8" class="text-center py-4">No users found<\/tr>';
-        }
-
-        async function approveUser(userId) {
+        async function approveUser(id) {
             const token = getToken();
             try {
-                const response = await fetch(`${API_URL}/users/${userId}/approve`, {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }
-                });
-                if (response.ok) {
-                    showToast('User approved successfully');
-                    await loadUsers();
-                    await loadDashboardStats();
-                } else {
-                    const error = await response.json();
-                    showToast(error.error || 'Error approving user', 'error');
-                }
+                const res = await fetch(`${API_URL}/users/${id}/approve`, { method: 'PUT', headers: { 'Authorization': `Bearer ${token}` } });
+                if (res.ok) { showToast('User approved', 'success'); loadUsers(); loadDashboardStats(); }
+                else showToast('Error', 'error');
             } catch(e) { showToast('Server error', 'error'); }
         }
 
-        async function rejectUser(userId) {
-            if (!confirm('Reject and delete this user registration?')) return;
+        async function deleteUser(id) {
+            if (!confirm('Delete this user?')) return;
             const token = getToken();
             try {
-                const response = await fetch(`${API_URL}/users/${userId}`, {
-                    method: 'DELETE',
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
-                if (response.ok) {
-                    showToast('User registration rejected and removed');
-                    await loadUsers();
-                    await loadDashboardStats();
-                } else showToast('Error rejecting user', 'error');
+                const res = await fetch(`${API_URL}/users/${id}`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${token}` } });
+                if (res.ok) { showToast('User deleted', 'success'); loadUsers(); loadDashboardStats(); }
+                else showToast('Error', 'error');
             } catch(e) { showToast('Server error', 'error'); }
         }
 
@@ -440,82 +319,30 @@
             const token = getToken();
             if (!token) return;
             try {
-                const response = await fetch(`${API_URL}/deliveries`, { headers: { 'Authorization': `Bearer ${token}` } });
-                if (response.ok) deliveries = await response.json();
-                filterDeliveries();
-            } catch(e) { console.error('Load deliveries error:', e); showToast('Error loading deliveries', 'error'); }
+                const res = await fetch(`${API_URL}/deliveries`, { headers: { 'Authorization': `Bearer ${token}` } });
+                if (res.ok) deliveries = await res.json();
+                document.getElementById('allDeliveriesTable').innerHTML = deliveries.length ? deliveries.slice(0, 50).map(d => `<tr class="border-b"><td class="p-2">${d.id}<\/td><td class="p-2">${new Date(d.recorded_at).toLocaleDateString()}<\/td><td class="p-2">${d.fuel_type}<\/td><td class="p-2">${d.driver_name}<\/td><td class="p-2">${d.declared_litres}L<\/td><td class="p-2">${d.actual_gain}L<\/td><td class="${d.variance<0?'text-red-600':'text-green-600'}">${d.variance}L<\/td><td class="p-2"><span class="badge-success badge">${d.status}<\/span><\/td><\/tr>`).join('') : '<tr><td colspan="8" class="text-center py-4">No deliveries<\/tr>';
+            } catch(e) { console.error(e); showToast('Error loading deliveries', 'error'); }
         }
-
-        function filterDeliveries() {
-            const searchTerm = document.getElementById('deliverySearch')?.value.toLowerCase() || '';
-            const fuelFilter = document.getElementById('deliveryFuelFilter')?.value || '';
-            filteredDeliveries = deliveries.filter(d => 
-                (d.driver_name?.toLowerCase().includes(searchTerm) || d.fuel_type?.toLowerCase().includes(searchTerm)) &&
-                (!fuelFilter || d.fuel_type === fuelFilter)
-            );
-            deliveryPage = 1;
-            renderDeliveriesTable();
-        }
-
-        function renderDeliveriesTable() {
-            const start = (deliveryPage - 1) * itemsPerPage;
-            const paginated = filteredDeliveries.slice(start, start + itemsPerPage);
-            document.getElementById('allDeliveriesTable').innerHTML = paginated.length ? paginated.map(d => `<tr class="border-b"><td class="p-2">${d.id}<\/td><td class="p-2">${new Date(d.recorded_at).toLocaleDateString()}<\/td><td class="p-2">${d.fuel_type}<\/td><td class="p-2">${d.driver_name}<\/td><td class="p-2">${d.pre_dip || 0}L<\/td><td class="p-2">${d.declared_litres}L<\/td><td class="p-2">${d.post_dip || 0}L<\/td><td class="p-2">${d.actual_gain}L<\/td><td class="${d.variance<0?'text-red-600':'text-green-600'}">${d.variance}L<\/td><td class="p-2"><span class="badge-success badge">${d.status}<\/span><\/td><\/tr>`).join('') : '<tr><td colspan="10" class="text-center py-4">No deliveries found<\/tr>';
-            const totalPages = Math.ceil(filteredDeliveries.length / itemsPerPage);
-            let paginationHtml = '';
-            for (let i = 1; i <= Math.min(totalPages, 10); i++) {
-                paginationHtml += `<button class="page-btn ${deliveryPage === i ? 'active' : ''}" onclick="goToDeliveryPage(${i})">${i}</button>`;
-            }
-            document.getElementById('deliveriesPagination').innerHTML = paginationHtml;
-        }
-
-        function goToDeliveryPage(page) { deliveryPage = page; renderDeliveriesTable(); }
 
         async function loadAllVariances() {
             const token = getToken();
             if (!token) return;
             try {
-                const response = await fetch(`${API_URL}/variances`, { headers: { 'Authorization': `Bearer ${token}` } });
-                if (response.ok) variances = await response.json();
-                filterVariances();
-            } catch(e) { console.error('Load variances error:', e); showToast('Error loading variances', 'error'); }
-        }
-
-        function filterVariances() {
-            const statusFilter = document.getElementById('varianceStatusFilter')?.value || '';
-            filteredVariances = variances.filter(v => !statusFilter || v.status === statusFilter);
-            renderVariancesTable();
-        }
-
-        function renderVariancesTable() {
-            document.getElementById('allVariancesTable').innerHTML = filteredVariances.length ? filteredVariances.map(v => `<tr class="border-b"><td class="p-2">${v.id}<\/td><td class="p-2">${v.date || '-'}<\/td><td class="p-2">${v.fuel_type || '-'}<\/td><td class="p-2">${v.expected_stock ? v.expected_stock+'L' : '-'}<\/td><td class="p-2">${v.actual_stock ? v.actual_stock+'L' : '-'}<\/td><td class="text-red-600">${v.amount}L<\/td><td class="max-w-md truncate" title="${v.cause || ''}">${(v.cause || '-').substring(0, 50)}<\/td><td class="p-2"><span class="${v.status === 'Resolved' ? 'badge-success' : 'badge-warning'} badge">${v.status || 'Pending'}<\/span><\/td><td class="p-2">${v.status !== 'Resolved' ? `<button onclick="openResolveModal(${v.id})" class="action-btn edit"><i class="fas fa-check"></i> Resolve</button>` : '-'}<\/td><\/tr>`).join('') : '<tr><td colspan="9" class="text-center py-4">No variances found<\/tr>';
-        }
-
-        function openResolveModal(varianceId) { currentVarianceId = varianceId; document.getElementById('resolveModal').classList.remove('hidden'); document.getElementById('resolveModal').classList.add('flex'); }
-        function closeResolveModal() { document.getElementById('resolveModal').classList.add('hidden'); document.getElementById('resolveModal').classList.remove('flex'); document.getElementById('resolutionNotes').value = ''; currentVarianceId = null; }
-        
-        async function submitResolution() {
-            const resolution = document.getElementById('resolutionNotes').value;
-            if (!resolution) { showToast('Please enter resolution notes', 'error'); return; }
-            const token = getToken();
-            try {
-                const response = await fetch(`${API_URL}/variances/${currentVarianceId}/resolve`, {
-                    method: 'PUT', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-                    body: JSON.stringify({ resolution_notes: resolution })
-                });
-                if (response.ok) { showToast('Variance resolved successfully'); closeResolveModal(); loadAllVariances(); loadDashboardStats(); }
-                else showToast('Error resolving variance', 'error');
-            } catch(e) { showToast('Server error', 'error'); }
+                const res = await fetch(`${API_URL}/variances`, { headers: { 'Authorization': `Bearer ${token}` } });
+                if (res.ok) variances = await res.json();
+                document.getElementById('allVariancesTable').innerHTML = variances.length ? variances.slice(0, 50).map(v => `<tr class="border-b"><td class="p-2">${v.id}<\/td><td class="p-2">${v.date || '-'}<\/td><td class="p-2">${v.fuel_type || '-'}<\/td><td class="text-red-600">${v.amount}L<\/td><td class="p-2"><span class="${v.status === 'Resolved' ? 'badge-success' : 'badge-warning'} badge">${v.status}<\/span><\/td><\/tr>`).join('') : '<tr><td colspan="5" class="text-center py-4">No variances<\/tr>';
+            } catch(e) { console.error(e); showToast('Error loading variances', 'error'); }
         }
 
         async function loadAllReconciliations() {
             const token = getToken();
             if (!token) return;
             try {
-                const response = await fetch(`${API_URL}/reconciliation/history`, { headers: { 'Authorization': `Bearer ${token}` } });
-                if (response.ok) reconciliations = await response.json();
-                document.getElementById('reconciliationsTable').innerHTML = reconciliations.length ? reconciliations.map(r => `<tr class="border-b"><td class="p-2">${r.id}<\/td><td class="p-2">${r.record_date}<\/td><td class="p-2">KES ${(r.expected_cash || 0).toLocaleString()}<\/td><td class="p-2">KES ${(r.actual_cash || 0).toLocaleString()}<\/td><td class="${r.variance<0?'text-red-600':'text-green-600'}">KES ${Math.abs(r.variance || 0).toLocaleString()}<\/td><td class="p-2"><span class="${r.status === 'BALANCED' ? 'badge-success' : 'badge-warning'} badge">${r.status || 'Pending'}<\/span><\/td><td class="p-2">${r.recorded_by_name || 'System'}<\/td><\/tr>`).join('') : '<tr><td colspan="7" class="text-center py-4">No reconciliations found<\/tr>';
-            } catch(e) { console.error('Load reconciliations error:', e); showToast('Error loading reconciliations', 'error'); }
+                const res = await fetch(`${API_URL}/reconciliation/history`, { headers: { 'Authorization': `Bearer ${token}` } });
+                if (res.ok) reconciliations = await res.json();
+                document.getElementById('reconciliationsTable').innerHTML = reconciliations.length ? reconciliations.slice(0, 50).map(r => `<tr class="border-b"><td class="p-2">${r.id}<\/td><td class="p-2">${r.record_date}<\/td><td class="p-2">KES ${(r.expected_cash || 0).toLocaleString()}<\/td><td class="p-2">KES ${(r.actual_cash || 0).toLocaleString()}<\/td><td class="${r.variance<0?'text-red-600':'text-green-600'}">KES ${Math.abs(r.variance || 0).toLocaleString()}<\/td><\/tr>`).join('') : '<tr><td colspan="5" class="text-center py-4">No reconciliations<\/tr>';
+            } catch(e) { console.error(e); showToast('Error loading reconciliations', 'error'); }
         }
 
         async function createUser() {
@@ -529,64 +356,26 @@
                 is_active: parseInt(document.getElementById('newStatus').value)
             };
             if (!data.username || !data.full_name || !data.email || !data.password) {
-                showToast('Please fill all required fields', 'error');
-                return;
+                showToast('Please fill all fields', 'error'); return;
             }
             try {
-                const response = await fetch(`${API_URL}/auth/signup`, {
+                const res = await fetch(`${API_URL}/users`, {
                     method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
                     body: JSON.stringify(data)
                 });
-                if (response.ok) { 
-                    showToast('User created successfully'); 
-                    closeUserModal(); 
-                    loadUsers();
-                    loadDashboardStats();
-                } else {
-                    const error = await response.json();
-                    showToast(error.error || 'Error creating user', 'error');
-                }
+                if (res.ok) { showToast('User created', 'success'); closeUserModal(); loadUsers(); loadDashboardStats(); }
+                else showToast('Error creating user', 'error');
             } catch(e) { showToast('Server error', 'error'); }
         }
 
-        async function deleteUser(userId) { 
-            if (!confirm('Delete this user permanently?')) return;
-            const token = getToken();
-            try {
-                const response = await fetch(`${API_URL}/users/${userId}`, {
-                    method: 'DELETE',
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
-                if (response.ok) {
-                    showToast('User deleted');
-                    loadUsers();
-                    loadDashboardStats();
-                } else showToast('Error deleting user', 'error');
-            } catch(e) { showToast('Server error', 'error'); }
+        function showAddUserModal() { 
+            document.getElementById('addUserModal').classList.remove('hidden'); 
+            document.getElementById('addUserModal').classList.add('flex'); 
         }
-
-        function showAddUserModal() { document.getElementById('addUserModal').classList.remove('hidden'); document.getElementById('addUserModal').classList.add('flex'); }
         function closeUserModal() { 
             document.getElementById('addUserModal').classList.add('hidden'); 
             document.getElementById('addUserModal').classList.remove('flex');
             ['newUsername', 'newFullname', 'newEmail', 'newPassword'].forEach(id => document.getElementById(id).value = '');
-        }
-
-        let currentReportData = [];
-        function generateReport(type) {
-            const startDate = document.getElementById('reportStartDate').value;
-            const endDate = document.getElementById('reportEndDate').value;
-            if (type === 'deliveries') {
-                currentReportData = deliveries.filter(d => (!startDate || d.delivery_date >= startDate) && (!endDate || d.delivery_date <= endDate));
-                exportToExcel(currentReportData, 'Deliveries_Report');
-            } else if (type === 'variances') {
-                currentReportData = variances.filter(v => (!startDate || v.date >= startDate) && (!endDate || v.date <= endDate));
-                exportToExcel(currentReportData, 'Variances_Report');
-            }
-        }
-
-        function exportToExcelReport() {
-            exportToExcel(reconciliations, 'Reconciliations_Report');
         }
 
         function exportToExcel(data, filename) {
@@ -597,22 +386,25 @@
             const wb = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(wb, ws, filename);
             XLSX.writeFile(wb, `${filename}_${new Date().toISOString().split('T')[0]}.xlsx`);
-            showToast('Report exported');
+            showToast('Exported', 'success');
         }
+        function exportDeliveries() { exportToExcel(deliveries, 'Deliveries_Report'); }
+        function exportVariances() { exportToExcel(variances, 'Variances_Report'); }
+        function exportReconciliations() { exportToExcel(reconciliations, 'Reconciliations_Report'); }
 
         function saveSettings() {
             localStorage.setItem('diesel_capacity', document.getElementById('dieselCapacity').value);
             localStorage.setItem('petrol_capacity', document.getElementById('petrolCapacity').value);
-            localStorage.setItem('diesel_price', document.getElementById('dieselPriceSetting').value);
-            localStorage.setItem('petrol_price', document.getElementById('petrolPriceSetting').value);
-            showToast('Settings saved');
+            localStorage.setItem('diesel_price', document.getElementById('dieselPrice').value);
+            localStorage.setItem('petrol_price', document.getElementById('petrolPrice').value);
+            showToast('Settings saved', 'success');
         }
 
         function loadSettings() {
             document.getElementById('dieselCapacity').value = localStorage.getItem('diesel_capacity') || 10000;
             document.getElementById('petrolCapacity').value = localStorage.getItem('petrol_capacity') || 10000;
-            document.getElementById('dieselPriceSetting').value = localStorage.getItem('diesel_price') || 179.00;
-            document.getElementById('petrolPriceSetting').value = localStorage.getItem('petrol_price') || 199.50;
+            document.getElementById('dieselPrice').value = localStorage.getItem('diesel_price') || 179.00;
+            document.getElementById('petrolPrice').value = localStorage.getItem('petrol_price') || 199.50;
         }
 
         function logout() { localStorage.clear(); window.location.href = '/'; }
@@ -623,12 +415,9 @@
         
         document.getElementById('adminName').innerHTML = user?.full_name || user?.username || 'Admin';
         document.getElementById('adminRole').innerHTML = user?.role || 'Administrator';
-        document.querySelector('.nav-btn')?.classList.add('active');
         
         loadDashboardStats();
         loadSettings();
-        loadAllDeliveries();
-        loadAllVariances();
     </script>
 </body>
 </html>
