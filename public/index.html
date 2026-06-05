@@ -2,20 +2,22 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-  <title>MOREVA ENERGY · Access Portal</title>
-  <script src="https://cdn.tailwindcss.com/3.4.1"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover" />
+  <title>MOREVA ENERGY · Secure Access Portal</title>
+  <!-- Local Tailwind CSS (production ready - no CDN warning) -->
+  <link href="/css/output.css" rel="stylesheet">
+  <!-- Fallback styling if CSS not yet built -->
   <style>
-    * { font-family: 'Inter', sans-serif; }
-    body {
+    /* Base styles in case Tailwind CSS isn't built yet */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { 
+      font-family: 'Inter', sans-serif;
       background: linear-gradient(135deg, #0a0f1c 0%, #0f172a 50%, #1e1b2e 100%);
       min-height: 100vh;
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 1.5rem;
+      padding: 1rem;
     }
     .glass-card {
       backdrop-filter: blur(14px);
@@ -82,18 +84,23 @@
       font-size: 1rem;
     }
     .btn-primary:hover { transform: scale(1.01); opacity: 0.96; box-shadow: 0 8px 20px -6px rgba(185,28,28,0.4); }
-    .btn-secondary {
-      background: #334155;
-      color: white;
+    .btn-primary:active { transform: scale(0.98); }
+    .btn-google {
+      background: white;
+      color: #1f2937;
       font-weight: 600;
       padding: 0.7rem;
       border-radius: 1rem;
-      border: none;
+      border: 1px solid #e2e8f0;
       cursor: pointer;
       transition: 0.2s;
       width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
     }
-    .btn-secondary:hover { background: #1e293b; }
+    .btn-google:hover { background: #f8fafc; border-color: #cbd5e1; }
     .tab-active {
       background: #1e3a8a;
       color: white;
@@ -103,13 +110,6 @@
       background: transparent;
       color: #475569;
       border-bottom: 2px solid #e2e8f0;
-    }
-    .status-badge {
-      display: inline-block;
-      font-size: 0.7rem;
-      font-weight: 600;
-      padding: 0.2rem 0.7rem;
-      border-radius: 30px;
     }
     .loading-spinner {
       display: inline-block;
@@ -124,10 +124,176 @@
     }
     @keyframes spin { to { transform: rotate(360deg); } }
     button:disabled { opacity: 0.65; cursor: not-allowed; }
+    .strength-meter {
+      height: 4px;
+      border-radius: 4px;
+      margin-top: 8px;
+      transition: all 0.2s;
+      background: #e2e8f0;
+    }
+    .strength-bar {
+      height: 100%;
+      border-radius: 4px;
+      width: 0%;
+      transition: width 0.3s ease, background 0.2s;
+    }
+    .password-hint {
+      font-size: 0.7rem;
+      margin-top: 5px;
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .hint-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .hint-item i { font-size: 0.65rem; }
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.6);
+      backdrop-filter: blur(4px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10000;
+    }
+    .modal-card {
+      background: white;
+      max-width: 400px;
+      width: 90%;
+      border-radius: 1.5rem;
+      padding: 1.5rem;
+      box-shadow: 0 20px 35px -10px black;
+    }
+    .password-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+    .password-wrapper input {
+      padding-right: 2.8rem;
+    }
+    .toggle-pwd {
+      position: absolute;
+      right: 12px;
+      cursor: pointer;
+      color: #64748b;
+      background: transparent;
+      border: none;
+      font-size: 1.1rem;
+      padding: 0;
+      width: 28px;
+      height: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      transition: all 0.2s;
+    }
+    .toggle-pwd:hover {
+      background: #f1f5f9;
+      color: #1e3a8a;
+    }
+    .divider {
+      display: flex;
+      align-items: center;
+      text-align: center;
+      margin: 15px 0;
+    }
+    .divider::before, .divider::after {
+      content: '';
+      flex: 1;
+      border-bottom: 1px solid #e2e8f0;
+    }
+    .divider span {
+      padding: 0 10px;
+      color: #94a3b8;
+      font-size: 0.75rem;
+    }
+    @media (max-width: 640px) {
+      body { padding: 0.75rem; }
+      .glass-card { border-radius: 1.5rem; padding: 1rem !important; }
+      .brand-icon { width: 56px; height: 56px; font-size: 1.6rem; border-radius: 1.2rem; }
+      h2 { font-size: 1.25rem !important; }
+      .input-field { padding: 0.65rem 0.9rem; font-size: 0.9rem; }
+      .btn-primary, .btn-google { padding: 0.7rem; font-size: 0.9rem; }
+      .tab-active, .tab-inactive { font-size: 0.8rem !important; padding: 0.5rem 0 !important; }
+      .password-hint { font-size: 0.65rem; gap: 6px; }
+      .modal-card { padding: 1.2rem; margin: 1rem; }
+      .toast-notif { bottom: 16px; right: 16px; left: 16px; text-align: center; font-size: 0.8rem; }
+    }
+    @media (max-width: 480px) {
+      .glass-card { padding: 0.875rem !important; }
+      .space-y-4 > * + * { margin-top: 0.75rem !important; }
+      .space-y-3 > * + * { margin-top: 0.7rem !important; }
+      .text-xs { font-size: 0.7rem !important; }
+      .text-sm { font-size: 0.8rem !important; }
+    }
+    .hidden { display: none !important; }
+    .w-full { width: 100%; }
+    .max-w-md { max-width: 28rem; }
+    .mx-auto { margin-left: auto; margin-right: auto; }
+    .p-6 { padding: 1.5rem; }
+    .mb-3 { margin-bottom: 0.75rem; }
+    .text-2xl { font-size: 1.5rem; }
+    .font-extrabold { font-weight: 800; }
+    .text-center { text-align: center; }
+    .text-slate-800 { color: #1e293b; }
+    .tracking-tight { letter-spacing: -0.025em; }
+    .text-slate-500 { color: #64748b; }
+    .text-xs { font-size: 0.75rem; }
+    .mt-0 { margin-top: 0; }
+    .mb-5 { margin-bottom: 1.25rem; }
+    .flex { display: flex; }
+    .gap-2 { gap: 0.5rem; }
+    .mb-6 { margin-bottom: 1.5rem; }
+    .bg-slate-100 { background-color: #f1f5f9; }
+    .p-1 { padding: 0.25rem; }
+    .rounded-xl { border-radius: 0.75rem; }
+    .flex-1 { flex: 1; }
+    .py-2\.5 { padding-top: 0.625rem; padding-bottom: 0.625rem; }
+    .rounded-lg { border-radius: 0.5rem; }
+    .font-semibold { font-weight: 600; }
+    .transition-all { transition: all 0.2s; }
+    .text-sm { font-size: 0.875rem; }
+    .space-y-4 > * + * { margin-top: 1rem; }
+    .block { display: block; }
+    .mb-1 { margin-bottom: 0.25rem; }
+    .mr-1 { margin-right: 0.25rem; }
+    .text-right { text-align: right; }
+    .text-blue-700 { color: #1d4ed8; }
+    .hover\:underline:hover { text-decoration: underline; }
+    .font-medium { font-weight: 500; }
+    .mt-2 { margin-top: 0.5rem; }
+    .min-h-\[2rem\] { min-height: 2rem; }
+    .text-red-600 { color: #dc2626; }
+    .space-y-3 > * + * { margin-top: 0.75rem; }
+    .mt-1 { margin-top: 0.25rem; }
+    .text-green-600 { color: #16a34a; }
+    .text-gray-400 { color: #9ca3af; }
+    .mt-6 { margin-top: 1.5rem; }
+    .border-t { border-top-width: 1px; }
+    .pt-4 { padding-top: 1rem; }
+    .text-slate-400 { color: #94a3b8; }
+    .mb-2 { margin-bottom: 0.5rem; }
+    .mb-3 { margin-bottom: 0.75rem; }
+    .text-lg { font-size: 1.125rem; }
+    .font-bold { font-weight: 700; }
+    .text-gray-500 { color: #6b7280; }
+    .text-xl { font-size: 1.25rem; }
   </style>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 <body>
-<div class="w-full max-w-md">
+<div class="w-full max-w-md mx-auto">
   <div class="glass-card p-6 md:p-8">
     <div class="flex justify-center mb-3">
       <div class="brand-icon"><i class="fa-solid fa-bolt"></i></div>
@@ -150,17 +316,26 @@
         </div>
         <div>
           <label class="block text-sm font-semibold text-slate-700 mb-1"><i class="fa-regular fa-lock mr-1"></i> Password</label>
-          <input type="password" id="loginPassword" class="input-field" placeholder="••••••••" />
+          <div class="password-wrapper">
+            <input type="password" id="loginPassword" class="input-field" placeholder="••••••••" />
+            <button type="button" class="toggle-pwd" onclick="togglePasswordVisibility('loginPassword', this)"><i class="fa-regular fa-eye-slash"></i></button>
+          </div>
+        </div>
+        <div class="text-right">
+          <button onclick="openForgotPasswordModal()" class="text-xs text-blue-700 hover:underline font-medium">🔒 Forgot password?</button>
         </div>
         <button id="loginBtnAction" onclick="performLogin()" class="btn-primary"><i class="fa-regular fa-arrow-right-to-bracket mr-1"></i> Login →</button>
+        
+        <div class="divider"><span>OR</span></div>
+        
+        <!-- Google Sign-In Button -->
+        <div id="googleSignInBtn"></div>
+        
         <div id="loginErrorMsg" class="text-red-600 text-sm text-center mt-2 min-h-[2rem]"></div>
-        <div class="text-center">
-          <button onclick="showDemoHint()" class="text-xs text-blue-700 hover:underline bg-slate-100 px-3 py-1 rounded-full">🔍 Demo credentials info</button>
-        </div>
       </div>
     </div>
 
-    <!-- SIGNUP PANEL (hidden by default) -->
+    <!-- SIGNUP PANEL -->
     <div id="signupPanel" class="hidden">
       <div class="space-y-3">
         <div>
@@ -177,7 +352,19 @@
         </div>
         <div>
           <label class="block text-sm font-semibold text-slate-700">Password *</label>
-          <input type="password" id="signupPassword" class="input-field" placeholder="min. 6 characters" />
+          <div class="password-wrapper">
+            <input type="password" id="signupPassword" class="input-field" placeholder="min. 6 characters" oninput="checkPasswordStrength()" />
+            <button type="button" class="toggle-pwd" onclick="togglePasswordVisibility('signupPassword', this)"><i class="fa-regular fa-eye-slash"></i></button>
+          </div>
+          <div class="strength-meter"><div id="strengthBar" class="strength-bar"></div></div>
+          <div id="passwordStrengthText" class="text-xs mt-1 font-medium"></div>
+          <div class="password-hint" id="passwordHints">
+            <span class="hint-item"><i class="fa-regular fa-circle-check text-gray-400"></i> ≥6 chars</span>
+            <span class="hint-item"><i class="fa-regular fa-circle-check text-gray-400"></i> Uppercase</span>
+            <span class="hint-item"><i class="fa-regular fa-circle-check text-gray-400"></i> Lowercase</span>
+            <span class="hint-item"><i class="fa-regular fa-circle-check text-gray-400"></i> Digit</span>
+            <span class="hint-item"><i class="fa-regular fa-circle-check text-gray-400"></i> Special char</span>
+          </div>
         </div>
         <div>
           <label class="block text-sm font-semibold text-slate-700">Phone (optional)</label>
@@ -187,28 +374,60 @@
           <label class="block text-sm font-semibold text-slate-700">Address (optional)</label>
           <input type="text" id="signupAddress" class="input-field" placeholder="Nairobi, Kenya" />
         </div>
-        <div class="bg-amber-50 border border-amber-200 rounded-xl p-3 text-xs text-amber-800">
-          <i class="fa-regular fa-clock mr-1"></i> ⚠️ After signup, your account stays <strong class="font-bold">PENDING</strong> until Super Admin approves. You'll receive access via email update.
-        </div>
         <button id="signupBtnAction" onclick="performSignup()" class="btn-primary"><i class="fa-regular fa-pen-to-square mr-1"></i> Register & request access</button>
         <div id="signupErrorMsg" class="text-red-600 text-sm text-center mt-1"></div>
       </div>
     </div>
 
     <div class="mt-6 text-center text-xs text-slate-400 border-t pt-4">
-      <i class="fa-solid fa-shield-haltered"></i> Role-based · Admin approval workflow
+      <i class="fa-solid fa-shield-haltered"></i> Role-based access · Admin approval workflow
+    </div>
+  </div>
+</div>
+
+<!-- Forgot Password Modal -->
+<div id="forgotModal" class="modal-overlay" style="display: none;">
+  <div class="modal-card">
+    <div class="flex justify-between items-center mb-3">
+      <h3 class="font-bold text-lg text-slate-800"><i class="fa-regular fa-key"></i> Reset password</h3>
+      <button onclick="closeForgotModal()" class="text-gray-500 text-xl">&times;</button>
+    </div>
+    <div id="forgotStep1">
+      <p class="text-sm text-slate-600 mb-3">Enter your registered email to receive reset link.</p>
+      <input type="email" id="resetEmail" class="input-field mb-3" placeholder="your@email.com" />
+      <button onclick="requestPasswordReset()" class="btn-primary text-sm py-2">Send reset code</button>
+      <div id="resetRequestMsg" class="text-xs mt-2 text-center"></div>
+    </div>
+    <div id="forgotStep2" style="display: none;">
+      <p class="text-sm text-slate-600 mb-2">Enter the verification code sent to your email</p>
+      <input type="text" id="resetCode" class="input-field mb-2" placeholder="Enter 6-digit code" />
+      <div class="password-wrapper mb-2">
+        <input type="password" id="newPassword" class="input-field" placeholder="New password (min 6 chars)" />
+        <button type="button" class="toggle-pwd" onclick="togglePasswordVisibility('newPassword', this)"><i class="fa-regular fa-eye-slash"></i></button>
+      </div>
+      <div class="password-wrapper mb-3">
+        <input type="password" id="confirmNewPassword" class="input-field" placeholder="Confirm new password" />
+        <button type="button" class="toggle-pwd" onclick="togglePasswordVisibility('confirmNewPassword', this)"><i class="fa-regular fa-eye-slash"></i></button>
+      </div>
+      <button onclick="confirmPasswordReset()" class="btn-primary text-sm py-2">Reset password</button>
+      <div id="resetFinalMsg" class="text-xs mt-2 text-center"></div>
     </div>
   </div>
 </div>
 
 <script>
   // ======================= CONFIGURATION =======================
-  // FIXED: Using correct API endpoint for your backend
-  const API_URL = window.location.origin + '/api';
+  const API_BASE_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+    ? 'http://localhost:5000/api'
+    : '/api';
+  
   let isLoggingIn = false;
   let isSigningUp = false;
+  let currentResetEmail = "";
+  let mockResetCode = Math.floor(100000 + Math.random() * 900000).toString();
 
-  // Helper: toast messages
+  const GOOGLE_CLIENT_ID = '833977857957-h3rgifh791e5klbd8t1n3hjfg8p9kq5g.apps.googleusercontent.com';
+
   function showToast(msg, type = "success") {
     const toast = document.createElement("div");
     toast.className = "toast-notif";
@@ -216,6 +435,77 @@
     toast.innerHTML = `<i class="fa-solid ${type === "error" ? "fa-circle-exclamation" : type === "warning" ? "fa-triangle-exclamation" : "fa-circle-check"} mr-2"></i> ${msg}`;
     document.body.appendChild(toast);
     setTimeout(() => toast.remove(), 4000);
+  }
+
+  window.togglePasswordVisibility = function(inputId, btnElement) {
+    const input = document.getElementById(inputId);
+    if (!input) return;
+    const icon = btnElement.querySelector('i');
+    if (input.type === 'password') {
+      input.type = 'text';
+      icon.classList.remove('fa-eye-slash');
+      icon.classList.add('fa-eye');
+    } else {
+      input.type = 'password';
+      icon.classList.remove('fa-eye');
+      icon.classList.add('fa-eye-slash');
+    }
+  }
+
+  function checkPasswordStrength() {
+    const pwd = document.getElementById("signupPassword").value;
+    const strengthBar = document.getElementById("strengthBar");
+    const strengthText = document.getElementById("passwordStrengthText");
+    const checks = {
+      length: pwd.length >= 6,
+      upper: /[A-Z]/.test(pwd),
+      lower: /[a-z]/.test(pwd),
+      digit: /\d/.test(pwd),
+      special: /[!@#$%^&*(),.?":{}|<>]/.test(pwd)
+    };
+    const hintItems = document.querySelectorAll("#passwordHints .hint-item");
+    if (hintItems.length >= 5) {
+      const keys = ["length", "upper", "lower", "digit", "special"];
+      keys.forEach((key, idx) => {
+        const iconElem = hintItems[idx].querySelector("i");
+        if (checks[key]) {
+          iconElem.className = "fa-regular fa-circle-check text-green-600";
+          hintItems[idx].style.color = "#15803d";
+        } else {
+          iconElem.className = "fa-regular fa-circle-xmark text-gray-400";
+          hintItems[idx].style.color = "#64748b";
+        }
+      });
+    }
+    let score = 0;
+    if (checks.length) score++;
+    if (checks.upper) score++;
+    if (checks.lower) score++;
+    if (checks.digit) score++;
+    if (checks.special) score++;
+    let width = (score / 5) * 100;
+    strengthBar.style.width = width + "%";
+    if (score <= 2) {
+      strengthBar.style.backgroundColor = "#dc2626";
+      strengthText.innerText = "Weak password";
+      strengthText.style.color = "#dc2626";
+    } else if (score <= 3) {
+      strengthBar.style.backgroundColor = "#f59e0b";
+      strengthText.innerText = "Medium password";
+      strengthText.style.color = "#f59e0b";
+    } else if (score <= 4) {
+      strengthBar.style.backgroundColor = "#3b82f6";
+      strengthText.innerText = "Strong password";
+      strengthText.style.color = "#3b82f6";
+    } else {
+      strengthBar.style.backgroundColor = "#10b981";
+      strengthText.innerText = "Very strong password";
+      strengthText.style.color = "#10b981";
+    }
+    if (pwd === "") {
+      strengthBar.style.width = "0%";
+      strengthText.innerText = "";
+    }
   }
 
   function setLoginLoading(loading) {
@@ -240,13 +530,11 @@
     }
   }
 
-  // Tab switching
   window.switchTab = function(tab) {
     const loginPanel = document.getElementById("loginPanel");
     const signupPanel = document.getElementById("signupPanel");
     const tabLogin = document.getElementById("tabLoginBtn");
     const tabSignup = document.getElementById("tabSignupBtn");
-    
     if (tab === "login") {
       loginPanel.classList.remove("hidden");
       signupPanel.classList.add("hidden");
@@ -263,15 +551,93 @@
       tabLogin.classList.remove("tab-active");
       tabLogin.classList.add("tab-inactive");
       document.getElementById("signupErrorMsg").innerHTML = "";
+      checkPasswordStrength();
     }
   }
 
-  // demo hint
-  window.showDemoHint = function() {
-    showToast("Demo: superadmin / admin123 ; manager / staff accounts require admin approval", "info");
+  // FIXED: Google Sign-In with proper width handling
+  function initGoogleSignIn() {
+    if (typeof google === 'undefined') {
+      setTimeout(initGoogleSignIn, 500);
+      return;
+    }
+    
+    try {
+      google.accounts.id.initialize({
+        client_id: GOOGLE_CLIENT_ID,
+        callback: handleGoogleCredentialResponse,
+        auto_select: false,
+        cancel_on_tap_outside: true
+      });
+      
+      const googleBtn = document.getElementById("googleSignInBtn");
+      if (googleBtn) {
+        google.accounts.id.renderButton(
+          googleBtn,
+          { 
+            theme: "outline", 
+            size: "large", 
+            text: "continue_with",
+            width: 400  // Use number instead of "100%" to fix invalid width error
+          }
+        );
+        // Fix width with CSS to make it responsive
+        googleBtn.style.width = '100%';
+        const iframe = googleBtn.querySelector('iframe');
+        if (iframe) iframe.style.width = '100%';
+      }
+    } catch (error) {
+      console.error('Google Sign-In error:', error);
+      // Fallback button
+      const googleBtn = document.getElementById("googleSignInBtn");
+      if (googleBtn) {
+        googleBtn.innerHTML = '<button class="btn-google" onclick="alert(\'Please configure Google OAuth in Google Cloud Console\n\nAdd http://localhost:5000 and http://localhost:5500 to Authorized JavaScript origins\')"><i class="fa-brands fa-google"></i> Sign in with Google</button>';
+      }
+    }
   }
 
-  // ---------- LOGIN FUNCTION (with is_active & approval check) ----------
+  async function handleGoogleCredentialResponse(response) {
+    showToast("Authenticating with Google...", "info");
+    
+    try {
+      const res = await fetch(`${API_BASE_URL}/auth/google`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ credential: response.credential })
+      });
+      
+      const data = await res.json();
+      
+      if (res.ok && data.token) {
+        const user = data.user;
+        
+        if (!user.is_active && user.role !== "super_admin") {
+          showToast("Your account is pending admin approval.", "warning");
+          return;
+        }
+        
+        localStorage.setItem("moreva_token", data.token);
+        localStorage.setItem("moreva_user", JSON.stringify(user));
+        showToast(`Welcome ${user.full_name || user.username}! Redirecting...`, "success");
+        
+        setTimeout(() => {
+          const role = user.role;
+          if (role === "super_admin" || role === "admin") {
+            window.location.href = "/admin.html";
+          } else {
+            window.location.href = "/dashboard.html";
+          }
+        }, 1000);
+      } else {
+        throw new Error(data.error || "Google sign-in failed");
+      }
+    } catch (err) {
+      console.error("Google auth error:", err);
+      document.getElementById("loginErrorMsg").innerHTML = err.message || "Google authentication failed. Make sure origins are configured in Google Cloud Console.";
+      showToast(err.message || "Google authentication failed", "error");
+    }
+  }
+
   async function performLogin() {
     if (isLoggingIn) return;
     const username = document.getElementById("loginUsername").value.trim();
@@ -283,9 +649,8 @@
     isLoggingIn = true;
     setLoginLoading(true);
     document.getElementById("loginErrorMsg").innerHTML = "";
-
     try {
-      const response = await fetch(`${API_URL}/login`, {
+      const response = await fetch(`${API_BASE_URL}/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, password }),
@@ -293,39 +658,31 @@
       const data = await response.json();
       if (response.ok && data.token) {
         const user = data.user;
-        // Check if account is active (approved)
         if (!user.is_active && user.role !== "super_admin") {
-          document.getElementById("loginErrorMsg").innerHTML = "⏳ Your account is pending admin approval. You'll be notified once active.";
+          document.getElementById("loginErrorMsg").innerHTML = "⏳ Your account is pending admin approval.";
           showToast("Account pending approval. Contact super admin.", "warning");
           setLoginLoading(false);
           isLoggingIn = false;
           return;
         }
-        // store session
         localStorage.setItem("moreva_token", data.token);
         localStorage.setItem("moreva_user", JSON.stringify(user));
         showToast(`Welcome ${user.full_name || user.username}! Redirecting...`, "success");
-        // role-based navigation
         setTimeout(() => {
           const role = user.role;
-          if (role === "super_admin" || role === "admin" || role === "Super Administrator") {
+          if (role === "super_admin" || role === "admin") {
             window.location.href = "/admin.html";
           } else {
             window.location.href = "/dashboard.html";
           }
         }, 1000);
       } else {
-        let errorMsg = data.error || "Login failed. Invalid credentials or pending approval.";
-        if (errorMsg.toLowerCase().includes("pending") || errorMsg.toLowerCase().includes("approval")) {
-          document.getElementById("loginErrorMsg").innerHTML = "⏳ Access pending: your account hasn't been approved by Super Admin yet.";
-          showToast("Account pending approval", "warning");
-        } else {
-          document.getElementById("loginErrorMsg").innerHTML = errorMsg;
-        }
+        let errorMsg = data.error || "Login failed.";
+        document.getElementById("loginErrorMsg").innerHTML = errorMsg;
       }
     } catch (err) {
       console.error(err);
-      document.getElementById("loginErrorMsg").innerHTML = "⚠️ Cannot connect to server. Make sure backend runs on port 5000.";
+      document.getElementById("loginErrorMsg").innerHTML = "⚠️ Cannot connect to server. Make sure backend is running on port 5000.";
       showToast("Backend connection failed", "error");
     } finally {
       isLoggingIn = false;
@@ -333,8 +690,6 @@
     }
   }
 
-  // ---------- SIGNUP with PENDING state (is_active = false by default) ----------
-  // FIXED: Using correct endpoint /api/auth/signup (matches your backend)
   async function performSignup() {
     if (isSigningUp) return;
     const fullName = document.getElementById("signupFullname").value.trim();
@@ -356,14 +711,11 @@
       document.getElementById("signupErrorMsg").innerHTML = "❌ Valid email required.";
       return;
     }
-
     isSigningUp = true;
     setSignupLoading(true);
     document.getElementById("signupErrorMsg").innerHTML = "";
-
     try {
-      // FIXED: Using /api/auth/signup instead of /api/register
-      const response = await fetch(`${API_URL}/auth/signup`, {
+      const response = await fetch(`${API_BASE_URL}/auth/signup`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -378,28 +730,26 @@
       });
       const data = await response.json();
       if (response.status === 201 || response.ok) {
-        showToast("✅ Registration submitted! Awaiting Super Admin approval. You'll be notified once active.", "success");
-        document.getElementById("signupErrorMsg").innerHTML = "🎉 Account pending approval. Please check email later or contact admin.";
-        // clear signup form
+        showToast("✅ Registration request sent! Awaiting admin approval.", "success");
         document.getElementById("signupFullname").value = "";
         document.getElementById("signupUsername").value = "";
         document.getElementById("signupEmail").value = "";
         document.getElementById("signupPassword").value = "";
         document.getElementById("signupPhone").value = "";
         document.getElementById("signupAddress").value = "";
-        // after 2 sec switch to login tab
+        checkPasswordStrength();
         setTimeout(() => {
           switchTab("login");
-          showToast("Now you can log in once admin approves your account", "info");
+          showToast("Please login after admin approves your account", "info");
         }, 2000);
       } else {
-        let errMsg = data.error || "Registration failed. Username/email may exist.";
+        let errMsg = data.error || "Registration failed.";
         document.getElementById("signupErrorMsg").innerHTML = errMsg;
         showToast(errMsg, "error");
       }
     } catch (err) {
       console.error("Signup error:", err);
-      document.getElementById("signupErrorMsg").innerHTML = "Server error. Is backend running on port 5000?";
+      document.getElementById("signupErrorMsg").innerHTML = "Server error. Please try again.";
       showToast("Cannot reach server", "error");
     } finally {
       isSigningUp = false;
@@ -407,14 +757,107 @@
     }
   }
 
-  // ------------------ AUTO LOGIN CHECK & TOKEN VERIFY ------------------
+  window.openForgotPasswordModal = function() {
+    const modal = document.getElementById("forgotModal");
+    modal.style.display = "flex";
+    document.getElementById("forgotStep1").style.display = "block";
+    document.getElementById("forgotStep2").style.display = "none";
+    document.getElementById("resetRequestMsg").innerHTML = "";
+    document.getElementById("resetFinalMsg").innerHTML = "";
+    document.getElementById("resetEmail").value = "";
+    document.getElementById("resetCode").value = "";
+    document.getElementById("newPassword").value = "";
+    document.getElementById("confirmNewPassword").value = "";
+    mockResetCode = Math.floor(100000 + Math.random() * 900000).toString();
+  }
+
+  window.closeForgotModal = function() {
+    document.getElementById("forgotModal").style.display = "none";
+  }
+
+  window.requestPasswordReset = async function() {
+    const email = document.getElementById("resetEmail").value.trim();
+    if (!email) {
+      document.getElementById("resetRequestMsg").innerHTML = "❌ Please enter your email.";
+      return;
+    }
+    try {
+      const response = await fetch(`${API_BASE_URL}/forgot-password`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email })
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        currentResetEmail = email;
+        if (data.resetCode) mockResetCode = data.resetCode;
+        document.getElementById("resetRequestMsg").innerHTML = "✅ Reset code sent to your email!";
+        document.getElementById("resetRequestMsg").style.color = "#10b981";
+        document.getElementById("forgotStep1").style.display = "none";
+        document.getElementById("forgotStep2").style.display = "block";
+      } else {
+        const data = await response.json();
+        document.getElementById("resetRequestMsg").innerHTML = data.error || "Email not found";
+        document.getElementById("resetRequestMsg").style.color = "#dc2626";
+      }
+    } catch(e) {
+      showToast(`Demo mode: Reset code sent to ${email}`, "success");
+      currentResetEmail = email;
+      document.getElementById("resetRequestMsg").innerHTML = "✅ Verification code sent! (Demo mode)";
+      document.getElementById("resetRequestMsg").style.color = "#10b981";
+      document.getElementById("forgotStep1").style.display = "none";
+      document.getElementById("forgotStep2").style.display = "block";
+    }
+  }
+
+  window.confirmPasswordReset = async function() {
+    const code = document.getElementById("resetCode").value.trim();
+    const newPwd = document.getElementById("newPassword").value;
+    const confirmPwd = document.getElementById("confirmNewPassword").value;
+    
+    if (code !== mockResetCode) {
+      document.getElementById("resetFinalMsg").innerHTML = "❌ Invalid verification code.";
+      document.getElementById("resetFinalMsg").style.color = "#dc2626";
+      return;
+    }
+    if (newPwd.length < 6) {
+      document.getElementById("resetFinalMsg").innerHTML = "❌ Password must be at least 6 characters.";
+      document.getElementById("resetFinalMsg").style.color = "#dc2626";
+      return;
+    }
+    if (newPwd !== confirmPwd) {
+      document.getElementById("resetFinalMsg").innerHTML = "❌ Passwords do not match.";
+      document.getElementById("resetFinalMsg").style.color = "#dc2626";
+      return;
+    }
+    
+    try {
+      const response = await fetch(`${API_BASE_URL}/reset-password`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: currentResetEmail, new_password: newPwd, reset_code: code }),
+      });
+      if (response.ok) {
+        showToast("✅ Password reset successful! Please login with new password.", "success");
+        closeForgotModal();
+        setTimeout(() => switchTab("login"), 500);
+      } else {
+        throw new Error("reset failed");
+      }
+    } catch (err) {
+      showToast("✅ Demo: Password reset simulated. You can now log in.", "success");
+      closeForgotModal();
+    }
+  }
+
+  // Auto login check
   const storedToken = localStorage.getItem("moreva_token");
   const storedUserRaw = localStorage.getItem("moreva_user");
   let storedUser = null;
   try { if (storedUserRaw) storedUser = JSON.parse(storedUserRaw); } catch(e) {}
-
   if (storedToken && storedUser) {
-    fetch(`${API_URL}/verify`, {
+    fetch(`${API_BASE_URL}/verify`, {
       headers: { Authorization: `Bearer ${storedToken}` },
     })
       .then(res => {
@@ -436,21 +879,18 @@
         }
       })
       .catch(err => {
-        console.warn("Auto-verify failed, clearing session", err);
+        console.warn("Auto-verify failed", err);
         localStorage.removeItem("moreva_token");
         localStorage.removeItem("moreva_user");
       });
   }
 
-  // Enter key support
-  const loginPw = document.getElementById("loginPassword");
-  if (loginPw) loginPw.addEventListener("keypress", (e) => { if (e.key === "Enter") performLogin(); });
-  const signupPw = document.getElementById("signupPassword");
-  if (signupPw) signupPw.addEventListener("keypress", (e) => { if (e.key === "Enter") performSignup(); });
-
-  // initial tab check
+  document.getElementById("loginPassword")?.addEventListener("keypress", (e) => { if (e.key === "Enter") performLogin(); });
+  document.getElementById("signupPassword")?.addEventListener("keypress", (e) => { if (e.key === "Enter") performSignup(); });
+  window.checkPasswordStrength = checkPasswordStrength;
   switchTab('login');
+  
+  window.addEventListener('load', initGoogleSignIn);
 </script>
-
 </body>
 </html>

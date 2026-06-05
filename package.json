@@ -1,27 +1,44 @@
 {
   "name": "moreva-energy-backend",
   "version": "1.0.0",
-  "description": "MOREVA ENERGY - Enterprise Fuel Management System",
+  "description": "MOREVA ENERGY - Enterprise Fuel Management System with Google OAuth & PostgreSQL",
   "main": "src/server.js",
   "scripts": {
     "start": "node src/server.js",
-    "dev": "nodemon src/server.js"
+    "dev": "nodemon src/server.js",
+    "db:migrate": "node scripts/migrate.js",
+    "db:seed": "node scripts/seed.js"
   },
   "engines": {
-    "node": "18.x"
+    "node": "18.x",
+    "npm": "9.x"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
     "dotenv": "^16.3.1",
     "express": "^4.18.2",
+    "google-auth-library": "^9.6.0",
     "jsonwebtoken": "^9.0.2",
+    "nodemailer": "^6.9.7",
     "pg": "^8.11.3"
   },
   "devDependencies": {
     "nodemon": "^3.0.1"
   },
-  "keywords": ["fuel", "management", "energy", "moreva"],
-  "author": "MOREVA ENERGY",
-  "license": "ISC"
+  "keywords": [
+    "fuel",
+    "management",
+    "energy",
+    "moreva",
+    "google-oauth",
+    "postgresql",
+    "neon"
+  ],
+  "author": "MOREVA ENERGY LTD",
+  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/moreva-energy/backend.git"
+  }
 }
