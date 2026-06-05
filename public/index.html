@@ -361,6 +361,29 @@
       font-weight: 500;
     }
     
+    /* Google Sign-In Button Mobile Fix */
+    #googleSignInBtn {
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 44px;
+      overflow: visible;
+    }
+    
+    #googleSignInBtn > div {
+      display: flex;
+      justify-content: center;
+      width: 100%;
+    }
+    
+    #googleSignInBtn iframe {
+      max-width: 100% !important;
+      width: auto !important;
+      min-width: 250px !important;
+      height: 44px !important;
+    }
+    
     /* Mobile Responsive */
     @media (max-width: 640px) {
       body {
@@ -410,6 +433,11 @@
         max-width: none;
         border-radius: 32px;
       }
+      
+      #googleSignInBtn iframe {
+        transform: scale(0.98);
+        min-width: 220px !important;
+      }
     }
     
     @media (max-width: 480px) {
@@ -423,6 +451,12 @@
       
       .space-y-3 > * + * {
         margin-top: 10px !important;
+      }
+      
+      #googleSignInBtn iframe {
+        transform: scale(0.95);
+        min-width: 200px !important;
+        margin: -4px 0;
       }
     }
     
@@ -461,6 +495,7 @@
     .mb-1 { margin-bottom: 4px; }
     .mb-2 { margin-bottom: 8px; }
     .mb-3 { margin-bottom: 12px; }
+    .mb-4 { margin-bottom: 16px; }
     .mb-5 { margin-bottom: 20px; }
     .mb-6 { margin-bottom: 24px; }
     .mt-0 { margin-top: 0; }
@@ -468,6 +503,7 @@
     .mt-2 { margin-top: 8px; }
     .mt-6 { margin-top: 24px; }
     .mr-1 { margin-right: 4px; }
+    .mr-2 { margin-right: 8px; }
     .p-1 { padding: 4px; }
     .p-6 { padding: 24px; }
     .py-2 { padding-top: 8px; padding-bottom: 8px; }
@@ -619,7 +655,6 @@
   const GOOGLE_CLIENT_ID = '833977857957-h3rgifh791e5klbd8t1n3hjfg8p9kq5g.apps.googleusercontent.com';
 
   function showToast(msg, type = "success") {
-    // Remove existing toast
     const existingToast = document.querySelector('.toast-notif');
     if (existingToast) existingToast.remove();
     
@@ -742,6 +777,7 @@
     }
   }
 
+  // Fixed Google Sign-In for mobile
   function initGoogleSignIn() {
     if (typeof google === 'undefined') {
       setTimeout(initGoogleSignIn, 500);
@@ -758,15 +794,37 @@
       
       const googleBtn = document.getElementById("googleSignInBtn");
       if (googleBtn) {
-        google.accounts.id.renderButton(googleBtn, { 
-          theme: "outline", 
-          size: "large", 
-          text: "continue_with",
-          width: 400
-        });
-        googleBtn.style.width = '100%';
-        const iframe = googleBtn.querySelector('iframe');
-        if (iframe) iframe.style.width = '100%';
+        googleBtn.innerHTML = '';
+        
+        // Calculate width based on screen size
+        let buttonWidth = 400;
+        if (window.innerWidth < 480) {
+          buttonWidth = 280;
+        } else if (window.innerWidth < 640) {
+          buttonWidth = 320;
+        }
+        
+        google.accounts.id.renderButton(
+          googleBtn,
+          { 
+            theme: "outline", 
+            size: "large", 
+            text: "continue_with",
+            width: buttonWidth,
+            shape: "rectangular"
+          }
+        );
+        
+        // Style the iframe for responsiveness
+        setTimeout(() => {
+          const iframe = googleBtn.querySelector('iframe');
+          if (iframe) {
+            iframe.style.width = '100%';
+            iframe.style.maxWidth = buttonWidth + 'px';
+            iframe.style.display = 'block';
+            iframe.style.margin = '0 auto';
+          }
+        }, 50);
       }
     } catch (error) {
       console.error('Google Sign-In error:', error);
@@ -776,6 +834,23 @@
       }
     }
   }
+
+  // Handle window resize for Google button
+  window.addEventListener('resize', function() {
+    const googleBtn = document.getElementById("googleSignInBtn");
+    if (googleBtn && googleBtn.querySelector('iframe')) {
+      let buttonWidth = 400;
+      if (window.innerWidth < 480) {
+        buttonWidth = 280;
+      } else if (window.innerWidth < 640) {
+        buttonWidth = 320;
+      }
+      const iframe = googleBtn.querySelector('iframe');
+      if (iframe) {
+        iframe.style.maxWidth = buttonWidth + 'px';
+      }
+    }
+  });
 
   async function handleGoogleCredentialResponse(response) {
     showToast("Authenticating with Google...", "info");
