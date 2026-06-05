@@ -350,7 +350,7 @@
                 </div>
             </div>
 
-            <!-- RECONCILIATION SECTION -->
+            <!-- RECONCILIATION SECTION - FIXED WITH RETURNS -->
             <div id="reconciliation" class="section hidden">
                 <div class="bg-white rounded-2xl p-6 shadow-md">
                     <h2 class="font-bold text-xl flex items-center gap-2"><i class="fa-solid fa-scale-balanced text-purple-600"></i> FUEL STATION RECONCILIATION</h2>
@@ -369,14 +369,26 @@
                             <div class="form-group"><label>Diesel Price (KES/L)</label><input id="dieselPrice" class="input-field" value="179.00" step="0.01" /></div>
                             <h3 class="font-bold text-lg mt-6 mb-3">💰 CASH RECONCILIATION</h3>
                             <div class="form-group"><label>📱 MPESA</label><input id="mpesa" class="input-field" type="number" /></div>
+                            
+                            <!-- Credits Section -->
                             <div id="creditContainer"></div>
                             <button type="button" class="small-btn" onclick="addCreditRow()">+ Add Credit</button>
+                            
+                            <!-- Expenses Section -->
                             <div id="expenseContainer"></div>
                             <button type="button" class="small-btn" onclick="addExpenseRow()">+ Add Expense</button>
+                            
+                            <!-- Advances Section -->
                             <div id="advanceContainer"></div>
                             <button type="button" class="small-btn" onclick="addAdvanceRow()">+ Add Advance Payment</button>
+                            
+                            <!-- RETURNS SECTION - FIXED (Restored) -->
+                            <div class="mt-3 mb-2"><label class="block text-sm font-semibold text-slate-700"><i class="fa-solid fa-arrow-rotate-left text-green-600"></i> Returns (Money Back)</label></div>
                             <div id="returnsContainer"></div>
                             <button type="button" class="small-btn" onclick="addReturnRow()">+ Add Return</button>
+                            
+                            <!-- Lubricants Section -->
+                            <div class="mt-3 mb-2"><label class="block text-sm font-semibold text-slate-700"><i class="fa-solid fa-oil-can text-amber-600"></i> Lubricants / Other Sales</label></div>
                             <div id="lubricantContainer"></div>
                             <button type="button" class="small-btn" onclick="addLubricantRow()">+ Add Lubricant Sale</button>
                         </div>
@@ -695,8 +707,8 @@
         function addCreditRow() { let d = document.createElement("div"); d.className = "dynamic-row"; d.innerHTML = `<input placeholder="Customer"><input class="creditAmount" type="number" placeholder="KES"><button class="small-btn" onclick="this.parentElement.remove()">✖</button>`; document.getElementById("creditContainer").appendChild(d); }
         function addExpenseRow() { let d = document.createElement("div"); d.className = "dynamic-row"; d.innerHTML = `<input placeholder="Expense"><input class="expenseAmount" type="number" placeholder="KES"><button class="small-btn" onclick="this.parentElement.remove()">✖</button>`; document.getElementById("expenseContainer").appendChild(d); }
         function addAdvanceRow() { let d = document.createElement("div"); d.className = "dynamic-row"; d.innerHTML = `<input placeholder="Advance"><input class="advanceAmount" type="number" placeholder="KES"><button class="small-btn" onclick="this.parentElement.remove()">✖</button>`; document.getElementById("advanceContainer").appendChild(d); }
-        function addReturnRow() { let d = document.createElement("div"); d.className = "dynamic-row"; d.innerHTML = `<input placeholder="Return"><input class="returnAmount" type="number" placeholder="KES"><button class="small-btn" onclick="this.parentElement.remove()">✖</button>`; document.getElementById("returnsContainer").appendChild(d); }
-        function addLubricantRow() { let d = document.createElement("div"); d.className = "dynamic-row"; d.innerHTML = `<input placeholder="Lubricant"><input class="lubricantAmount" type="number" placeholder="KES"><button class="small-btn" onclick="this.parentElement.remove()">✖</button>`; document.getElementById("lubricantContainer").appendChild(d); }
+        function addReturnRow() { let d = document.createElement("div"); d.className = "dynamic-row"; d.innerHTML = `<input placeholder="Customer/Reason"><input class="returnAmount" type="number" placeholder="KES"><button class="small-btn" onclick="this.parentElement.remove()">✖</button>`; document.getElementById("returnsContainer").appendChild(d); }
+        function addLubricantRow() { let d = document.createElement("div"); d.className = "dynamic-row"; d.innerHTML = `<input placeholder="Item"><input class="lubricantAmount" type="number" placeholder="KES"><button class="small-btn" onclick="this.parentElement.remove()">✖</button>`; document.getElementById("lubricantContainer").appendChild(d); }
 
         function calculateExpectedCash() {
             let pSingleS = getValue("petrolSingleSalesCurr") - getValue("petrolSingleSalesPrev");
@@ -813,7 +825,6 @@
                 pendingDelivery = null; await loadAllData(); await loadVariances(); showToast("Delivery completed!"); 
                 document.getElementById("preLitres").value = ""; document.getElementById("driverName").value = ""; 
                 document.getElementById("declared").value = ""; document.getElementById("postLitres").value = ""; 
-                document.getElementById("deliveryPreview").classList.add("hidden");
             } catch(e) { showToast("Error saving delivery", "error"); } 
         }
         
